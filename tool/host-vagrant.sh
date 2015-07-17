@@ -1,0 +1,15 @@
+echo "192.168.123.123	user.parq.ph" >> /etc/hosts
+echo "192.168.123.123	vehicle.parq.ph" >> /etc/hosts
+echo "192.168.123.123	place.parq.ph" >> /etc/hosts
+echo "192.168.123.123	park.parq.ph" >> /etc/hosts
+echo "192.168.123.123	slot.parq.ph" >> /etc/hosts
+echo "192.168.123.123	app.parq.ph" >> /etc/hosts
+echo "192.168.123.123	admin.parq.ph" >> /etc/hosts
+echo "192.168.123.123	media.parq.ph" >> /etc/hosts
+echo "192.168.123.123	pay.parq.ph" >> /etc/hosts
+echo "192.168.123.123	price.parq.ph" >> /etc/hosts
+echo "192.168.123.123	data.parq.ph" >> /etc/hosts
+echo "192.168.123.123	social.parq.ph" >> /etc/hosts
+echo "192.168.123.123	worker.parq.ph" >> /etc/hosts
+echo "192.168.123.123	analytics.parq.ph" >> /etc/hosts
+echo "192.168.123.123	reserve.parq.ph" >> /etc/hosts

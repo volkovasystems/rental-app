@@ -1,0 +1,11 @@
+node_modules/
+bower_components/
+deploy/
+client/library/
+client/fonts/
+build/
+temp/
+*.log
+*.out
+*.err
+.vagrant/

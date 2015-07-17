@@ -1,0 +1,100 @@
+<div
+	key={ user.referenceID }
+	data-view-user
+	data-list-item
+	data-expandable-view>
+	<div
+		data-minimal-view>
+		<div
+			data-list-item-info
+			data-align-vertical
+			className="col-lg-10">
+			<div
+				data-list-item-title>
+				<span
+					data-label>
+					{ fullName }
+				</span>
+			</div>
+			<div
+				data-list-item-subtitle>
+				<div
+					data-label>
+					{ user.eMail }
+				</div>
+			</div>
+		</div>
+	</div>
+	<div
+		data-full-view>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-value
+				className="col-lg-10">
+				<div
+					data-info>
+					{ fullName }
+				</div>
+				<div
+					data-subinfo>
+					{ user.eMail }
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					MOBILE NUMBER
+				</span>
+			</div>
+			<div
+				data-list-item-value>
+				<div
+					data-info>
+					{ user.mobileNumber }
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					BIRTH DATE
+				</span>
+			</div>
+			<div
+				data-list-item-value>
+				<div
+					data-info>
+					{ birthDate }
+				</div>
+			</div>
+		</div>
+	</div>
+	<button 
+		data-control 
+		data-small-control
+		data-list-item-control
+		data-expandable-control
+		data-control-switch>
+		<span 
+			data-open-control
+			data-icon
+			className="glyphicon glyphicon-option-vertical">
+		</span>
+		<span 
+			data-close-control
+			data-icon
+			className="glyphicon glyphicon-chevron-up">
+		</span>
+	</button>
+</div>

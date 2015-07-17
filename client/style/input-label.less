@@ -1,0 +1,19 @@
+[data-input-label] {
+	position: relative;
+	z-index: 1;
+
+	height: 50px;
+	padding: 15px;
+	margin-bottom: -50px;
+
+	&:after {
+		content: ":";
+	}
+}
+
+[data-input-label].hover-up {
+	height: auto;
+	padding-left: 5px;
+	padding-bottom: 3px;
+	margin-bottom: 0px;
+}

@@ -1,0 +1,149 @@
+<div 
+	data-page>
+	<div 
+		data-add-user
+		data-content
+		className="col-lg-4 col-md-6 col-sm-9 col-xs-12"
+		data-minimal-scrollbar
+		data-reference-height="body">
+		<div 
+			data-header>
+			<h1 
+				data-label 
+				data-header-label>
+				add user
+			</h1>
+		</div>
+		<div 
+			data-body>
+			<div 
+				data-form
+				data-align-vertical>
+				<div 
+					data-form-item>
+					<div 
+						data-input>
+						<input 
+							type="text" 
+							name="firstName" 
+							placeholder="FIRST NAME"
+							title="Enter your first name."
+							value={ this.state.firstName }
+							onChange={ this.onChange }/>
+					</div>
+				</div>
+				<div 
+					data-form-item>
+					<div 
+						data-input>
+						<input 
+							type="text" 
+							name="lastName" 
+							placeholder="LAST NAME"
+							title="Enter your last name."
+							value={ this.state.lastName }
+							onChange={ this.onChange }/>
+					</div>
+				</div>
+				<div 
+					data-form-item>
+					<div 
+						data-input>
+						<input 
+							type="text" 
+							name="birthDate" 
+							placeholder="BIRTH DATE"
+							title="Enter your birth date."
+							value={ this.state.birthDate }
+							onChange={ this.onChange }/>
+					</div>
+				</div>
+				<div 
+					data-form-item>
+					<div 
+						data-input>
+						<input 
+							type="text" 
+							name="mobileNumber" 
+							placeholder="MOBILE NUMBER"
+							title="Enter your mobile number."
+							value={ this.state.mobileNumber }
+							onChange={ this.onChange }/>
+					</div>
+				</div>
+				<div 
+					data-form-item>
+					<div 
+						data-input>
+						<input 
+							type="text" 
+							name="eMail" 
+							placeholder="E-MAIL"
+							title="Enter your e-mail address."
+							value={ this.state.eMail }
+							onChange={ this.onChange }/>
+					</div>
+				</div>
+				<div 
+					data-form-item
+					data-name="passphrase">
+					<div 
+						data-input 
+						data-toggable-passphrase>
+						<input 
+							type="password" 
+							name="passphrase" 
+							placeholder="PASSWORD"
+							title="Enter your password."
+							value={ this.state.passphrase }
+							onChange={ this.onChange }/>
+						<input 
+							type="text" 
+							name="passphrase" 
+							placeholder="PASSWORD"
+							title="Enter your password."
+							value={ this.state.passphrase }
+							onChange={ this.onChange }/>
+					</div>
+					<button 
+						data-control 
+						data-link>
+						<span
+							data-label>
+							Show Password	
+						</span>
+					</button>
+					<button 
+						data-control 
+						data-link>
+						<span
+							data-label>
+							Hide Password	
+						</span>
+					</button>
+				</div>
+			</div>
+		</div>
+		<div 
+			data-controls
+			data-footer
+			data-align-vertical>
+			<button 
+				data-control
+				onClick={ AddUser.now }>
+				<span
+					data-label>
+					Add	
+				</span>
+			</button>
+			<button 
+				data-control
+				onClick={ this.cancel }>
+				<span
+					data-label>
+					Cancel	
+				</span>
+			</button>
+		</div>
+	</div>
+</div>

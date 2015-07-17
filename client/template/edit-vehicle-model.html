@@ -1,0 +1,191 @@
+<div 
+	data-page
+	data-first-focus-indicator>
+	<div
+		data-edit-vehicle-model
+		data-content
+		className="col-lg-4 col-md-6 col-sm-9 col-xs-12"
+		data-minimal-scrollbar
+		data-reference-height="body">
+		<div 
+			data-header>
+			<h1 
+				data-label
+				data-header-label
+				data-sub-header-label>
+				edit vehicle model
+			</h1>
+		</div>
+		<div 
+			data-body>
+			<div 
+				data-form
+				data-align-vertical>
+				<div 
+					data-form-item="vehicle-model-selection"
+					data-align-vertical
+					data-controls>
+					<div
+						data-form-item-label>
+						<span
+							data-label>
+							SELECT VEHICLE MODEL
+						</span>
+					</div>
+					<div
+						data-input
+						data-list-search>
+						<input 
+							type="text" 
+							name="vehicleModel" 
+							placeholder="SEARCH VEHICLE MODEL"
+							title="Search for a vehicle model."
+							value={ this.vehicleModel }
+							onChange={ this.searchVehicleModel }/>
+					</div>
+					<div 
+						data-list-selection
+						data-align-vertical
+						data-option-for="edit-vehicle-model-selection-option">
+						<div
+							data-empty-list
+							data-list-length={ this.vehicleModels.length }>
+							<div
+								data-label>
+								no vehicle models	
+							</div>
+						</div>
+						<div
+							data-list
+							data-list-length={ this.vehicleModels.length }
+							data-align-vertical>
+							{ this.vehicleModels.map( this.onEachVehicleModel ) }	
+						</div>
+					</div>
+					<button 
+						name="edit-vehicle-model-selection-option"
+						data-control
+						data-option-control-switch>
+						<span
+							data-open-control
+							data-label>
+							Show Vehicle Models	
+						</span>
+						<span
+							data-close-control
+							data-label>
+							Hide Vehicel Models	
+						</span>
+					</button>
+				</div>
+				<div
+					data-form-group="vehicle-model-edit-form"
+					data-align-vertical>
+					<div 
+						data-form-item>
+						<div
+							data-form-item-label>
+							<span
+								data-label>
+								TITLE
+							</span>
+						</div>
+						<div 
+							data-input>
+							<input 
+								type="text" 
+								name="title" 
+								placeholder="TITLE"
+								title="Enter a title for the vehicle model. This will be displayed."
+								value={ this.state.title }
+								onChange={ this.onChange }
+								data-first-focus/>
+						</div>
+					</div>
+					<div 
+						data-form-item>
+						<div
+							data-form-item-label>
+							<span
+								data-label>
+								NAME
+							</span>
+						</div>
+						<div 
+							data-input>
+							<input 
+								type="text" 
+								name="name" 
+								placeholder="NAME"
+								title="Enter a name for the vehicle model."
+								value={ this.state.name }
+								onChange={ this.onChange }/>
+						</div>
+					</div>
+					<div 
+						data-form-item>
+						<div
+							data-form-item-label>
+							<span
+								data-label>
+								DESCRIPTION
+							</span>
+						</div>
+						<div 
+							data-input>
+							<input 
+								type="text" 
+								name="description" 
+								placeholder="DESCRIPTION"
+								title="Enter a description of the vehicle model."
+								value={ this.state.description }
+								onChange={ this.onChange }/>
+						</div>
+					</div>
+					<div 
+						data-form-item>
+						<div
+							data-form-item-label>
+							<span
+								data-label>
+								BRAND
+							</span>
+						</div>
+						<div 
+							data-input>
+							<input 
+								type="text" 
+								name="brand" 
+								placeholder="BRAND"
+								title="Enter the brand of the vehicle model."
+								value={ this.state.brand }
+								onChange={ this.onChange }/>
+						</div>
+					</div>	
+				</div>
+				
+			</div>
+		</div>
+		<div 
+			data-controls
+			data-footer
+			data-align-vertical>
+			<button 
+				data-control
+				onClick={ this.onEditVehicleModel }>
+				<span
+					data-label>
+					Edit	
+				</span>
+			</button>
+			<button 
+				data-control
+				onClick={ this.onCancel }>
+				<span
+					data-label>
+					Cancel	
+				</span>
+			</button>
+		</div>		
+	</div>
+</div>

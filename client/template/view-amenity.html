@@ -1,0 +1,109 @@
+<div
+	key={ amenity.referenceID }
+	data-view-amenity
+	data-list-item
+	data-expandable-view>
+	<div
+		data-minimal-view>
+		<div
+			data-list-item-info
+			data-align-vertical
+			className="col-lg-10">
+			<div
+				data-list-item-title>
+				<span
+					data-label>
+					{ amenity.title }
+				</span>
+			</div>
+			<div
+				data-list-item-subtitle>
+				<div
+					data-label>
+					{ amenity.description }
+				</div>
+			</div>
+		</div>
+	</div>
+	<div
+		data-full-view>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-value
+				className="col-lg-10">
+				<div
+					data-info>
+					{ amenity.title }
+				</div>
+				<div
+					data-subinfo>
+					{ amenity.name }
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					DESCRIPTION
+				</span>
+			</div>
+			<div
+				data-list-item-value>
+				<div
+					data-info>
+					{ amenity.description }
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					IMAGE
+				</span>
+			</div>
+			<div
+				data-list-item-value
+				data-empty-grid
+				data-grid-length={ _.compact( [ amenity.image ] ).length }>
+				<div
+					data-label>
+					no image	
+				</div>
+			</div>
+			<div
+				data-list-item-value
+				data-grid
+				data-grid-length={ _.compact( [ amenity.image ] ).length }
+				data-image-preview-grid>
+				{ _.compact( [ amenity.image ] ).map( this.onEachImage ) }
+			</div>
+		</div>
+	</div>
+	<button 
+		data-control 
+		data-small-control
+		data-list-item-control
+		data-expandable-control
+		data-control-switch>
+		<span 
+			data-open-control
+			data-icon
+			className="glyphicon glyphicon-option-vertical">
+		</span>
+		<span 
+			data-close-control
+			data-icon
+			className="glyphicon glyphicon-chevron-up">
+		</span>
+	</button>
+</div>

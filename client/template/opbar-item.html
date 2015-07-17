@@ -1,0 +1,39 @@
+<div 
+	name={ opbarItem.name }
+	data-dash-item
+	data-control
+	onClick={ this.onClickDashItem }>
+	<button 
+		data-control 
+		data-small-control>
+		<span 
+			data-icon
+			className="glyphicon glyphicon-plus">
+		</span>
+	</button>
+	<span 
+		data-label>
+		{ opbarItem.title }
+	</span>
+	<button 
+		name={ opbarItem.optionName }
+		data-opbar-option-control
+		data-control 
+		data-small-control
+		data-option-control-switch>
+		<span 
+			data-open-control
+			data-icon
+			className="glyphicon glyphicon-cog">
+		</span>
+		<span 
+			data-close-control
+			data-icon
+			className="glyphicon glyphicon-chevron-up">
+		</span>
+	</button>
+</div>
+<div
+	data-option-for={ opbarItem.optionName }>
+	{ opbarSubItem.map( this.onEachOpbarSubItem ) }
+</div>

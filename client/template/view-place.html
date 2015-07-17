@@ -1,0 +1,217 @@
+<div
+	key={ place.referenceID }
+	data-view-place
+	data-list-item
+	data-expandable-view>
+	<div
+		data-minimal-view>
+		<div
+			data-map-preview
+			data-latitude={ place.latitude }
+			data-longitude={ place.longitude }
+			data-zoom={ place.zoom }
+			data-list-item-thumbnail>	
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical
+			className="col-lg-6">
+			<div
+				data-list-item-title>
+				<span
+					data-label>
+					{ place.title }
+				</span>
+			</div>
+			<div
+				data-list-item-subtitle>
+				<div
+					data-label>
+					{ place.description }
+				</div>
+			</div>
+		</div>
+	</div>
+	<div
+		data-full-view>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-value
+				className="col-lg-10">
+				<div
+					data-info>
+					{ place.title }
+				</div>
+				<div
+					data-subinfo>
+					{ place.name }
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					DESCRIPTION
+				</span>
+			</div>
+			<div
+				data-list-item-value>
+				<div
+					data-info>
+					{ place.description }
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					INSTRUCTIONS
+				</span>
+			</div>
+			<div
+				data-list-item-value>
+				<div
+					data-info>
+					{ place.instructions }
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					MAP
+				</span>
+			</div>
+			<div
+				data-list-item-value>
+				<div
+					data-map-preview
+					data-latitude={ place.latitude }
+					data-longitude={ place.longitude }
+					data-zoom={ place.zoom }>	
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					ADDRESS
+				</span>
+			</div>
+			<div
+				data-list-item-value>
+				<div
+					data-info>
+					{ place.address }
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					LATITUDE
+				</span>
+			</div>
+			<div
+				data-list-item-value>
+				<div
+					data-info>
+					{ place.latitude }
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					LONGITUDE
+				</span>
+			</div>
+			<div
+				data-list-item-value>
+				<div
+					data-info>
+					{ place.longitude }
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					RATE
+				</span>
+			</div>
+			<div
+				data-list-item-value>
+				<div
+					data-info>
+					{ place.rate }
+				</div>
+			</div>
+		</div>
+		<div
+			data-list-item-info
+			data-align-vertical>
+			<div
+				data-list-item-header>
+				<span
+					data-label>
+					PRICE
+				</span>
+			</div>
+			<div
+				data-list-item-value>
+				<div
+					data-info>
+					{ price }
+				</div>
+			</div>
+		</div>
+	</div>
+	<button 
+		data-control 
+		data-small-control
+		data-list-item-control
+		data-expandable-control
+		data-control-switch>
+		<span 
+			data-open-control
+			data-icon
+			className="glyphicon glyphicon-option-vertical">
+		</span>
+		<span 
+			data-close-control
+			data-icon
+			className="glyphicon glyphicon-chevron-up">
+		</span>
+	</button>
+</div>

@@ -1,0 +1,233 @@
+<div 
+	data-page
+	data-first-focus-indicator>
+	<div
+		data-add-park
+		data-content
+		className="col-lg-4 col-md-6 col-sm-9 col-xs-12"
+		data-minimal-scrollbar
+		data-reference-height={ this.referenceHeight }>
+		<div 
+			data-header>
+			<h1 
+				data-label
+				data-header-label
+				data-sub-header-label>
+				edit park
+			</h1>
+		</div>
+		<div 
+			data-body>
+			<div 
+				data-form
+				data-align-vertical>
+				<div 
+					data-form-item="park-selection"
+					data-align-vertical
+					data-controls>
+					<div
+						data-form-item-label>
+						<span
+							data-label>
+							SELECT PARK
+						</span>
+					</div>
+					<div
+						data-input
+						data-list-search>
+						<input 
+							type="text" 
+							name="park" 
+							placeholder="SEARCH PARK"
+							title="Search for a park."
+							value={ this.park }
+							onChange={ this.searchPark }/>
+					</div>
+					<div 
+						data-list-selection
+						data-align-vertical
+						data-option-for="edit-park-selection-option">
+						<div
+							data-empty-list
+							data-list-length={ this.parks.length }>
+							<div
+								data-label>
+								no parks	
+							</div>
+						</div>
+						<div
+							data-list
+							data-list-length={ this.parks.length }
+							data-align-vertical>
+							{ this.parks.map( this.onEachPark ) }	
+						</div>
+					</div>
+					<button 
+						name="edit-park-selection-option"
+						data-control
+						data-option-control-switch>
+						<span
+							data-open-control
+							data-label>
+							Show Parks	
+						</span>
+						<span
+							data-close-control
+							data-label>
+							Hide Parks	
+						</span>
+					</button>
+				</div>
+				<div
+					data-form-group="park-edit-form"
+					data-align-vertical>
+					<div 
+						data-form-item>
+						<div 
+							data-input>
+							<input 
+								type="text" 
+								name="title" 
+								placeholder="TITLE"
+								title="Enter the title of the park. This will be the one to be displayed."
+								value={ this.state.title }
+								onChange={ this.onChange }
+								data-first-focus={ !this.props.isEmbedded }/>
+						</div>
+					</div>
+					<div 
+						data-form-item>
+						<div 
+							data-input>
+							<input 
+								type="text" 
+								name="name" 
+								placeholder="NAME"
+								title="Enter the name of the park."
+								value={ this.state.name }
+								onChange={ this.onChange }/>
+						</div>
+					</div>
+					<div 
+						data-form-item>
+						<div 
+							data-input>
+							<textarea
+								name="description" 
+								placeholder="DESCRIPTION"
+								title="Enter the description of the park."
+								value={ this.state.description }
+								onChange={ this.onChange }>
+							</textarea>
+						</div>
+					</div>
+					<div 
+						data-form-item>
+						<div 
+							data-input>
+							<textarea
+								name="directions" 
+								placeholder="DIRECTIONS"
+								title="Enter the directions to the park."
+								value={ this.state.directions }
+								onChange={ this.onChange }>
+							</textarea>
+						</div>
+					</div>
+					<div 
+						data-form-item>
+						<div 
+							data-input>
+							<textarea
+								name="instructions" 
+								placeholder="INSTRUCTIONS"
+								title="Enter the instructions for the park."
+								value={ this.state.instructions }
+								onChange={ this.onChange }>
+							</textarea>
+						</div>
+					</div>
+					<div 
+						data-form-item="place-selection"
+						data-align-vertical
+						data-controls>
+						<div
+							data-form-item-label>
+							<span
+								data-label>
+								SELECT PLACE
+							</span>
+						</div>
+						<div
+							data-input
+							data-list-search>
+							<input 
+								type="text" 
+								name="place" 
+								placeholder="SEARCH PLACE"
+								title="Search for a place."
+								value={ this.place }
+								onChange={ this.searchPlace }/>
+						</div>
+						<div 
+							data-list-selection
+							data-align-vertical
+							data-option-for="add-park-place-selection-option">
+							<div
+								data-empty-list
+								data-list-length={ this.places.length }>
+								<div
+									data-label>
+									no places	
+								</div>
+							</div>
+							<div
+								data-list
+								data-list-length={ this.places.length }
+								data-align-vertical>
+								{ this.places.map( this.onEachPlace ) }	
+							</div>
+						</div>
+						<button 
+							name="add-park-place-selection-option"
+							data-control
+							data-option-control-switch>
+							<span
+								data-open-control
+								data-label>
+								Show Places	
+							</span>
+							<span
+								data-close-control
+								data-label>
+								Hide Places	
+							</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div 
+			data-controls
+			data-footer
+			data-align-vertical>
+			<button 
+				data-control
+				onClick={ this.onEditPark }>
+				<span
+					data-label>
+					Edit	
+				</span>
+			</button>
+			<button 
+				data-control
+				data-cancel-control
+				onClick={ this.onCancel }>
+				<span
+					data-label>
+					Cancel	
+				</span>
+			</button>
+		</div>		
+	</div>
+</div>

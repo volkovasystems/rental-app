@@ -1,0 +1,3 @@
+cd ~/parq
+
+npm install

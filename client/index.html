@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+
+		<link rel="icon" href="image/favicon.ico" type="image/ico">
+		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700" type="text/css">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" >
+
+		<title>parq.ph</title>
+
+		<!--[if lt IE 9]>
+		  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+		  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+		<!--: @include-style:"library/jquery-ui.min.css" -->
+		<!--: @include-style:"library/bootstrap.min.css" -->
+		<!--: @include-style:"library/perfect-scrollbar.min.css" -->
+		<!--: @include-style:"library/jquery.tagit.css" -->
+		<!--: @include-style:"library/jquery.nouislider.min.css" -->
+
+		<!--: @include-style:"style/parq-app.min.css" -->
+	</head>
+	<body>
+		<div
+			id="fb-root">
+		</div>
+
+		<section headbar>
+			<Headbar
+				name="home"
+				tab="home"
+				tabs={ [
+					"home",
+					"user",
+					"vehicle",
+					"place",
+					"park",
+					"slot",
+					"price",
+					"reserve"
+				] }>
+			</Headbar>
+
+			<Headbar
+				name="place"
+				tab="place"
+				tabs={ [
+					"place",
+					"amenity"
+				] }>
+			</Headbar>
+		</section>
+
+		<section dashbar>
+			<Dashbar
+				name="home"
+				bars={ [
+					"show-profile",
+					"edit-profile",
+					"settings"
+				] }>
+			</Dashbar>
+
+			<Dashbar
+				name="user"
+				bars={ [
+					"add-user",
+					"edit-user",
+					"delete-user"
+				] }>
+			</Dashbar>
+		</section>
+
+		<section opbar>
+		</section>
+
+		<section home>
+		</section>
+
+		<section login>
+		</section>
+
+		<section register>
+		</section>
+
+		<section xadd-vehicle>
+		</section>
+
+		<section xview-vehicles>
+		</section>
+
+		<!--: @administrator-mode:
+		<section xview-users>
+		</section>
+
+		<section xadd-vehicle-model>
+		</section>
+
+		<section xview-vehicle-models>
+		</section>
+
+		<section xedit-vehicle-model>
+		</section>
+
+		<section xmanage-places>
+		</section>
+
+		<section add-place>
+		</section>
+
+		<section xview-places>
+		</section>
+
+		<section xedit-place>
+		</section>
+
+		<section xadd-amenity>
+		</section>
+
+		<section xview-amenities>
+		</section>
+
+		<section xedit-amenity>
+		</section>
+
+		<section xadd-park>
+		</section>
+
+		<section xview-parks>
+		</section>
+
+		<section xedit-park>
+		</section>
+
+		<section xadd-slot>
+		</section>
+
+		<section xview-slots>
+		</section>
+
+		<section xedit-slot>
+		</section>
+
+		<section xadd-price>
+		</section>
+
+		<section xview-prices>
+		</section>
+
+		<section xadd-price-category>
+		</section>
+
+		<section xview-price-categories>
+		</section>
+
+		<section xadd-currency>
+		</section>
+
+		<section xview-currencies>
+		</section>
+		@end-administrator-mode -->
+
+		<section xnotify>
+		</section>
+
+		<!--: @production-mode:
+			@include-script:"https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyBNEu3_Tzbm9cU_1j3ihbJR7vMiFvrMTxs"
+		@end-production-mode -->
+
+		<!--: @development-mode:
+			@include-script:"https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyB8ngCoWixjFPHb6ky4LIlQtrrhVnHy7W4"
+		@end-development-mode -->
+
+		<!--: @include-script:"library/jquery.min.js" -->
+		<!--: @include-script:"library/jquery-ui.min.js" -->
+		<!--: @include-script:"library/bootstrap.min.js" -->
+		<!--: @include-script:"library/react.min.js" -->
+		<!--: @include-script:"library/lodash.min.js" -->
+		<!--: @include-script:"library/async.js" -->
+		<!--: @include-script:"library/moment.js" -->
+		<!--: @include-script:"library/pubsub.js" -->
+		<!--: @include-script:"library/secrets.min.js" -->
+		<!--: @include-script:"library/sha.js" -->
+		<!--: @include-script:"library/xxhash.min.lmd.js" -->
+		<!--: @include-script:"library/qwest.min.js" -->
+		<!--: @include-script:"library/perfect-scrollbar.jquery.min.js" -->
+		<!--: @include-script:"library/URI.min.js" -->
+		<!--: @include-script:"library/webcomponents.min.js" -->
+		<!--: @include-script:"library/tag-it.min.js" -->
+		<!--: @include-script:"library/jquery.nouislider.all.min.js" -->
+		<!--: @include-script:"library/string.min.js" -->
+		<!--: @include-script:"library/localforage.min.js" -->
+		<!--: @include-script:"library/history.adapter.native.js" -->
+		<!--: @include-script:"library/history.js" -->
+		<!--: @include-script:"library/uuid.js" -->
+		<!--: @include-script:"library/setImmediate.js" -->
+		<!--: @include-script:"library/inherits.js" -->
+		<!--: @include-script:"library/exclude.js" -->
+		<!--: @include-script:"library/harden.js" -->
+		<!--: @include-script:"library/spread.js" -->
+		<!--: @include-script:"library/titlelize.js" -->
+
+		<!--: @include-script:"script/parq-app.min.js" -->
+	</body>
+</html>

@@ -1,0 +1,77 @@
+[opbar] {
+	[data-page] {
+		[data-opbar] {
+			position: fixed;
+			top: 0px;
+			right: 0px;
+
+			height: 100%;
+
+			display: flex;
+
+			padding-left: 0px;
+			padding-right: 0px;
+
+			[data-op-header] {
+				display: flex;
+
+				width: 100%;
+
+				margin-top: 75px;
+			}
+
+			[data-minimal-scrollbar]{
+				position: relative;
+				overflow: hidden;
+
+				padding-right: 15px;
+			}
+
+			[data-op-list] {
+				display: flex;
+				
+				width: 100%;
+
+				[data-op-item] {
+					position: relative;
+					display: flex;
+					align-items: center;
+
+					height: 75px !important;
+					
+					padding-left: 8px;
+
+					[data-label] {
+						overflow-x: hidden;
+
+						margin-left: 20px;
+						
+						width: 55%;
+						
+						text-align: left;
+						text-overflow: ellipsis;
+					}
+
+					[data-opbar-option-control] {
+						position: absolute;
+						right: 8px;
+						top: 50%;
+						transform: translateY(-50%);
+					}
+				}
+			}
+
+			[data-op-controls] {
+				position: absolute;
+				bottom: 0px;
+
+				width: 100%;
+
+				[data-op-control] {
+					border: 0;
+					background-color: transparent;
+				}
+			}
+		}
+	}
+}

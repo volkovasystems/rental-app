@@ -1,0 +1,131 @@
+[manage-places] {
+	[data-manage-places] {
+		display: flex;
+
+		position: fixed;
+		top: 0px;
+		left: 0px;
+
+		height: 100%;
+		width: 100%;
+
+		padding-left: 0px;
+		padding-right: 0px;
+
+		[data-manage-places-dashformbar] {
+			padding-left: 15px;
+			padding-right: 0px;
+
+			[data-add-place-form] {
+				[data-map-info] {
+					display: flex;
+
+					[data-map-preview] {
+						width: 150px;
+						height: 150px;
+						flex-grow: 150;
+					}
+					
+					[data-map-info] {
+						flex-shrink: 240;
+						
+						[data-map-address] {
+							padding: 5px;
+							padding-left: 15px;
+						}
+
+						[data-map-coordinate] {
+							padding: 5px;
+							padding-left: 15px;
+
+							font-size: 0.85em;
+						}		
+					}	
+				}
+
+				[data-image-preview] {
+					[data-image-preview-grid] {
+						display: flex;
+						flex-wrap: wrap;
+						justify-content: center;
+						
+						width: 100%;
+						
+						padding: 5px;
+
+						[data-image-preview-grid-item] {
+							width: 100px;
+							height: 100px;
+
+							margin: 6px;
+						}
+					}
+				}
+
+	 			[data-controls][data-footer],
+	 			[data-form-item="images"] {
+					[data-control] {
+						margin-top: 10px;
+					}
+	 			}
+			}
+
+			[data-add-park-form] {
+				[data-form-item="place-selection"] {
+					[data-list-selection-item] {
+						height: 110px;
+					}
+				}
+
+	 			[data-controls][data-footer] {
+					[data-control] {
+						margin-top: 10px;
+					}
+	 			}
+			}
+
+			[data-add-slot-form] {
+				[data-form-item="place-selection"] {
+					[data-list-selection-item] {
+						height: 110px;
+					}
+				}
+
+				[data-form-item="park-selection"] {
+					[data-list-selection-item] {
+						height: 110px;
+					}
+				}
+
+	 			[data-controls][data-footer] {
+					[data-control] {
+						margin-top: 10px;
+					}
+	 			}
+			}
+
+			[data-add-price-form] {
+				[data-form-item="place-selection"] {
+					[data-list-selection-item] {
+						height: 110px;
+					}
+				}
+
+				[data-form-item="park-selection"] {
+					[data-list-selection-item] {
+						height: 110px;
+					}
+				}
+
+	 			[data-controls][data-footer] {
+					[data-control] {
+						margin-top: 10px;
+					}
+	 			}
+			}
+		}
+
+		[data-manage-places-formtable] {
+		}
+	}
+}

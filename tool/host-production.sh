@@ -1,0 +1,15 @@
+echo "52.16.127.192	user.parq.ph" >> /etc/hosts
+echo "52.16.127.192	vehicle.parq.ph" >> /etc/hosts
+echo "52.16.127.192	place.parq.ph" >> /etc/hosts
+echo "52.16.127.192	park.parq.ph" >> /etc/hosts
+echo "52.16.127.192	slot.parq.ph" >> /etc/hosts
+echo "52.16.127.192	app.parq.ph" >> /etc/hosts
+echo "52.16.127.192	admin.parq.ph" >> /etc/hosts
+echo "52.16.127.192	media.parq.ph" >> /etc/hosts
+echo "52.16.127.192	pay.parq.ph" >> /etc/hosts
+echo "52.16.127.192	price.parq.ph" >> /etc/hosts
+echo "52.16.127.192	data.parq.ph" >> /etc/hosts
+echo "52.16.127.192	social.parq.ph" >> /etc/hosts
+echo "52.16.127.192	worker.parq.ph" >> /etc/hosts
+echo "52.16.127.192	analytics.parq.ph" >> /etc/hosts
+echo "52.16.127.192	reserve.parq.ph" >> /etc/hosts

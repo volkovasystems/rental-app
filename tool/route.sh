@@ -1,0 +1,1 @@
+sudo iptables -t nat -A PREROUTING -p tcp --match multiport --dports 9000,10000,11000,12000,13000,14000,15000,16000,18000,19000,20000,21000,22000,23000 -j REDIRECT --to 7000;
