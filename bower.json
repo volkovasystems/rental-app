@@ -1,18 +1,17 @@
 {
-  "name": "parq-app",
+  "name": "rental-app",
   "version": "1.0.0",
   "authors": [
     "Richeve S. Bebedor <volkovasystems@gmail.com>"
   ],
-  "description": "Fast parking app.",
+  "description": "Rental management app.",
   "main": "index.html",
   "moduleType": [
     "globals"
   ],
   "keywords": [
-    "fast-parking",
-    "parking",
-    "park"
+    "rent",
+    "rental-management"
   ],
   "license": "MIT",
   "ignore": [

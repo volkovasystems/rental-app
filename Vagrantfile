@@ -4,7 +4,7 @@ Vagrant.configure(2) do |config|
   config.vm.network "private_network", ip: "192.168.123.123"
 
   config.vm.provider :virtualbox do |box|
-    box.name = "parq"
+    box.name = "rental"
     box.customize [ "modifyvm", :id, "--natdnshostresolver1", "on" ]
   end
 

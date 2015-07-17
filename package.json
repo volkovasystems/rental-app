@@ -1,7 +1,7 @@
 {
-  "name": "parq-app",
+  "name": "rental-app",
   "version": "1.0.0",
-  "description": "Fast parking app.",
+  "description": "Rental management app",
   "main": "./server/all-main.js",
   "scripts": {
     "preinstall": "npm install gulp bower forever -g",
@@ -10,11 +10,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "ssh://git@bitbucket.org/jesehl/parq.git"
+    "url": "ssh://git@bitbucket.org/jesehl/rental.git"
   },
   "keywords": [
-    "fast-parking",
-    "parking"
+    "rent",
+    "rental-management"
   ],
   "author": "Richeve S. Bebedor",
   "license": "ISC",

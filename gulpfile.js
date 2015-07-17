@@ -62,7 +62,7 @@ const TEMPLATE_PATTERN = /(?:\{?\s*\/\*\:|\;\s*\/\/\:)?\s*\@template\:\s*([^\s]+
 
 const SUB_TEMPLATE_PATTERN = /(?:\{?\s*\/\*\:|\;\s*\/\/\:)?\s*\@sub-template\:\s*([^\s]+)\s*(?:\*\/ \}?)?/;
 
-const APPLICATION_NAME = argv.appName || "parq-app";
+const APPLICATION_NAME = argv.appName || "rental-app";
 
 if( argv.production ){
 	var MODE_PATTERN = PRODUCTION_MODE_PATTERN;
