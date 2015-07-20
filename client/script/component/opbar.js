@@ -70,6 +70,7 @@ var Opbar = React.createClass( {
 		return (
 			<div
 				id={ ID }
+				data-component
 				data-page
 				data-align-right>
 				<div

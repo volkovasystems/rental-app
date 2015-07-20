@@ -10,7 +10,8 @@ Component( "register" ).load( "section[register]",
 			PageTraversalMixin,
 
 			PageMixin,
-			ContentMixin
+			ContentMixin,
+			ScrollbarMixin
 		],
 
 		"now": function now( ){

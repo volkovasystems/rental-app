@@ -13,6 +13,7 @@ var BasicLabel = React.createClass( {
         return (
             <div
                 id={ ID }
+                data-component
                 data-basic-label={ this.props.name }>
                 <Label
                     name={ this.props.name }

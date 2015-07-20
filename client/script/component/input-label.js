@@ -9,21 +9,24 @@ var InputLabel = React.createClass( {
 
 	"getDefaultProps": function getDefaultProps( ){
 		return {
-			"focus": function focus( ){ }
+			"click": function click( ){ }
 		};
 	},
 
 	"render": function render( ){
 		var ID = this.getID( );
 
+		var label = [ this.props.label, ":" ].join( "" );
+
 		return (
 			<div
 				id={ ID }
+				data-component
                 data-input-label={ this.props.name }
-				onClick={ this.props.focus }>
+				onClick={ this.props.click }>
                 <Label
 					name={ this.props.name }
-					label={ this.props.label }>
+					label={ label }>
 				</Label>
 			</div>
 		);

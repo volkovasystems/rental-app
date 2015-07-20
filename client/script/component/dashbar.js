@@ -70,6 +70,7 @@ var Dashbar = React.createClass( {
 		return (
 			<div
 				id={ ID }
+				data-component
 				data-page={ this.props.name }
 				data-align-left>
 				<div

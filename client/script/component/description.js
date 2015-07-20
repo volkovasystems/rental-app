@@ -13,6 +13,7 @@ var Description = React.createClass( {
         return (
             <div
                 id={ ID }
+                data-component
                 data-description={ this.props.name }>
                 <Paragraph
                     name={ this.props.name }

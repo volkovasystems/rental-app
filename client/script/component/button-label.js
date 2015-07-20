@@ -13,6 +13,7 @@ var ButtonLabel = React.createClass( {
 		return (
 			<div
 				id={ ID }
+				data-component
                 data-button-label={ this.props.name }>
                 <Label
 					name={ this.props.name }

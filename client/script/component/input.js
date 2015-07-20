@@ -11,22 +11,20 @@ var Input = React.createClass( {
 
 	"getDefaultProps": function getDefaultProps( ){
 		return {
-            "format": "text",
-            "focus": function focus( ){ },
-            "blur": function blur( ){ }
+            "format": "text"
 		};
 	},
 
     "blur": function blur( ){
-        this.props.blur( );
-
         this.hidePlaceholder( );
+
+        this.props.blur( );
     },
 
     "focus": function focus( ){
-        this.props.focus( );
-        
         this.showPlaceholder( );
+
+        this.props.focus( );
     },
 
 	"render": function render( ){
@@ -35,6 +33,7 @@ var Input = React.createClass( {
 		return (
             <div
                 id={ ID }
+                data-component
                 data-input={ this.props.name }>
                 <input
                     type={ this.props.format }
@@ -51,7 +50,7 @@ var Input = React.createClass( {
 
     "componentDidUpdate": function componentDidUpdate( prevProps, prevState ){
         if( this.props.input != prevProps.input ){
-            if( !_.isEmpty( this.props.input ) ){
+            if( !this.props.input ){
                 this.hidePlaceholder( );
 
             }else{

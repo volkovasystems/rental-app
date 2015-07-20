@@ -73,6 +73,7 @@ var ExpandControl = React.createClass( {
         return (
 			<div
                 id={ ID }
+                data-component
 				data-expand-control={ this.props.name }>
                 <IconControl
                     id="minimized-control"

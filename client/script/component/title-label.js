@@ -13,6 +13,7 @@ var TitleLabel = React.createClass( {
         return (
             <div
                 id={ ID }
+                data-component
                 data-title-label={ this.props.name }>
                 <Label
                     name={ this.props.name }

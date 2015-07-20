@@ -46,6 +46,25 @@ var PassphraseInput = React.createClass( {
 			.addClass( "hover-up" );
 	},
 
+    "toggleInputLabel": function toggleInputLabel( ){
+        if( this.timeout ){
+            clearTimeout( this.timeout );
+
+            delete this.timeout;
+        }
+
+        this.timeout = setTimeout( ( function onTimeout( ){
+            if( _.isEmpty( this.props.input.toString( ) ) &&
+                !this.hasFocus )
+            {
+                this.compressInputLabel( );
+            
+            }else{
+                this.hoverInputLabel( );
+            }
+        } ).bind( this ), 0 );
+    },
+
 	"focusInput": function focusInput( ){
 		$( "[data-input].shown > input", this.getElement( ) )
 			.focus( );
@@ -56,19 +75,33 @@ var PassphraseInput = React.createClass( {
 			.blur( );
 	},
 
-	"focus": function focus( ){
-		this.hoverInputLabel( );
+    "click": function click( ){
+        this.hoverInputLabel( );
 
-		this.focusInput( );
-	},
+        this.focusInput( );
 
-	"blur": function blur( ){
-		if( _.isEmpty( this.props.input ) ){
-			this.compressInputLabel( );
-		}
+        this.props.click( );
+    },
 
-		this.blurInput( );
-	},
+    "focus": function focus( ){
+        this.hoverInputLabel( );
+
+        this.focusInput( );
+
+        this.props.focus( );
+
+        this.hasFocus = true;
+    },
+
+    "blur": function blur( ){
+        this.toggleInputLabel( );
+
+        this.blurInput( );
+            
+        this.props.blur( );
+
+        this.hasFocus = false
+    },
 
     "render": function render( ){
         var ID = this.getID( );
@@ -76,13 +109,14 @@ var PassphraseInput = React.createClass( {
         return (
             <div
                 id={ ID }
+                data-component
                 data-passphrase-input={ this.props.name }>
 
                 <InputLabel
                     id="label"
 					name={ this.props.name }
 					label={ this.props.label }
-                    focus={ this.focus }>
+                    click={ this.click }>
 				</InputLabel>
 
                 <Input
@@ -115,6 +149,10 @@ var PassphraseInput = React.createClass( {
                 </SwitchControl>
             </div>
         );
+    },
+
+    "componentDidUpdate": function componentDidUpdate( ){
+        this.toggleInputLabel( );
     },
 
     "componentDidMount": function componentDidMount( ){

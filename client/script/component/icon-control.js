@@ -13,6 +13,7 @@ var IconControl = React.createClass( {
         return (
 			<div
                 id={ ID }
+                data-component
 				data-control={ this.props.name }>
 				<button
 					onClick={ this.click }>

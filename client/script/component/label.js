@@ -13,6 +13,7 @@ var Label = React.createClass( {
         return (
             <span
                 id={ ID }
+                data-component
                 data-label={ this.props.name }>
                 { this.state.title }
             </span>

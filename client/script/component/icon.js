@@ -13,6 +13,7 @@ var Icon = React.createClass( {
         return (
 			<div
                 id={ ID }
+                data-component
 				data-icon={ this.props.name }>
 				<i
                     className="material-icons">

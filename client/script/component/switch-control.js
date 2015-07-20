@@ -14,6 +14,7 @@ var SwitchControl = React.createClass( {
         return (
             <div
                 id={ ID }
+                data-component
                 data-switch-control={ this.props.name }>
                 <Control
                     id="on-switch"

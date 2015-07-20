@@ -13,7 +13,7 @@ var LabelMixin = {
 
     "titlelizeLabel": function titlelizeLabel( ){
         this.setState( {
-            "title": titlelize( this.props.label )
+            "title": titlelize( this.props.label.toString( ) )
         } );
     },
 

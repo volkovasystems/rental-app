@@ -49,10 +49,9 @@ var Notify = React.createClass( {
 		return (
 			<div
 				id={ ID }
-
+				data-component
 				data-notify={ this.props.name }
 				data-notify-type={ this.state.type }
-
 				data-align-vertical>
 
 				<TitleLabel

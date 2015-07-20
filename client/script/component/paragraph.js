@@ -13,6 +13,7 @@ var Paragraph = React.createClass( {
         return (
             <p
                 id={ ID }
+                data-component
                 data-paragraph={ this.props.name }>
                 { this.props.paragraph }
             </p>

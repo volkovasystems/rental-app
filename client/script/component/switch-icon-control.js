@@ -14,6 +14,7 @@ var SwitchIconControl = React.createClass( {
         return (
             <div
                 id={ ID }
+                data-component
                 data-switch-control={ this.props.name }>
                 <IconControl
                     id="on-switch"

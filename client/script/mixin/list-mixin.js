@@ -2,17 +2,16 @@ var ListMixin = {
     "getDefaultProps": function getDefaultProps( ){
         return {
             "items": [ ],
-            "select": function select( ){ }
+            "select": function select( ){ },
+            "onEachListItem": function onEachListItem( ){ }
         };
     },
 
     "openList": function openList( ){
-        $( "[data-list]", this.getElement( ) )
-            .slideDown( );
+        this.getElement( ).slideDown( );
     },
 
     "closeList": function closeList( ){
-        $( "[data-list]", this.getElement( ) )
-            .slideUp( );
+        this.getElement( ).slideUp( );
     }
 };

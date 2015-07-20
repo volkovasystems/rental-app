@@ -9,7 +9,9 @@ var InputMixin = {
 			"input": "",
             "placeholder": "",
 			"update": function update( ){ },
-            "click": function click( ){ }
+            "click": function click( ){ },
+            "focus": function focus( ){ },
+            "blur": function blur( ){ }
 		};
 	},
 
