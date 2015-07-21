@@ -5,6 +5,12 @@ var session = require( "express-session" );
 
 global.APP = express( );
 
+APP.use( function queue( request, response, next ){
+	process.nextTick( function onNextTick( ){
+		next( );
+	} );
+} );
+
 APP.use( compression( ) );
 
 APP.use( bodyParser.json( { "limit": "50mb" } ) );
@@ -12,7 +18,7 @@ APP.use( bodyParser.json( { "limit": "50mb" } ) );
 APP.use( bodyParser.urlencoded( { "limit": "50mb", "extended": true } ) );
 	
 APP.use( session( { 
-	"secret": "h4(@k@okiizm4)v14#vrt5qogk$l%)xcye7b)9fi5$g0r8&@oc",
+	"secret": "t6v2busw2h&5i$mlzgqo-1((_c3pj9kg-^dh@lq(+7t5t%!zj^",
 	"resave": true,
 	"saveUninitialized": true
 } ) );

@@ -36,4 +36,4 @@ Composite.prototype.configure = function configure( options ){
 	return this;
 };
 
-global.COMPOSITE = Composite
+global.Composite = Composite

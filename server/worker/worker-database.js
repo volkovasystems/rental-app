@@ -1,1 +1,1 @@
-require( "./database-connection.js" );
+require( "../database/database-connection.js" );

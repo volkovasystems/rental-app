@@ -1,6 +1,5 @@
 var _ = require( "lodash" );
 
-var Worker = WORKER;
 
 APP.all( "/api/:accessID/worker/all",
 	function onGetAllVehicle( request, response, next ){

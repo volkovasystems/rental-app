@@ -1,6 +1,6 @@
 var argv = require( "yargs" ).argv;
 var fs = require( "fs" );
-var urlJoin = require( "./url-join.js" );
+var urlJoin = require( "../utility/url-join.js" );
 
 if( "option" in argv ){
 	require( argv.option );
@@ -8,11 +8,11 @@ if( "option" in argv ){
 }else{
 	global.HOST = argv.host;
 
-	global.PORT = parseInt( argv.port ) || 21000;
+	global.PORT = parseInt( argv.port ) || 14000;
 
 	global.SECURE_HOST = argv.secureHost || "localhost";
 
-	global.SECURE_PORT = parseInt( argv.securePort ) || 21443;
+	global.SECURE_PORT = parseInt( argv.securePort ) || 14443;
 
 	global.PRIVATE_KEY = fs.readyFileSync( argv.privateKeyFile, "utf8" ) || "";
 

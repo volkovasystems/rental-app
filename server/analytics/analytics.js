@@ -2,13 +2,13 @@ var _ = require( "lodash" );
 var crypto = require( "crypto" );
 var util = require( "util" );
 
-require( "./model.js" );
+require( "../model/model.js" );
 
-require( "./responsible.js" );
+require( "../utility/responsible.js" );
 
 var Analytics = function Analytics( ){
 	if( this instanceof Analytics ){
-		MODEL.call( this, "Analytics" );
+		Model.call( this, "Analytics" );
 
 		this.scopes = [ 
 			"name", 
@@ -33,7 +33,7 @@ var Analytics = function Analytics( ){
 	}
 };
 
-util.inherits( Analytics, MODEL );
+util.inherits( Analytics, Model );
 
 RESPONSIBLE( ).compose( Analytics );
 
@@ -50,7 +50,7 @@ Analytics.prototype.add = function add( analytics ){
 		"searches": this.searches
 	}, this.modelData );
 
-	MODEL.prototype.add.call( this, analyticsData );
+	Model.prototype.add.call( this, analyticsData );
 
 	return this;
 };
@@ -66,7 +66,7 @@ Analytics.prototype.update = function update( analytics, reference ){
 		"searches": this.searches || null
 	}, this.modelData );
 
-	MODEL.prototype.update.call( this, analyticsData, reference );
+	Model.prototype.update.call( this, analyticsData, reference );
 
 	return this;
 };
@@ -105,4 +105,4 @@ Analytics.prototype.createAnalyticsID = function createAnalyticsID( analytics ){
 	return this;
 };
 
-global.ANALYTICS = Analytics;
+global.Analytics = Analytics;

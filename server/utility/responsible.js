@@ -4,10 +4,10 @@ var util = require( "util" );
 require( "./composite.js" );
 
 var Responsible = function Responsible( ){
-	return COMPOSITE.call( this, Responsible );
+	return Composite.call( this, Responsible );
 };
 
-util.inherits( Responsible, COMPOSITE );
+util.inherits( Responsible, Composite );
 
 Responsible.prototype.reply = function reply( response, code, type, data ){
 	if( this.hasReplied ){
@@ -25,4 +25,4 @@ Responsible.prototype.reply = function reply( response, code, type, data ){
 	return this;
 };
 
-global.RESPONSIBLE = Responsible;
+global.Responsible = Responsible;

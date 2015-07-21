@@ -11,7 +11,7 @@ require( "../utility/cloneable.js" );
 
 var Model = function Model( namespace ){
 	if( this instanceof Model ){
-		EMITTABLE.call( this );
+		Emittable.call( this );
 
 		/*:
 			Create a model with a namespace.
@@ -86,14 +86,14 @@ var Model = function Model( namespace ){
 	}
 };
 
-util.inherits( Model, EMITTABLE );
+util.inherits( Model, Emittable );
 
 /*:
 	Anything you configured as exempted,
 		means we cannot wait on them once they're called,
 		they will be executed.
 */
-WAITABLE( ).compose( Model )
+Waitable( ).compose( Model )
 	.configure( {
 		"exemptedClasses": [ "EventEmitter" ],
 		"exemptedMethods": [ 
@@ -105,7 +105,7 @@ WAITABLE( ).compose( Model )
 		]
 	} );
 
-CLONEABLE( ).compose( Model )
+Cloneable( ).compose( Model )
 	.configure( {
 		"cloneableProperties": [ 
 			"references", 
@@ -115,7 +115,7 @@ CLONEABLE( ).compose( Model )
 		]
 	} );
 
-BLOCKABLE( ).compose( Model );
+Blockable( ).compose( Model );
 
 /*:
 	Note this will only add, it will not check if the document already exists.
@@ -969,4 +969,4 @@ Model.prototype.tapping = function tapping( parameters, callback ){
 	return this;
 };
 
-global.MODEL = Model;
+global.Model = Model;

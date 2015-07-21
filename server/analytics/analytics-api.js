@@ -1,7 +1,5 @@
 var _ = require( "lodash" );
 
-var Analytics = ANALYTICS;
-
 APP.all( "/api/:accessID/analytics/all",
 	function onGetAllAnalytics( request, response, next ){
 		Analytics( )
@@ -18,69 +16,36 @@ APP.all( "/api/:accessID/analytics/all",
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "no analytics data" );
+						this.reply( response, 403, "failed", "no amenities" );
 					}
 				} ) 
 			.populated( );
 	} );
 APP.get( "/api/:accessID/analytics/all",
 	function onGetAllAnalytics( request, response ){
+		var limit = request.query.limit;
+
+		var index = request.query.index;
+
+		var sort = request.query.sort;
+
 		Analytics( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
 			.once( "result", 
-				function onResult( error, analyticss ){
+				function onResult( error, amenities ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", analyticss );
+						this.reply( response, 200, "success", amenities );
 					}
 				} )
-			.set( "accessID", request.params.accessID )
-			.all( );
-	} );
-
-APP.all( "/api/:accessID/analytics/only/all",
-	function onGetAllAnalytics( request, response, next ){
-		Analytics( )
-			.once( "error",
-				function onError( error ){
-					this.reply( response, 500, "error", error.message );
-				} )
-			.once( "result", 
-				function onResult( error, isPopulated ){
-					if( error ){
-						this.reply( response, 500, "error", error.message );
-
-					}else if( isPopulated ){
-						next( );
-
-					}else{
-						this.reply( response, 403, "failed", "no analytics data" );
-					}
-				} ) 
-			.populated( );
-	} );
-APP.get( "/api/:accessID/analytics/only/all",
-	function onGetAllAnalyticsOnly( request, response ){
-		Analytics( )
-			.once( "error",
-				function onError( error ){
-					this.reply( response, 500, "error", error.message );
-				} )
-			.once( "result", 
-				function onResult( error, analyticss ){
-					if( error ){
-						this.reply( response, 500, "error", error.message );
-
-					}else{
-						this.reply( response, 200, "success", analyticss );
-					}
-				} )
-			.set( "analyticsOnly", true )
+			.set( "limit", limit )
+			.set( "index", index )
+			.set( "sort", sort )
 			.all( );
 	} );
 
@@ -102,10 +67,10 @@ APP.all( "/api/:accessID/analytics/:referenceID",
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "analytics data does not exists" );
+						this.reply( response, 403, "failed", "analytics does not exists" );
 					}
 				} ) 
-			.exists( referenceID );
+			.exists( );
 	} );
 APP.get( "/api/:accessID/analytics/:referenceID",
 	function onGetAnalytics( request, response ){
@@ -125,57 +90,11 @@ APP.get( "/api/:accessID/analytics/:referenceID",
 						this.reply( response, 200, "success", analytics );
 					}
 				} )
-			.set( "accessID", request.params.accessID )
-			.pick( "referenceID", referenceID );
-	} );
-
-APP.all( "/api/:accessID/analytics/only/:referenceID",
-	function onGetAnalyticsOnly( request, response, next ){
-		var referenceID = request.params.referenceID;
-
-		Analytics( )
-			.once( "error",
-				function onError( error ){
-					this.reply( response, 500, "error", error.message );
-				} )
-			.once( "result", 
-				function onResult( error, existing ){
-					if( error ){
-						this.reply( response, 500, "error", error.message );
-
-					}else if( existing ){
-						next( );
-
-					}else{
-						this.reply( response, 403, "failed", "analytics data does not exists" );
-					}
-				} ) 
-			.exists( referenceID );
-	} );
-APP.get( "/api/:accessID/analytics/only/:referenceID",
-	function onGetAnalyticsOnly( request, response ){
-		var referenceID = request.params.referenceID;
-
-		Analytics( )
-			.once( "error",
-				function onError( error ){
-					this.reply( response, 500, "error", error.message );
-				} )
-			.once( "result", 
-				function onResult( error, analytics ){
-					if( error ){
-						this.reply( response, 500, "error", error.message );
-
-					}else{
-						this.reply( response, 200, "success", analytics );
-					}
-				} )
-			.set( "analyticsOnly", true )
 			.pick( "referenceID", referenceID );
 	} );
 
 APP.all( "/api/:accessID/analytics/add",
-	function onRegisterAnalytics( request, response, next ){
+	function onAddAnalytics( request, response, next ){
 		var analytics = request.body;
 
 		Analytics( )
@@ -221,6 +140,29 @@ APP.post( "/api/:accessID/analytics/add",
 			.add( analytics );
 	} );
 
+APP.all( "/api/:accessID/analytics/update/:referenceID",
+	function onUpdateAnalytics( request, response, next ){
+		var referenceID = request.params.referenceID;
+
+		Analytics( )
+			.once( "error",
+				function onError( error ){
+					this.reply( response, 500, "error", error.message );
+				} )
+			.once( "result", 
+				function onResult( error, existing ){
+					if( error ){
+						this.reply( response, 500, "error", error.message );
+
+					}else if( existing ){
+						next( );
+
+					}else{
+						this.reply( response, 403, "failed", "analytics does not exists" );
+					}
+				} )
+			.exists( referenceID );
+	} );
 APP.put( "/api/:accessID/analytics/update/:referenceID",
 	function onUpdateAnalytics( request, response ){
 		var referenceID = request.params.referenceID;
@@ -244,6 +186,29 @@ APP.put( "/api/:accessID/analytics/update/:referenceID",
 			.update( analytics, referenceID );
 	} );
 
+APP.all( "/api/:accessID/analytics/edit/:referenceID",
+	function onEditAnalytics( request, response, next ){
+		var referenceID = request.params.referenceID;
+
+		Analytics( )
+			.once( "error",
+				function onError( error ){
+					this.reply( response, 500, "error", error.message );
+				} )
+			.once( "result", 
+				function onResult( error, existing ){
+					if( error ){
+						this.reply( response, 500, "error", error.message );
+
+					}else if( existing ){
+						next( );
+
+					}else{
+						this.reply( response, 403, "failed", "analytics does not exists" );
+					}
+				} )
+			.exists( referenceID );
+	} );
 APP.put( "/api/:accessID/analytics/edit/:referenceID",
 	function onEditAnalytics( request, response ){
 		var referenceID = request.params.referenceID;
@@ -270,6 +235,29 @@ APP.put( "/api/:accessID/analytics/edit/:referenceID",
 			.edit( property, value, referenceID );
 	} );
 
+APP.all( "/api/:accessID/analytics/remove/:referenceID",
+	function onRemoveAnalytics( request, response, next ){
+		var referenceID = request.params.referenceID;
+
+		Analytics( )
+			.once( "error",
+				function onError( error ){
+					this.reply( response, 500, "error", error.message );
+				} )
+			.once( "result", 
+				function onResult( error, existing ){
+					if( error ){
+						this.reply( response, 500, "error", error.message );
+
+					}else if( existing ){
+						next( );
+
+					}else{
+						this.reply( response, 403, "failed", "analytics does not exists" );
+					}
+				} )
+			.exists( referenceID );
+	} );
 APP.delete( "/api/:accessID/analytics/remove/:referenceID",
 	function onRemoveAnalytics( request, response ){
 		var referenceID = request.params.referenceID;

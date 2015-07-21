@@ -4,10 +4,10 @@ var util = require( "util" );
 require( "./composite.js" );
 
 var Cloneable = function Cloneable( ){
-	return COMPOSITE.call( this, Cloneable );
+	return Composite.call( this, Cloneable );
 };
 
-util.inherits( Cloneable, COMPOSITE );
+util.inherits( Cloneable, Composite );
 
 Cloneable.prototype.clone = function clone( ){
 	var copy = new this.constructor( );
@@ -71,5 +71,5 @@ Cloneable.prototype.clone = function clone( ){
 	return copy;
 };
 
-global.CLONEABLE = Cloneable;
+global.Cloneable = Cloneable;
 

@@ -1,8 +1,6 @@
 var unirest = require( "unirest" );
 var util = require( "util" );
 
-var Analytics = ANALYTICS;
-
 Analytics.prototype.verifyAccess = function verifyAccess( accessID ){
 	unirest
 		.get( APP_SERVER_URL

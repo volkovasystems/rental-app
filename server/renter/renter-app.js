@@ -3,21 +3,21 @@ var compression = require( "compression" );
 var express = require( "express" );
 var session = require( "express-session" );
 
-global.App = express( );
+global.APP = express( );
 
-App.use( function queue( request, response, next ){
+APP.use( function queue( request, response, next ){
 	process.nextTick( function onNextTick( ){
 		next( );
 	} );
 } );
 
-App.use( compression( ) );
+APP.use( compression( ) );
 
-App.use( bodyParser.json( { "limit": "50mb" } ) );
+APP.use( bodyParser.json( { "limit": "50mb" } ) );
 
-App.use( bodyParser.urlencoded( { "limit": "50mb", "extended": true } ) );
+APP.use( bodyParser.urlencoded( { "limit": "50mb", "extended": true } ) );
 	
-App.use( session( { 
+APP.use( session( { 
 	"secret": "t6v2busw2h&5i$mlzgqo-1((_c3pj9kg-^dh@lq(+7t5t%!zj^",
 	"resave": true,
 	"saveUninitialized": true
@@ -27,7 +27,7 @@ App.use( session( {
 	Solution taken from this:
 	https://gist.github.com/cuppster/2344435
 */
-App.use( function allowCrossDomain( request, response, next ){
+APP.use( function allowCrossDomain( request, response, next ){
 	response.header( "Access-Control-Allow-Origin", "*" );
 	response.header( "Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS" );
 	response.header( "Access-Control-Allow-Headers", "Content-Type, Accept, Server-Name" );

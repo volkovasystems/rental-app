@@ -1,6 +1,6 @@
 var mongoose = require( "mongoose" );
 
-require( "./model-schema.js" );
+require( "../model/model-schema.js" );
 
 var access = new MODEL_SCHEMA( {
 	"accessID": String,

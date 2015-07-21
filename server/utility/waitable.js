@@ -4,10 +4,10 @@ var util = require( "util" );
 require( "./composite.js" );
 
 var Waitable = function Waitable( ){
-	return COMPOSITE.call( this, Waitable );
+	return Composite.call( this, Waitable );
 };
 
-util.inherits( Waitable, COMPOSITE );
+util.inherits( Waitable, Composite );
 
 Waitable.prototype.wait = function wait( ){
 	if( this.waiting ){
@@ -104,4 +104,4 @@ Waitable.prototype.flush = function flush( ){
 	return this;
 };
 
-global.WAITABLE = Waitable;
+global.Waitable = Waitable;

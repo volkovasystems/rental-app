@@ -1,8 +1,6 @@
 var _ = require( "lodash" );
 var util = require( "util" );
 
-var Access = ACCESS;
-
 APP.all( "/api/:accessID/access/all",
 	function onGetAllAccess( request, response, next ){
 		Access( )

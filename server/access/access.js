@@ -9,7 +9,7 @@ require( "../utility/responsible.js" );
 
 var Access = function Access( ){
 	if( this instanceof Access ){
-		MODEL.call( this, "Access" );
+		Model.call( this, "Access" );
 
 		this.scopes = [ 
 			"domain",
@@ -30,9 +30,9 @@ var Access = function Access( ){
 	}
 };
 
-util.inherits( Access, MODEL );
+util.inherits( Access, Model );
 
-RESPONSIBLE( ).compose( Access );
+Responsible( ).compose( Access );
 
 Access.prototype.add = function add( access ){
 	var accessData = _.extend( {
@@ -45,7 +45,7 @@ Access.prototype.add = function add( access ){
 		"domains": this.domains
 	}, this.modelData );
 
-	MODEL.prototype.add.call( this, accessData );
+	Model.prototype.add.call( this, accessData );
 
 	return this;
 };
@@ -62,7 +62,7 @@ Access.prototype.update = function update( access, reference ){
 		"domains": this.domains || null
 	}, this.modelData );
 
-	MODEL.prototype.update.call( this, accessData, reference );
+	Model.prototype.update.call( this, accessData, reference );
 
 	return this;
 };
@@ -108,7 +108,7 @@ Access.prototype.createAccessID = function createAccessID( access ){
 	return this;
 };
 
-global.ACCESS = Access;
+global.Access = Access;
 
 
 

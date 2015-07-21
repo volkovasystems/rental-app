@@ -11,4 +11,4 @@ var Emittable = function Emittable( ){
 
 util.inherits( Emittable, events.EventEmitter );
 
-global.EMITTABLE = Emittable;
+global.Emittable = Emittable;

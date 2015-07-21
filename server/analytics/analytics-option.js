@@ -1,6 +1,6 @@
 var argv = require( "yargs" ).argv;
 var fs = require( "fs" );
-var urlJoin = require( "./url-join.js" );
+var urlJoin = require( "../utility/url-join.js" );
 
 if( "option" in argv ){
 	require( argv.option );
@@ -8,11 +8,11 @@ if( "option" in argv ){
 }else{
 	global.HOST = argv.host;
 
-	global.PORT = parseInt( argv.port ) || 22000;
+	global.PORT = parseInt( argv.port ) || 16000;
 
 	global.SECURE_HOST = argv.secureHost || "localhost";
 
-	global.SECURE_PORT = parseInt( argv.securePort ) || 22443;
+	global.SECURE_PORT = parseInt( argv.securePort ) || 16443;
 
 	global.PRIVATE_KEY = fs.readyFileSync( argv.privateKeyFile, "utf8" ) || "";
 
@@ -22,17 +22,10 @@ if( "option" in argv ){
 }
 
 urlJoin( global, "USER_SERVER_URL" );
-urlJoin( global, "VEHICLE_SERVER_URL" );
-urlJoin( global, "PLACE_SERVER_URL" );
-urlJoin( global, "PARK_SERVER_URL" );
-urlJoin( global, "SLOT_SERVER_URL" );
-urlJoin( global, "APP_SERVER_URL" );
-urlJoin( global, "ADMIN_SERVER_URL" );
-urlJoin( global, "MEDIA_SERVER_URL" );
-urlJoin( global, "PAY_SERVER_URL" );
-urlJoin( global, "PRICE_SERVER_URL" );
-urlJoin( global, "DATA_SERVER_URL" );
-urlJoin( global, "SOCIAL_SERVER_URL" );
+urlJoin( global, "RENTER_SERVER_URL" );
+urlJoin( global, "RENT_SERVER_URL" );
+urlJoin( global, "ROOM_SERVER_URL" );
+urlJoin( global, "INVOICE_SERVER_URL" );
 urlJoin( global, "WORKER_SERVER_URL" );
+urlJoin( global, "ADMIN_SERVER_URL" );
 urlJoin( global, "ANALYTICS_SERVER_URL" );
-urlJoin( global, "RESERVE_SERVER_URL" );

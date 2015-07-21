@@ -1,11 +1,25 @@
 var unirest = require( "unirest" );
+var util = require( "util" );
 
-var Media = MEDIA;
-
-Media.prototype.verifyMedia = function verifyMedia( accessID ){
-	unirest.get( USER_SERVER_URL
-		.join( "user/verify/@accessID".replace( "@accessID", accessID ) ) )
+Media.prototype.verifyAccess = function verifyAccess( accessID ){
+	unirest
+		.get( APP_SERVER_URL
+			.join( "access/verify/@accessID"
+				.replace( "@accessID", accessID ) )
+			.path( ) )
+		
 		.end( ( function onResponse( response ){
+			if( "error" in response && 
+				response.error &&
+				response.status >= 500 )
+			{
+				var error = new Error( response.error );
+
+				this.result( error );
+
+				return;
+			}
+
 			var status = response.body.status;
 
 			if( status == "error" ){
@@ -14,19 +28,23 @@ Media.prototype.verifyMedia = function verifyMedia( accessID ){
 				this.result( error );
 				
 			}else if( status == "failed" ){
-				this.result( );
+				this.result( null, false, response.body.data );
 
 			}else{
 				this.result( null, response.body.data );
 			}
 		} ).bind( this ) );
+
+	return this;
 };
 
 APP.use( "/api/:accessID/*",
 	function onAPIAccess( request, response, next ){
+		var accessID = request.params.accessID;
+
 		Media( )
 			.once( "result",
-				function onResult( error, result ){
+				function onResult( error, result, state ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
 						
@@ -35,8 +53,8 @@ APP.use( "/api/:accessID/*",
 						next( );
 					
 					}else{
-						this.reply( response, 403, "failed" );
+						this.reply( response, 403, "failed", state );
 					}
 				} )
-			.verifyMedia( request.params.accessID );
+			.verifyAccess( accessID );
 	} );

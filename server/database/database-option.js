@@ -6,19 +6,19 @@ if( "option" in argv ){
 	require( argv.option );
 
 }else{
-	global.PORT = parseInt( argv.port ) || 8000;
+	global.PORT = parseInt( argv.port ) || 6000;
 
 	global.HOST = argv.host || "localhost";
 
 	global.SECURE_HOST = argv.secureHost || "localhost";
 
-	global.SECURE_PORT = parseInt( argv.securePort ) || 8443;
+	global.SECURE_PORT = parseInt( argv.securePort ) || 6443;
 
 	global.PRIVATE_KEY = fs.readyFileSync( argv.privateKeyFile, "utf8" ) || "";
 
 	global.CERTIFICATE = fs.readyFileSync( argv.certificateFile, "utf8" ) || "";
 
-	global.DB_PORT = parseInt( argv.dbPort ) || 8001;
+	global.DB_PORT = parseInt( argv.dbPort ) || 6001;
 
 	global.DB_HOST = argv.dbHost || HOST || "localhost";
 

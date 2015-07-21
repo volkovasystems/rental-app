@@ -1,11 +1,11 @@
 var fs = require( "fs" );
 
 var local = {
-	"PORT": 9000,
-	"DB_PORT": 9001,
+	"PORT": 11000,
+	"DB_PORT": 11001,
 	"DB_HOST": "localhost",
-	"DB_NAME": "userdb",
-	"DB_COLLECTION": "users",
+	"DB_NAME": "rentdb",
+	"DB_COLLECTION": "rents",
 	//"DB_USERNAME": JSON.parse( fs.readFileSync( "./local/username.json" ).toString( ) ),
 	//"DB_PASSWORD": JSON.parse( fs.readFileSync( "./local/password.json" ).toString( ) ),
 	

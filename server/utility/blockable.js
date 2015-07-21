@@ -11,10 +11,10 @@ require( "./composite.js" );
 	This let us do clean code while maintaining correct flow.
 */
 var Blockable = function Blockable( ){
-	return COMPOSITE.call( this, Blockable );
+	return Composite.call( this, Blockable );
 };
 
-util.inherits( Blockable, COMPOSITE );
+util.inherits( Blockable, Composite );
 
 Blockable.prototype.block = function block( ){
 	var inheritanceList = [ this.constructor ];
@@ -50,4 +50,4 @@ Blockable.prototype.block = function block( ){
 	return this;
 };
 
-global.BLOCKABLE = Blockable;
+global.Blockable = Blockable;

@@ -1,18 +1,18 @@
 //: This requires order.
-require( "./parq-app.js" );
+require( "./rental-app.js" );
 
-require( "./database-connection.js" );
+require( "../database/database-connection.js" );
 
-require( "./parq-option.js" );
+require( "./rental-option.js" );
 
-require( "./access-schema.js" );
+require( "../access/access-schema.js" );
 
-require( "./access.js" );
+require( "../access/access.js" );
 
-require( "./parq-access.js" );
+require( "./rental-access.js" );
 
-require( "./access-verify-api.js" );
+require( "../access/access-verify-api.js" );
 
-require( "./access-api.js" );
+require( "../access/access-api.js" );
 
-require( "./parq-server.js" );
+require( "./rental-server.js" );

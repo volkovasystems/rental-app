@@ -17,7 +17,7 @@ var model = function model( ){
 
 util.inherits( model, mongoose.Schema );
 
-global.MODEL_SCHEMA = model;
+global.ModelSchema = model;
 
 if( "DB_COLLECTION" in global ){
 	mongoose.model( "Model", new model( ), DB_COLLECTION );	

@@ -1,6 +1,6 @@
 var mongoose = require( "mongoose" );
 
-require( "./model-schema.js" );
+require( "../model/model-schema.js" );
 
 var image = new MODEL_SCHEMA( {
 	"imageID": String,
