@@ -56,18 +56,17 @@ var scriptList = [
 	"component/basic-input.js",
 	"component/passphrase-input.js",
 
-	"notify.js",
-	"user-notify.js",
-	"task-notify.js",
+	"component/notify.js",
+	"component/user-notify.js",
+	"component/task-notify.js",
 
 	"component/headbar.js",
 	"component/dashbar.js",
 	"component/opbar.js",
 
-
-	"app/login.js",
-	"app/register.js",
-	"app/home.js"
+	"app/main/login.js",
+	"app/main/register.js",
+	"app/main/home.js"
 ]
 .map( function onEachScriptFile( scriptFile ){
 	return path.resolve( ".", "client", "script", scriptFile );
