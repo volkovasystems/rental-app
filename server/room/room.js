@@ -12,6 +12,7 @@ var Room = function Room( ){
 		MODEL.call( this, "Room" );
 
 		this.scopes = [
+			"referenceID",
 			"buildingNumber",
 			"roomNumber",
 

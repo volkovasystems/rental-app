@@ -11,7 +11,7 @@ if( !( "PORT" in global ) ){
 }
 
 var server = http.createServer( APP );
-	
+
 server.on( "listening",
 	function onListening( ){
 		console.log( "server is listening" );
@@ -28,7 +28,7 @@ server.on( "close",
 	} );
 
 if( "HOST" in global ){
-	server.listen( PORT, HOST );	
+	server.listen( PORT, HOST );
 
 }else{
 	server.listen( PORT );
@@ -48,29 +48,29 @@ if( "SECURE_PORT" in global &&
 	var credentials = {
 		"key": PRIVATE_KEY,
 		"cert": CERTIFICATE,
-		"passphrase": certificatePassword	
+		"passphrase": certificatePassword
 	};
 
 	var secureServer = https.createServer( credentials, APP );
 
 	secureServer.on( "listening",
 		function onListening( ){
-			
+			console.log( "server is listening" );
 		} );
 
 	secureServer.on( "error",
 		function onError( ){
-			
+			console.log( "server encountered an error", error.message );
 		} );
 
 	secureServer.on( "close",
 		function onClose( ){
-			
+			console.log( "server closes" );
 		} );
 
 	if( "SECURE_HOST" in global ){
 		secureServer.listen( SECURE_PORT, SECURE_HOST );
-	
+
 	}else{
 		secureServer.listen( SECURE_PORT );
 	}

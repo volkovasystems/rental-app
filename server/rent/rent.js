@@ -11,12 +11,23 @@ var Rent = function Rent( ){
 	if( this instanceof Rent ){
 		MODEL.call( this, "Rent" );
 
-		this.scopes = [ 
-			
+		this.scopes = [
+			"referenceID",
+			"roomPrice",
+
+			"moveInDate",
+			"moveOutDate",
+			"duration",
+
+			"depositPayment",
+			"waterMeterValue",
+			"electricMeterValue",
+
+			"occupants"
 		];
 
-		this.searches = [ 
-			
+		this.searches = [
+
 		];
 
 		this.domains = {
@@ -36,7 +47,7 @@ Rent.prototype.add = function add( rent ){
 	var rentData = _.extend( {
 		"rentID": this.rentID,
 
-		
+
 
 		"scopes": this.scopes,
 		"searches": this.searches,
@@ -50,7 +61,7 @@ Rent.prototype.add = function add( rent ){
 
 Rent.prototype.update = function update( rent, reference ){
 	var rentData = _.extend( {
-		
+
 
 		"scopes": this.scopes,
 		"searches": this.searches,
@@ -65,8 +76,8 @@ Rent.prototype.update = function update( rent, reference ){
 Rent.prototype.createReferenceID = function createReferenceID( rent ){
 	var referenceID = crypto.createHash( "sha512" )
 		.update( _.flatten( [
-			
-			
+
+
 		] ).join( "-" ) )
 		.digest( "hex" )
 		.toString( );
@@ -96,6 +107,3 @@ Rent.prototype.createRentID = function createRentID( rent ){
 };
 
 global.RENT = Rent;
-
-
-

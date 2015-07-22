@@ -11,12 +11,12 @@ var Media = function Media( ){
 	if( this instanceof Media ){
 		Model.call( this, "Media" );
 
-		this.scopes = [ 
-			
+		this.scopes = [
+			"referenceID",
 		];
 
-		this.searches = [ 
-			
+		this.searches = [
+
 		];
 
 		this.domains = {

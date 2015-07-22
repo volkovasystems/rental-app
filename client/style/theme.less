@@ -1,0 +1,76 @@
+body {
+	background: #fafafa;
+}
+
+[data-logo] > h1 {
+	font-size: 40pt;
+}
+
+[data-button-label]{
+	font-size: 12pt;
+	text-transform: uppercase;
+
+	span {
+		letter-spacing: 2.5px;
+		font-weight: 600;
+	}
+}
+
+[data-input] {
+	input {
+		font-size: 13pt;
+		
+		outline: 0;
+		background-color: transparent;
+		
+		border: 0;
+		border-bottom: 1px solid rgba(0,0,0,0.4);
+	}
+}
+
+[data-passphrase-input] {
+	#hidden-passphrase > input {
+		text-align: center;
+
+		&::-webkit-input-placeholder,
+		&:-moz-placeholder,
+		&::-moz-placeholder,
+		&:-ms-input-placeholder {  
+			text-align: left;
+		}
+	}
+
+	[data-switch-control] {
+		[data-control] {
+			[data-button-label] {
+				span {
+					letter-spacing: inherit;
+					font-weight: 100;
+					font-size: 11pt;
+				}
+			}
+		}
+	}
+}
+
+[data-input-label] {
+	span {
+		text-transform: uppercase;
+		font-size: 11pt;
+		font-weight: 600;
+	}
+}
+
+[data-input-header-label] {
+	h1 {
+		font-size: 16pt;
+	}
+}
+
+[data-list-item] {
+	font-size: 13pt;
+	
+	&:nth-child(odd) {
+		background-color: rgba(0,0,0,0.04);
+	}
+}

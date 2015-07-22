@@ -12,6 +12,7 @@ var Renter = function Renter( ){
 		MODEL.call( this, "Renter" );
 
 		this.scopes = [
+			"referenceID",
 			"firstName",
 			"lastName",
 

@@ -4,17 +4,18 @@ require( "../model/model-schema.js" );
 
 var rent = new MODEL_SCHEMA( {
 	"rentID": String,
-	
+
 	"roomPrice": Number,
 
 	"moveInDate": Number,
 	"moveOutDate": Number,
+	"duration": String,
 
 	"depositPayment": Number,
 	"waterMeterValue": Number,
 	"electricMeterValue": Number,
 
-	"occupants": [ String ],
+	"occupants": [ String ]
 } );
 
 mongoose.model( "Model" ).discriminator( "Rent", rent );
