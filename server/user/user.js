@@ -16,29 +16,22 @@ require( "../utility/responsible.js" );
 var User = function User( ){
 	if( this instanceof User ){
 		MODEL.call( this, "User" );
-		
-		this.scopes = [ 
+
+		this.scopes = [
 			"referenceID",
 			"accessID",
 
-			"firstName", 
-			"lastName", 
-			
-			"birthDate", 
-			"eMail", 
-			"mobileNumber", 
-			
-			"profileImage"
+			"firstName",
+			"lastName",
+
+			"userName"
 		];
 
-		this.searches = [ 
-			"firstName", 
-			"lastName", 
-			"birthDate", 
-			"eMail", 
-			"mobileNumber"
+		this.searches = [
+			"firstName",
+			"lastName"
 		];
-		
+
 		this.domains = {
 		};
 
@@ -52,12 +45,6 @@ util.inherits( User, MODEL );
 RESPONSIBLE( ).compose( User );
 
 User.prototype.add = function add( user ){
-	if( "mobileNumber" in user &&
-		user.mobileNumber )
-	{
-		user.mobileNumber = user.mobileNumber.toString( ).replace( /\-/g, "" );
-	}
-
 	var userData = _.extend( {
 		"userID": this.userID,
 		"accessID": this.accessID,
@@ -65,12 +52,7 @@ User.prototype.add = function add( user ){
 		"firstName": user.firstName,
 		"lastName": user.lastName,
 
-		"birthDate": user.birthDate,
-		
-		"eMail": user.eMail,
-		"mobileNumber": user.mobileNumber,
-
-		"profileImage": user.profileImage,
+		"userName": user.userName,
 
 		"scopes": this.scopes,
 		"searches": this.searches,
@@ -83,25 +65,13 @@ User.prototype.add = function add( user ){
 };
 
 User.prototype.update = function update( user, reference ){
-	if( "mobileNumber" in user &&
-		user.mobileNumber )
-	{
-		user.mobileNumber = user.mobileNumber.toString( ).replace( /\-/g, "" );
-	}
-
 	var userData = _.extend( {
 		"accessID": this.accessID,
-		
+
 		"firstName": user.firstName || null,
 		"lastName": user.lastName || null,
-		"middleName": user.middleName || null,
 
-		"birthDate": user.birthDate || null,
-		
-		"eMail": user.eMail || null,
-		"mobileNumber": user.mobileNumber || null,
-
-		"profileImage": user.profileImage || null,
+		"userName": user.userName || null,
 
 		"scopes": this.scopes || null,
 		"searches": this.searches || null,
@@ -114,7 +84,7 @@ User.prototype.update = function update( user, reference ){
 };
 
 /*:
-	This will be used to reference the user 
+	This will be used to reference the user
 		using email and passphrase.
 
 	First we need to extract the secretReference.
@@ -126,20 +96,20 @@ User.prototype.update = function update( user, reference ){
 */
 User.prototype.createReferenceID = function createReferenceID( user ){
 	var secretReference = "";
-	
+
 	try{
 		secretReference = this.extractSecretReference( user );
-	
+
 	}catch( error ){
 		this.result( error );
 
 		return this;
 	}
-	
+
 	var referenceID = crypto.createHash( "sha512" )
-		.update( _.flatten( [ 
-			user.eMail, 
-			secretReference 
+		.update( _.flatten( [
+			user.userName,
+			secretReference
 		] ).join( ":" ) )
 		.digest( "hex" )
 		.toString( );
@@ -181,20 +151,20 @@ User.prototype.createAccessID = function createAccessID( user ){
 	var passphrase = "";
 
 	if( user.passphrase instanceof Array ){
-		passphrase = JSON.stringify( user.passphrase );	
-	
+		passphrase = JSON.stringify( user.passphrase );
+
 	}else if( typeof user.passphrase == "string" ){
 		passphrase = user.passphrase;
-	
+
 	}else{
 		this.result( new Error( "invalid passphrase" ) );
 
 		return this;
 	}
-	
+
 	try{
-		var accessID = crypto.pbkdf2Sync( passphrase, 
-			chance.paragraph( { "sentences": 10 } ), 
+		var accessID = crypto.pbkdf2Sync( passphrase,
+			chance.paragraph( { "sentences": 10 } ),
 			chance.integer( { "min": 9000, "max": 10000 } ),
 			64, "sha512" );
 
@@ -207,7 +177,7 @@ User.prototype.createAccessID = function createAccessID( user ){
 	}catch( error ){
 		this.result( error );
 	}
-	
+
 	return this;
 };
 
@@ -222,14 +192,5 @@ User.prototype.extractSecretReference = function extractSecretReference( user ){
 		throw new Error( "invalid passphrase" );
 	}
 };
-
-User.prototype.encodePassphrase = function encodePassphrase( user ){
-	var secretPhrases = encodePassphrase( user.passphrase, user.eMail );
-};
-
-User.prototype.determinePassphrase = function determinePassphrase( user ){
-
-};
-
 
 global.User = User;

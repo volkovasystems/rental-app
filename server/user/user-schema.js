@@ -9,12 +9,7 @@ var user = new MODEL_SCHEMA( {
 	"firstName": String,
 	"lastName": String,
 
-	"birthDate": Number,
-	
-	"eMail": String,
-	"mobileNumber": String,
-
-	"profileImage": String
+	"userName": String
 } );
 
 mongoose.model( "Model" ).discriminator( "User", user );

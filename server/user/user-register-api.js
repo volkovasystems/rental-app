@@ -45,18 +45,18 @@ APP.all( "/user/register",
 					this.reply( response, 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, hasEmail ){
+				function onResult( error, hasUserName ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
-					
-					}else if( hasEmail ){
-						this.reply( response, 403, "failed", "email is already taken" );
-						
+
+					}else if( hasUserName ){
+						this.reply( response, 403, "failed", "user name is already taken" );
+
 					}else{
 						next( );
 					}
 				} )
-			.has( user.eMail, "eMail" );
+			.has( user.userName, "userName" );
 	} );
 APP.all( "/user/register",
 	function onUserRegister( request, response, next ){
@@ -71,10 +71,10 @@ APP.all( "/user/register",
 				function onResult( error, existing ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
-					
+
 					}else if( existing ){
 						this.reply( response, 403, "failed", "user is already registered" );
-						
+
 					}else{
 						next( );
 					}
@@ -91,7 +91,7 @@ APP.post( "/user/register",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
-			.once( "result",	
+			.once( "result",
 				function onResult( error ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );

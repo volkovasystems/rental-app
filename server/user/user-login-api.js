@@ -32,7 +32,7 @@ APP.all( "/user/login",
 		}
 	} );
 /*:
-	This will check if the email exists.
+	This will check if the user name exists.
 */
 APP.all( "/user/login",
 	function onLoginUser( request, response, next ){
@@ -44,18 +44,18 @@ APP.all( "/user/login",
 					this.reply( response, 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, hasEmail ){
+				function onResult( error, hasUserName ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
-					
-					}else if( hasEmail ){
+
+					}else if( hasUserName ){
 						next( );
-						
+
 					}else{
-						this.reply( response, 403, "failed", "email is not associated with any user" );
+						this.reply( response, 403, "failed", "user name is not associated with any user" );
 					}
 				} )
-			.has( user.eMail, "eMail" );
+			.has( user.userName, "userName" );
 	} );
 /*:
 	This will check if the user already exists
@@ -74,10 +74,10 @@ APP.all( "/user/login",
 				function onResult( error, existing ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
-					
+
 					}else if( existing ){
 						next( );
-					
+
 					}else{
 						this.reply( response, 403, "failed", "user is not yet registered" );
 					}
@@ -87,7 +87,7 @@ APP.all( "/user/login",
 	} );
 /*:
 	This will check if the secretReference
-		matches the given eMail.
+		matches the given user name.
 
 	Then it will place the user data in a session.
 */
@@ -113,20 +113,20 @@ APP.all( "/user/login",
 					this.reply( response, 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, eMailMatches ){
+				function onResult( error, userNameMatches ){
 					if( error ){
 						this.self.flush( ).reply( response, 500, "error", error.message );
-					
-					}else if( eMailMatches ){
+
+					}else if( userNameMatches ){
 						this.self.notify( );
-					
+
 					}else{
 						this.self.flush( ).reply( response, 403, "failed", "user does not match the given passphrase" );
 					}
 				} )
 			.set( "reference", secretReference )
 			.confirm( {
-				"eMail": user.eMail
+				"userName": user.userName
 			}, 1 )
 			.self
 			.wait( )
@@ -138,12 +138,12 @@ APP.all( "/user/login",
 				function onResult( error, thisUser ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
-					
+
 					}else if( !_.isEmpty( thisUser ) ){
 						request.session.user = user;
 
 						next( );
-					
+
 					}else{
 						this.reply( response, 403, "failed", "user data is empty" );
 					}

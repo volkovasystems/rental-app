@@ -11,12 +11,28 @@ var Renter = function Renter( ){
 	if( this instanceof Renter ){
 		MODEL.call( this, "Renter" );
 
-		this.scopes = [ 
-			
+		this.scopes = [
+			"firstName",
+			"lastName",
+
+			"address",
+			"contactNumber",
+			"eMail",
+
+			"idNumber",
+			"idType",
+
+			"profilePicture",
+			"idImage"
 		];
 
-		this.searches = [ 
-			
+		this.searches = [
+			"firstName",
+			"lastName",
+			"address",
+			"contactNumber",
+			"eMail",
+			"idNumber"
 		];
 
 		this.domains = {
@@ -36,6 +52,19 @@ Renter.prototype.add = function add( renter ){
 	var renterData = _.extend( {
 		"renterID": this.renterID,
 
+		"firstName": renter.firstName,
+		"lastName": renter.lastName,
+
+		"address": renter.address,
+		"contactNumber": renter.contactNumber,
+		"eMail": renter.eMail,
+
+		"idNumber": renter.idNumber,
+		"idType": renter.idType,
+
+		"profilePicture": renter.profilePicture,
+		"idImage": renter.idImage,
+
 		"scopes": this.scopes,
 		"searches": this.searches,
 		"domains": this.domains
@@ -48,7 +77,7 @@ Renter.prototype.add = function add( renter ){
 
 Renter.prototype.update = function update( renter, reference ){
 	var renterData = _.extend( {
-		
+
 
 		"scopes": this.scopes,
 		"searches": this.searches,
@@ -63,7 +92,7 @@ Renter.prototype.update = function update( renter, reference ){
 Renter.prototype.createReferenceID = function createReferenceID( renter ){
 	var referenceID = crypto.createHash( "sha512" )
 		.update( _.flatten( [
-			
+
 
 		] ).join( "-" ) )
 		.digest( "hex" )
@@ -94,6 +123,3 @@ Renter.prototype.createRenterID = function createRenterID( renter ){
 };
 
 global.Renter = Renter;
-
-
-
