@@ -1,9 +1,9 @@
 require( "gestalten" )( {
-	"PORT": 9000,
-	"DB_PORT": 9001,
+	"PORT": 7000,
+	"DB_PORT": 7001,
 	"DB_HOST": "localhost",
-	"DB_NAME": "userdb",
-	"DB_COLLECTION": "users",
+	"DB_NAME": "alphadb",
+	"DB_COLLECTION": "alpha",
 	"@require:credential": "./local/credential.js",
 	"@require:server-list": "./local/server-list.js"
 } );

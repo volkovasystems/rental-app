@@ -1,10 +1,4 @@
-var fs = require( "fs" );
-
-var local = {
+require( "gestalten" )( {
 	"PORT": 8000,
 	"STATIC_DIRECTORY": "build"
-};
-
-for( var property in local ){
-	global[ property ] = local[ property ];
-}
+} );

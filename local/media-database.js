@@ -1,10 +1,10 @@
 require( "gestalten" )( {
-	"HOST": "localhost",
-	"PORT": 10002,
-	"DB_PORT": 10001,
+    "HOST": "localhost",
+	"PORT": 14002,
+	"DB_PORT": 14001,
 	"DB_HOST": "localhost",
-	"DB_NAME": "renterdb",
-	"DB_COLLECTION": "renter",
+	"DB_NAME": "mediadb",
+	"DB_COLLECTION": "media",
 	"DB_PATH": require( "select-path" )( "C:\\db\\rental", "~/db/rental" ),
 	"@require:credential": "./local/credential.js"
 } );

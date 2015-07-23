@@ -1,9 +1,9 @@
 require( "gestalten" )( {
-	"PORT": 9000,
-	"DB_PORT": 9001,
+	"PORT": 14000,
+	"DB_PORT": 14001,
 	"DB_HOST": "localhost",
-	"DB_NAME": "userdb",
-	"DB_COLLECTION": "users",
+	"DB_NAME": "mediadb",
+	"DB_COLLECTION": "media",
 	"@require:credential": "./local/credential.js",
 	"@require:server-list": "./local/server-list.js"
 } );
