@@ -18,8 +18,8 @@ APP.use( compression( ) );
 APP.use( bodyParser.json( { "limit": "50mb" } ) );
 
 APP.use( bodyParser.urlencoded( { "limit": "50mb", "extended": true } ) );
-	
-APP.use( session( { 
+
+APP.use( session( {
 	"secret": "@yalt$_&ugl$7=)yslrc5n0lo(8%u*h(wv9zwrrafm=6jef(_)",
 	"resave": true,
 	"saveUninitialized": true
@@ -37,8 +37,8 @@ APP.use( function allowCrossDomain( request, response, next ){
 	response.header( "Access-Control-Max-Age", 10 );
 	response.header( "Cache-Control", "no-cache, no-store, must-revalidate" );
 
-	response.header( "Server-Name", "all" );  
-	
+	response.header( "Server-Name", "alpha" );  
+
 	if( "OPTIONS" == request.method.toUpperCase( ) ){
 		response.sendStatus( 200 );
 

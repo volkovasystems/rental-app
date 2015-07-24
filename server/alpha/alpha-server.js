@@ -11,7 +11,7 @@ if( !( "PORT" in global ) ){
 }
 
 var server = http.createServer( APP );
-	
+
 server.on( "listening",
 	function onListening( ){
 		console.log( "server is listening" );
@@ -28,7 +28,7 @@ server.on( "close",
 	} );
 
 if( "HOST" in global ){
-	server.listen( PORT, HOST );	
+	server.listen( PORT, HOST );
 
 }else{
 	server.listen( PORT );
@@ -50,7 +50,7 @@ if( "SECURE_PORT" in global &&
 	var credentials = {
 		"key": PRIVATE_KEY,
 		"cert": CERTIFICATE,
-		"passphrase": certificatePassword	
+		"passphrase": certificatePassword
 	};
 
 	var secureServer = https.createServer( credentials, APP );
@@ -72,7 +72,7 @@ if( "SECURE_PORT" in global &&
 
 	if( "SECURE_HOST" in global ){
 		secureServer.listen( SECURE_PORT, SECURE_HOST );
-	
+
 	}else{
 		secureServer.listen( SECURE_PORT );
 	}
@@ -88,7 +88,7 @@ APP.use( "/ping",
 				"status": "success",
 				"data": {
 					"timestamp": Date.now( ),
-					"server": "all"
+					"server": "alpha"
 				}
 			} );
 	} );
