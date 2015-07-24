@@ -9,7 +9,7 @@ require( "../utility/responsible.js" );
 
 var Rent = function Rent( ){
 	if( this instanceof Rent ){
-		MODEL.call( this, "Rent" );
+		Model.call( this, "Rent" );
 
 		this.scopes = [
 			"referenceID",
@@ -39,9 +39,9 @@ var Rent = function Rent( ){
 	}
 };
 
-util.inherits( Rent, MODEL );
+util.inherits( Rent, Model );
 
-RESPONSIBLE( ).compose( Rent );
+Responsible( ).compose( Rent );
 
 Rent.prototype.add = function add( rent ){
 	var rentData = _.extend( {
@@ -54,7 +54,7 @@ Rent.prototype.add = function add( rent ){
 		"domains": this.domains
 	}, this.modelData );
 
-	MODEL.prototype.add.call( this, rentData );
+	Model.prototype.add.call( this, rentData );
 
 	return this;
 };
@@ -68,7 +68,7 @@ Rent.prototype.update = function update( rent, reference ){
 		"domains": this.domains
 	}, this.modelData );
 
-	MODEL.prototype.update.call( this, rentData, reference );
+	Model.prototype.update.call( this, rentData, reference );
 
 	return this;
 };
@@ -106,4 +106,4 @@ Rent.prototype.createRentID = function createRentID( rent ){
 	return this;
 };
 
-global.RENT = Rent;
+global.Rent = Rent;

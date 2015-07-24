@@ -6,13 +6,13 @@ if( "option" in argv ){
 	require( argv.option );
 
 }else{
-	global.HOST = argv.host;
+	global.HOST = argv.host || "localhost";
 
-	global.PORT = parseInt( argv.port ) || 14000;
+	global.PORT = parseInt( argv.port ) || 7000;
 
 	global.SECURE_HOST = argv.secureHost || "localhost";
 
-	global.SECURE_PORT = parseInt( argv.securePort ) || 14443;
+	global.SECURE_PORT = parseInt( argv.securePort ) || 7443;
 
 	global.PRIVATE_KEY = fs.readyFileSync( argv.privateKeyFile, "utf8" ) || "";
 

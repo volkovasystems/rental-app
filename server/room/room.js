@@ -9,7 +9,7 @@ require( "../utility/responsible.js" );
 
 var Room = function Room( ){
 	if( this instanceof Room ){
-		MODEL.call( this, "Room" );
+		Model.call( this, "Room" );
 
 		this.scopes = [
 			"referenceID",
@@ -45,9 +45,9 @@ var Room = function Room( ){
 	}
 };
 
-util.inherits( Room, MODEL );
+util.inherits( Room, Model );
 
-RESPONSIBLE( ).compose( Room );
+Responsible( ).compose( Room );
 
 Room.prototype.add = function add( room ){
 	var roomData = _.extend( {
@@ -68,7 +68,7 @@ Room.prototype.add = function add( room ){
 		"domains": this.domains
 	}, this.modelData );
 
-	MODEL.prototype.add.call( this, roomData );
+	Model.prototype.add.call( this, roomData );
 
 	return this;
 };
@@ -90,7 +90,7 @@ Room.prototype.update = function update( room, reference ){
 		"domains": this.domains || null
 	}, this.modelData );
 
-	MODEL.prototype.update.call( this, roomData, reference );
+	Model.prototype.update.call( this, roomData, reference );
 
 	return this;
 };

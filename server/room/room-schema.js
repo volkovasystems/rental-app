@@ -13,10 +13,7 @@ var room = new MODEL_SCHEMA( {
 
 	"roomItems": [ String ],
 
-	"occupantLimit": Number,
-
-	
-
+	"occupantLimit": Number
 } );
 
 mongoose.model( "Model" ).discriminator( "Room", room );

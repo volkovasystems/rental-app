@@ -2,9 +2,10 @@ var mongoose = require( "mongoose" );
 
 require( "../model/model-schema.js" );
 
-var rent = new MODEL_SCHEMA( {
+var rent = new ModelSchema( {
 	"rentID": String,
 
+	"room": String,
 	"roomPrice": Number,
 
 	"moveInDate": Number,

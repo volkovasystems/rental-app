@@ -1,4 +1,4 @@
-cd ~/parq;
+cd ~/rental;
 
 forever stopall;
 
@@ -14,8 +14,8 @@ fi
 
 mv *.log *.err *.out ~/.forever/*.log "../logs/$(echo `date +%Y-%m-%d`)";
 
-forever start -l alldb.log -o alldb.out -e alldb.err -m 3 server/database-main.js --option=../local/all-database.js;
+forever start -l alphadb.log -o alphadb.out -e alphadb.err -m 3 server/database-main.js --option=../local/alpha-database.js;
 
-forever start -l all.log -o all.out -e all.err -m 3 server/all-main.js --option=../local/all-server.js;
+forever start -l alpha.log -o alpha.out -e alpha.err -m 3 server/alpha-main.js --option=../local/alpha-server.js;
 
 forever start -l static.log -o static.out -e static.err -m 3 server/static-main.js --option=../local/static-server.js;

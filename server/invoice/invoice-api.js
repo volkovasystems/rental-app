@@ -1,8 +1,8 @@
 var _ = require( "lodash" );
 
-APP.all( "/api/:accessID/renter/all",
-	function onGetAllRenter( request, response, next ){
-		Renter( )
+APP.all( "/api/:accessID/invoice/all",
+	function onGetAllInvoice( request, response, next ){
+		Invoice( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
@@ -16,20 +16,20 @@ APP.all( "/api/:accessID/renter/all",
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "no renters" );
+						this.reply( response, 403, "failed", "no amenities" );
 					}
 				} )
 			.populated( );
 	} );
-APP.get( "/api/:accessID/renter/all",
-	function onGetAllRenter( request, response ){
+APP.get( "/api/:accessID/invoice/all",
+	function onGetAllInvoice( request, response ){
 		var limit = request.query.limit;
 
 		var index = request.query.index;
 
 		var sort = request.query.sort;
 
-		Renter( )
+		Invoice( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
@@ -49,11 +49,11 @@ APP.get( "/api/:accessID/renter/all",
 			.all( );
 	} );
 
-APP.all( "/api/:accessID/renter/:referenceID",
-	function onGetRenter( request, response, next ){
+APP.all( "/api/:accessID/invoice/:referenceID",
+	function onGetInvoice( request, response, next ){
 		var referenceID = request.params.referenceID;
 
-		Renter( )
+		Invoice( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
@@ -67,37 +67,37 @@ APP.all( "/api/:accessID/renter/:referenceID",
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "renter does not exists" );
+						this.reply( response, 403, "failed", "invoice does not exists" );
 					}
 				} )
 			.exists( );
 	} );
-APP.get( "/api/:accessID/renter/:referenceID",
-	function onGetRenter( request, response ){
+APP.get( "/api/:accessID/invoice/:referenceID",
+	function onGetInvoice( request, response ){
 		var referenceID = request.params.referenceID;
 
-		Renter( )
+		Invoice( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, renter ){
+				function onResult( error, invoice ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", renter );
+						this.reply( response, 200, "success", invoice );
 					}
 				} )
 			.pick( "referenceID", referenceID );
 	} );
 
-APP.all( "/api/:accessID/renter/add",
-	function onAddRenter( request, response, next ){
-		var renter = request.body;
+APP.all( "/api/:accessID/invoice/add",
+	function onAddInvoice( request, response, next ){
+		var invoice = request.body;
 
-		Renter( )
+		Invoice( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
@@ -108,43 +108,43 @@ APP.all( "/api/:accessID/renter/add",
 						this.reply( response, 500, "error", error.message );
 
 					}else if( existing ){
-						this.reply( response, 200, "failed", "renter already exists" );
+						this.reply( response, 200, "failed", "invoice already exists" );
 
 					}else{
 						next( );
 					}
 				} )
-			.createReferenceID( renter )
+			.createReferenceID( invoice )
 			.exists( );
 	} );
-APP.post( "/api/:accessID/renter/add",
-	function onAddRenter( request, response ){
-		var renter = request.body;
+APP.post( "/api/:accessID/invoice/add",
+	function onAddInvoice( request, response ){
+		var invoice = request.body;
 
-		Renter( )
+		Invoice( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, renter ){
+				function onResult( error, invoice ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", { "referenceID": renter.referenceID } );
+						this.reply( response, 200, "success", { "referenceID": invoice.referenceID } );
 					}
 				} )
-			.createReferenceID( renter )
-			.createRenterID( renter )
-			.add( renter );
+			.createReferenceID( invoice )
+			.createInvoiceID( invoice )
+			.add( invoice );
 	} );
 
-APP.all( "/api/:accessID/renter/update/:referenceID",
-	function onUpdateRenter( request, response, next ){
+APP.all( "/api/:accessID/invoice/update/:referenceID",
+	function onUpdateInvoice( request, response, next ){
 		var referenceID = request.params.referenceID;
 
-		Renter( )
+		Invoice( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
@@ -158,18 +158,18 @@ APP.all( "/api/:accessID/renter/update/:referenceID",
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "renter does not exists" );
+						this.reply( response, 403, "failed", "invoice does not exists" );
 					}
 				} )
 			.exists( referenceID );
 	} );
-APP.put( "/api/:accessID/renter/update/:referenceID",
-	function onUpdateRenter( request, response ){
+APP.put( "/api/:accessID/invoice/update/:referenceID",
+	function onUpdateInvoice( request, response ){
 		var referenceID = request.params.referenceID;
 
-		var renter = request.body;
+		var invoice = request.body;
 
-		Renter( )
+		Invoice( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
@@ -183,14 +183,14 @@ APP.put( "/api/:accessID/renter/update/:referenceID",
 						this.reply( response, 200, "success" );
 					}
 				} )
-			.update( renter, referenceID );
+			.update( invoice, referenceID );
 	} );
 
-APP.all( "/api/:accessID/renter/edit/:referenceID",
-	function onEditRenter( request, response, next ){
+APP.all( "/api/:accessID/invoice/edit/:referenceID",
+	function onEditInvoice( request, response, next ){
 		var referenceID = request.params.referenceID;
 
-		Renter( )
+		Invoice( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
@@ -204,21 +204,21 @@ APP.all( "/api/:accessID/renter/edit/:referenceID",
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "renter does not exists" );
+						this.reply( response, 403, "failed", "invoice does not exists" );
 					}
 				} )
 			.exists( referenceID );
 	} );
-APP.put( "/api/:accessID/renter/edit/:referenceID",
-	function onEditRenter( request, response ){
+APP.put( "/api/:accessID/invoice/edit/:referenceID",
+	function onEditInvoice( request, response ){
 		var referenceID = request.params.referenceID;
 
-		var renter = request.body;
+		var invoice = request.body;
 
-		var property = Object.keys( renter )[ 0 ];
-		var value = renter[ property ];
+		var property = Object.keys( invoice )[ 0 ];
+		var value = invoice[ property ];
 
-		Renter( )
+		Invoice( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
@@ -235,11 +235,11 @@ APP.put( "/api/:accessID/renter/edit/:referenceID",
 			.edit( property, value, referenceID );
 	} );
 
-APP.all( "/api/:accessID/renter/remove/:referenceID",
-	function onRemoveRenter( request, response, next ){
+APP.all( "/api/:accessID/invoice/remove/:referenceID",
+	function onRemoveInvoice( request, response, next ){
 		var referenceID = request.params.referenceID;
 
-		Renter( )
+		Invoice( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
@@ -253,16 +253,16 @@ APP.all( "/api/:accessID/renter/remove/:referenceID",
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "renter does not exists" );
+						this.reply( response, 403, "failed", "invoice does not exists" );
 					}
 				} )
 			.exists( referenceID );
 	} );
-APP.delete( "/api/:accessID/renter/remove/:referenceID",
-	function onRemoveRenter( request, response ){
+APP.delete( "/api/:accessID/invoice/remove/:referenceID",
+	function onRemoveInvoice( request, response ){
 		var referenceID = request.params.referenceID;
 
-		Renter( )
+		Invoice( )
 			.clone( )
 			.once( "error",
 				function onError( error ){
@@ -293,7 +293,7 @@ APP.delete( "/api/:accessID/renter/remove/:referenceID",
 						this.reply( response, 200, "success" );
 
 					}else{
-						this.reply( response, 200, "failed", "cannot delete renter" );
+						this.reply( response, 200, "failed", "cannot delete invoice" );
 					}
 				} )
 			.exists( referenceID );

@@ -1,3 +1,3 @@
-cd ~/parq
+cd ~/rental
 
 npm install

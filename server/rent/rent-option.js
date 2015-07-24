@@ -1,6 +1,6 @@
 var argv = require( "yargs" ).argv;
 var fs = require( "fs" );
-var urlJoin = require( "./url-join.js" );
+var urlJoin = require( "../utility/url-join.js" );
 
 if( "option" in argv ){
 	require( argv.option );

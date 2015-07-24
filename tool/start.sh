@@ -14,6 +14,7 @@ fi
 
 mv *.log *.err *.out ~/.forever/*.log "../logs/$(echo `date +%Y-%m-%d`)";
 
+# @todo: Modify this for rental.ph
 forever start -l appdb.log -o appdb.out -e appdb.err -m 3 server/database-main.js --option=../local/app-database.js;
 forever start -l userdb.log -o userdb.out -e userdb.err -m 3 server/database-main.js --option=../local/user-database.js;
 forever start -l vehicledb.log -o vehicledb.out -e vehicledb.err -m 3 server/database-main.js --option=../local/vehicle-database.js;

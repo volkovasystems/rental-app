@@ -9,7 +9,7 @@ require( "../utility/responsible.js" );
 
 var Renter = function Renter( ){
 	if( this instanceof Renter ){
-		MODEL.call( this, "Renter" );
+		Model.call( this, "Renter" );
 
 		this.scopes = [
 			"referenceID",
@@ -45,9 +45,9 @@ var Renter = function Renter( ){
 	}
 };
 
-util.inherits( Renter, MODEL );
+util.inherits( Renter, Model );
 
-RESPONSIBLE( ).compose( Renter );
+Responsible( ).compose( Renter );
 
 Renter.prototype.add = function add( renter ){
 	var renterData = _.extend( {
@@ -71,21 +71,32 @@ Renter.prototype.add = function add( renter ){
 		"domains": this.domains
 	}, this.modelData );
 
-	MODEL.prototype.add.call( this, renterData );
+	Model.prototype.add.call( this, renterData );
 
 	return this;
 };
 
 Renter.prototype.update = function update( renter, reference ){
 	var renterData = _.extend( {
+		"firstName": renter.firstName || null,
+		"lastName": renter.lastName || null,
 
+		"address": renter.address || null,
+		"contactNumber": renter.contactNumber || null,
+		"eMail": renter.eMail || null,
 
-		"scopes": this.scopes,
-		"searches": this.searches,
-		"domains": this.domains
+		"idNumber": renter.idNumber || null,
+		"idType": renter.idType || null,
+
+		"profilePicture": renter.profilePicture || null,
+		"idImage": renter.idImage || null,
+
+		"scopes": this.scopes || null,
+		"searches": this.searches || null,
+		"domains": this.domains || null
 	}, this.modelData );
 
-	MODEL.prototype.update.call( this, renterData, reference );
+	Model.prototype.update.call( this, renterData, reference );
 
 	return this;
 };
@@ -93,8 +104,10 @@ Renter.prototype.update = function update( renter, reference ){
 Renter.prototype.createReferenceID = function createReferenceID( renter ){
 	var referenceID = crypto.createHash( "sha512" )
 		.update( _.flatten( [
-
-
+			renter.firstName,
+			renter.lastName,
+			renter.idType,
+			renter.idNumber
 		] ).join( "-" ) )
 		.digest( "hex" )
 		.toString( );

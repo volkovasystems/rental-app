@@ -3,9 +3,9 @@ var unirest = require( "unirest" );
 var URI = require( "URIjs" );
 var util = require( "util" );
 
-require( "./model.js" );
+require( "../model/model.js" );
 
-require( "./responsible.js" );
+require( "../utility/responsible.js" );
 
 /*:
 	Worker server is different, the basic rule of this server
@@ -16,21 +16,21 @@ require( "./responsible.js" );
 */
 var Worker = function Worker( ){
 	if( this instanceof Worker ){
-		MODEL.call( this, "Worker" );
+		Model.call( this, "Worker" );
 
-		this.scopes = [ 
-			"URL", 
-			"data", 
+		this.scopes = [
+			"URL",
+			"data",
 			"query",
 			"method",
-			"expirationDate", 
+			"expirationDate",
 			"referenceID",
 			"accessID"
 		];
 
-		this.searches = [ 
-			"URL", 
-			"expirationDate", 
+		this.searches = [
+			"URL",
+			"expirationDate",
 			"referenceID"
 		];
 
@@ -43,9 +43,9 @@ var Worker = function Worker( ){
 	}
 };
 
-util.inherits( Worker, MODEL );
+util.inherits( Worker, Model );
 
-RESPONSIBLE( ).compose( Worker );
+Responsible( ).compose( Worker );
 
 Worker.prototype.add = function add( worker ){
 	var workerData = _.extend( {
@@ -65,7 +65,7 @@ Worker.prototype.add = function add( worker ){
 		"domains": this.domains
 	}, this.modelData );
 
-	MODEL.prototype.add.call( this, workerData );
+	Model.prototype.add.call( this, workerData );
 
 	return this;
 };
@@ -86,7 +86,7 @@ Worker.prototype.update = function update( worker, reference ){
 		"domains": this.domains || null
 	}, this.modelData );
 
-	MODEL.prototype.update.call( this, workerData, reference );
+	Model.prototype.update.call( this, workerData, reference );
 
 	return this;
 };
@@ -126,8 +126,7 @@ Worker.prototype.createWorkerID = function createWorkerID( worker ){
 };
 
 Worker.prototype.requestForAccess = function requestForAccess( task ){
-	unirest
-		.post(  )
+
 };
 
 Worker.prototype.executeTask = function executeTask( task ){
@@ -137,7 +136,7 @@ Worker.prototype.executeTask = function executeTask( task ){
 			.toString( ), task.data )
 
 		.end( ( function onResponse( response ){
-			if( "error" in response && 
+			if( "error" in response &&
 				response.error )
 			{
 				this.result( new Error( response.error ) );
@@ -151,7 +150,7 @@ Worker.prototype.executeTask = function executeTask( task ){
 				var error = new Error( response.body.data );
 
 				this.result( error );
-				
+
 			}else if( status == "failed" ){
 				this.result( null, false, response.body.data );
 
@@ -163,7 +162,4 @@ Worker.prototype.executeTask = function executeTask( task ){
 	return this;
 };
 
-global.WORKER = Worker;
-
-
-
+global.Worker = Worker;

@@ -1,15 +1,16 @@
 var mongoose = require( "mongoose" );
 
-require( "./model-schema.js" );
+require( "../model/model-schema.js" );
 
-var worker = new MODEL_SCHEMA( {
+var worker = new ModelSchema( {
 	"workerID": String,
 
 	"URL": String,
 	"method": String,
 	"query": mongoose.Schema.Types.Mixed,
 	"data": mongoose.Schema.Types.Mixed,
-	
+
+	"startDate": Number,
 	"expirationDate": Number,
 	"duration": Number,
 

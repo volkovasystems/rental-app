@@ -1,6 +1,5 @@
 var _ = require( "lodash" );
 
-
 APP.all( "/api/:accessID/worker/all",
 	function onGetAllVehicle( request, response, next ){
 		Worker( )
@@ -8,7 +7,7 @@ APP.all( "/api/:accessID/worker/all",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, isPopulated ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -19,13 +18,13 @@ APP.all( "/api/:accessID/worker/all",
 					}else{
 						this.reply( response, 403, "failed", "no workers" );
 					}
-				} ) 
+				} )
 			.populated( );
 	} );
 APP.get( "/api/:accessID/worker/all",
 	function onGetAllWorker( request, response ){
 		Worker( )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, workers ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -84,10 +83,10 @@ APP.all( "/api/:accessID/worker/add",
 				function onResult( error, exists ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
-					
+
 					}else if( exists ){
 						this.reply( response, 200, "failed", "worker-exists" );
-						
+
 					}else{
 						next( );
 					}
@@ -110,8 +109,8 @@ APP.post( "/api/:accessID/worker/add",
 					}
 				} )
 			.createReferenceID( worker )
-			.createWorkerID( worker )	
-			.add( worker );	
+			.createWorkerID( worker )
+			.add( worker );
 	} );
 
 APP.put( "/api/:accessID/worker/update/:referenceID",
@@ -121,7 +120,7 @@ APP.put( "/api/:accessID/worker/update/:referenceID",
 		var worker = request.body;
 
 		Worker( )
-			.once( "result", 
+			.once( "result",
 				function onResult( error ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -143,7 +142,7 @@ APP.put( "/api/:accessID/worker/edit/:referenceID",
 		var value = worker[ property ];
 
 		Worker( )
-			.once( "result", 
+			.once( "result",
 				function onResult( error ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -161,7 +160,7 @@ APP.delete( "/api/:accessID/worker/remove/:referenceID",
 
 		Worker( )
 			.clone( )
-			.once( "result", 
+			.once( "result",
 				function onResult( error ){
 					if( error ){
 						this.self.flush( ).reply( response, 500, "error", error.message );
@@ -180,7 +179,7 @@ APP.delete( "/api/:accessID/worker/remove/:referenceID",
 
 					}else if( !existing ){
 						this.reply( response, 200, "success" );
-					
+
 					}else{
 						this.reply( response, 200, "failed" );
 					}

@@ -15,7 +15,7 @@ require( "../utility/responsible.js" );
 
 var User = function User( ){
 	if( this instanceof User ){
-		MODEL.call( this, "User" );
+		Model.call( this, "User" );
 
 		this.scopes = [
 			"referenceID",
@@ -40,9 +40,9 @@ var User = function User( ){
 	}
 };
 
-util.inherits( User, MODEL );
+util.inherits( User, Model );
 
-RESPONSIBLE( ).compose( User );
+Responsible( ).compose( User );
 
 User.prototype.add = function add( user ){
 	var userData = _.extend( {
@@ -59,7 +59,7 @@ User.prototype.add = function add( user ){
 		"domains": this.domains
 	}, this.modelData );
 
-	MODEL.prototype.add.call( this, userData );
+	Model.prototype.add.call( this, userData );
 
 	return this;
 };
@@ -78,7 +78,7 @@ User.prototype.update = function update( user, reference ){
 		"domains": this.domains || null
 	}, this.modelData );
 
-	MODEL.prototype.update.call( this, userData, reference );
+	Model.prototype.update.call( this, userData, reference );
 
 	return this;
 };
