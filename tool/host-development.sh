@@ -1,0 +1,13 @@
+echo "52.24.208.169	user.rental.ph" >> /etc/hosts
+echo "52.24.208.169	renter.rental.ph" >> /etc/hosts
+echo "52.24.208.169	room.rental.ph" >> /etc/hosts
+echo "52.24.208.169	rent.rental.ph" >> /etc/hosts
+echo "52.24.208.169	invoice.rental.ph" >> /etc/hosts
+echo "52.24.208.169	media.rental.ph" >> /etc/hosts
+echo "52.24.208.169	admin.rental.ph" >> /etc/hosts
+echo "52.24.208.169	staff.rental.ph" >> /etc/hosts
+echo "52.24.208.169	data.rental.ph" >> /etc/hosts
+echo "52.24.208.169	worker.rental.ph" >> /etc/hosts
+echo "52.24.208.169	analytics.rental.ph" >> /etc/hosts
+echo "52.24.208.169	app.rental.ph" >> /etc/hosts
+echo "52.24.208.169	root.rental.ph" >> /etc/hosts
