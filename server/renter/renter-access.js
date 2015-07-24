@@ -7,9 +7,9 @@ Renter.prototype.verifyAccess = function verifyAccess( accessID ){
 			.join( "access/verify/@accessID"
 				.replace( "@accessID", accessID ) )
 			.path( ) )
-		
+
 		.end( ( function onResponse( response ){
-			if( "error" in response && 
+			if( "error" in response &&
 				response.error &&
 				response.status >= 500 )
 			{
@@ -26,7 +26,7 @@ Renter.prototype.verifyAccess = function verifyAccess( accessID ){
 				var error = new Error( response.body.data );
 
 				this.result( error );
-				
+
 			}else if( status == "failed" ){
 				this.result( null, false, response.body.data );
 
@@ -40,6 +40,10 @@ Renter.prototype.verifyAccess = function verifyAccess( accessID ){
 
 APP.use( "/api/:accessID/*",
 	function onAPIAccess( request, response, next ){
+		//: @todo: This is just a bypass.
+		next( );
+		return;
+
 		var accessID = request.params.accessID;
 
 		Renter( )
@@ -47,11 +51,11 @@ APP.use( "/api/:accessID/*",
 				function onResult( error, result, state ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
-						
+
 					}else if( result ){
 						request.session.user = result;
 						next( );
-					
+
 					}else{
 						this.reply( response, 403, "failed", state );
 					}
