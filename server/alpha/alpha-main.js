@@ -1,11 +1,11 @@
 //: This requires order.
-require( "./all-app.js" );
+require( "./alpha-app.js" );
 
 require( "../database/database-connection.js" );
 
-require( "./all-option.js" );
+require( "./alpha-option.js" );
 
-require( "./all-access.js" );
+require( "./alpha-access.js" );
 
 //: app server
 require( "../access/access-schema.js" );
@@ -33,5 +33,15 @@ require( "../user/user-logout-api.js" );
 require( "../user/user-api.js" );
 console.log( "user server initialized" );
 
+//: renter server
+require( "../renter/renter-schema.js" );
 
-require( "./all-server.js" );
+require( "../renter/renter.js" );
+
+require( "../renter/renter-access.js" );
+
+require( "../renter/renter-api.js" );
+console.log( "renter server initialized" );
+
+
+require( "./alpha-server.js" );

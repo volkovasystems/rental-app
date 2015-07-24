@@ -2,7 +2,7 @@ var mongoose = require( "mongoose" );
 
 require( "../model/model-schema.js" );
 
-var access = new MODEL_SCHEMA( {
+var access = new ModelSchema( {
 	"accessID": String,
 	"hash": String,
 	"domain": String

@@ -7,7 +7,7 @@ var unirest = require( "unirest" );
 var util = require( "util" );
 
 var encodePassphrase = require( "../utility/encode-passphrase.js" );
-var decodePassphrase = require( "./utility/decode-passphrase.js" );
+var decodePassphrase = require( "../utility/decode-passphrase.js" );
 
 require( "../model/model.js" );
 

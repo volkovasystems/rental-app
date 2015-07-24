@@ -2,7 +2,7 @@ var mongoose = require( "mongoose" );
 
 require( "../model/model-schema.js" );
 
-var user = new MODEL_SCHEMA( {
+var user = new ModelSchema( {
 	"userID": String,
 	"accessID": String,
 

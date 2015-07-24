@@ -2,8 +2,6 @@ var _ = require( "lodash" );
 var unirest = require( "unirest" );
 var util = require( "util" );
 
-var Access = ACCESS;
-
 /*:
 	Note that these methods are placed here because
 		this should be accessible even if the
@@ -21,12 +19,12 @@ Access.prototype.verifyUserAccess = function verifyUserAccess( accessID ){
 			.path( ) )
 
 		.end( ( function onResponse( response ){
-			if( "error" in response && 
+			if( "error" in response &&
 				response.error &&
 				response.status >= 500 )
 			{
 				var error = new Error( response.error );
-				
+
 				this.result( error );
 
 				return;
@@ -45,7 +43,7 @@ Access.prototype.verifyUserAccess = function verifyUserAccess( accessID ){
 				var error = new Error( response.body.data );
 
 				this.result( error );
-				
+
 			}else if( status == "failed" ){
 				this.result( null, false, response.body.data );
 
@@ -83,10 +81,10 @@ Access.prototype.verifyAccess = function verifyAccess( accessID ){
 			function onResult( error, result, state ){
 				if( error ){
 					this.self.flush( ).mainSelf.result( error );
-					
+
 				}else if( result ){
 					this.self.flush( ).mainSelf.result( null, result );
-				
+
 				}else{
 					this.self.notify( );
 				}
@@ -102,10 +100,10 @@ Access.prototype.verifyAccess = function verifyAccess( accessID ){
 			function onResult( error, result, state ){
 				if( error ){
 					this.mainSelf.result( error );
-					
+
 				}else if( result ){
 					this.mainSelf.result( null, result );
-				
+
 				}else{
 					this.mainSelf.result( null, false, state );
 				}
