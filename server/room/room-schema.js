@@ -2,7 +2,7 @@ var mongoose = require( "mongoose" );
 
 require( "../model/model-schema.js" );
 
-var room = new MODEL_SCHEMA( {
+var room = new ModelSchema( {
 	"roomID": String,
 
 	"buildingNumber": String,

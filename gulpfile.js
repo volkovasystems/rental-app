@@ -99,7 +99,20 @@ if( argv.administrator && argv.production ){
 	var ADMINISTRATOR_SPECIFIC_MODE_REPLACER = "\n";
 }
 
-var scriptList = require( "./script-list.js" ).scriptList;
+var customBuild = argv.custom || "";
+
+const CUSTOM_MODE_REPLACER = "\n$1$2$3\n";
+
+var CUSTOM_MODE_PATTERN = new RegExp(
+	"(?:\\{?\\s*)?(?:\\<\\!\\-\\-\\:|\\/\\*\\:|\\/\\/\\:)?(\\s*).*?"
+		+ "\\@custom\\-mode\\:(?:\\s*\\*\\/ \\}?)?\\s*([^]+?)\\s*"
+			.replace( "@custom", [ "@", argv.custom ].join( "" ) )
+		+ "(?:\\{?\\s*\\/\*\\s*|\\/\\/\\:\\s*)?\\@end\\-custom\\-mode"
+			.replace( "custom", argv.custom )
+		+ ".*?(\\s*)(?:\\-\\-\\>|\\*\\/)?(?: \\}?)?",
+	"gm" );
+
+var scriptList = require( "./script-list.js" );
 
 gulp.task( "default", [
 	"clean-library",
@@ -127,7 +140,12 @@ gulp.task( "default", [
 	"deploy-index"
 ] );
 
-gulp.task( "clean", [ "clean-library", "clean-build", "clean-deploy", "clean-temp" ] );
+gulp.task( "clean", [
+	"clean-library",
+	"clean-build",
+	"clean-deploy",
+	"clean-temp"
+] );
 
 gulp.task( "clean-temp",
 	function cleanTask( ){
@@ -137,8 +155,10 @@ gulp.task( "clean-temp",
 			.pipe( clean( { "force": true } ) );
 	} );
 
-
-gulp.task( "link-library", [ "clean-library", "copy-library" ] );
+gulp.task( "link-library", [
+	"clean-library",
+	"copy-library"
+] );
 
 gulp.task( "clean-library",
 	function cleanTask( ){
@@ -192,7 +212,7 @@ gulp.task( "copy-library",
 				"bower_components/svg-loaders/svg-loaders/*.svg",
 				"bower_components/nouislider/distribute/*.*",
 				"bower_components/history.js/scripts/compressed/*.js",
-				
+
 				"!bower_components/pubsub.js/lib/**/*.js",
 				"!bower_components/xxhash/benchmark/*.*",
 				"!bower_components/xxhash/examples/*.*",
@@ -206,8 +226,16 @@ gulp.task( "copy-library",
 			.pipe( gulp.dest( "client/library" ) );
 	} );
 
-
-gulp.task( "build", [ "clean-build", "build-script", "build-library", "build-font", "build-less", "build-style", "build-image", "build-index" ] );
+gulp.task( "build", [
+	"clean-build",
+	"build-script",
+	"build-library",
+	"build-font",
+	"build-less",
+	"build-style",
+	"build-image",
+	"build-index"
+] );
 
 gulp.task( "clean-build",
 	[ "clean-library", "copy-library" ],
@@ -221,7 +249,7 @@ gulp.task( "clean-build",
 gulp.task( "build-script",
 	[ "clean-build" ],
 	function buildTask( ){
-		return gulp
+		var stream = gulp
 			.src( scriptList )
 			.pipe( plumber( ) )
 			.pipe( map( function attachTemplate( file, callback ){
@@ -236,14 +264,14 @@ gulp.task( "build-script",
 						" (", fs.readFileSync( templateFilePath ), ");"
 					].join( "\n" ) );
 
-					templateFilePath = ( fileContent.match( TEMPLATE_PATTERN ) || [ ] )[ 1 ];		
+					templateFilePath = ( fileContent.match( TEMPLATE_PATTERN ) || [ ] )[ 1 ];
 				}
 
 				file.contents = new Buffer( fileContent );
-				
+
 				callback( null, file );
 			} ) )
-			.pipe( map( function attachTemplate( file, callback ){
+			.pipe( map( function attachSubTemplate( file, callback ){
 				var fileContent = file.contents.toString( "utf8" );
 
 				var templateFilePath = ( fileContent.match( SUB_TEMPLATE_PATTERN ) || [ ] )[ 1 ];
@@ -255,41 +283,74 @@ gulp.task( "build-script",
 						"", fs.readFileSync( templateFilePath ), ""
 					].join( "\n" ) );
 
-					templateFilePath = ( fileContent.match( SUB_TEMPLATE_PATTERN ) || [ ] )[ 1 ];		
+					templateFilePath = ( fileContent.match( SUB_TEMPLATE_PATTERN ) || [ ] )[ 1 ];
 				}
 
 				file.contents = new Buffer( fileContent );
-				
+
 				callback( null, file );
 			} ) )
 			.pipe( react( ) )
-			.pipe( replace( MODE_PATTERN, MODE_REPLACER ) ) 
-			.pipe( replace( ADMINISTRATOR_SPECIFIC_MODE_PATTERN, ADMINISTRATOR_SPECIFIC_MODE_REPLACER ) ) 
-			.pipe( replace( ADMINISTRATOR_GENERAL_MODE_PATTERN, ADMINISTRATOR_GENERAL_MODE_REPLACER ) ) 
+			.pipe( replace( MODE_PATTERN, MODE_REPLACER ) )
+			.pipe( replace( ADMINISTRATOR_SPECIFIC_MODE_PATTERN, ADMINISTRATOR_SPECIFIC_MODE_REPLACER ) )
+			.pipe( replace( ADMINISTRATOR_GENERAL_MODE_PATTERN, ADMINISTRATOR_GENERAL_MODE_REPLACER ) )
 			.pipe( replace( CLIENT_MODE_PATTERN, CLIENT_MODE_REPLACER ) )
-			.pipe( replace( CLEAN_UP_PATTERN, "" ) ) 
+			.pipe( replace( CLEAN_UP_PATTERN, "" ) )
 			.pipe( sourcemaps.init( ) )
 			.pipe( concat( [ APPLICATION_NAME, "js" ].join( "." ) ) )
-			.pipe( gulp.dest( "build/script" ) )
+			.pipe( gulp.dest( "build/script" ) );
+
+		var customBuildPath = "";
+
+		if( argv.custom ){
+			customBuildPath = "build/script"
+				.replace( "build",
+					[ "build", argv.custom ].join( "-" ) );
+
+			stream = stream
+				.pipe( gulp.dest( customBuildPath ) );
+		}
+
+		stream = stream
 			.pipe( uglify( ) )
 			.pipe( rename( [ APPLICATION_NAME, "min", "js" ].join( "." ) ) )
 			.pipe( sourcemaps.write( "./" ) )
-			.pipe( gulp.dest( "build/script" ) )
+			.pipe( gulp.dest( "build/script" ) );
+
+		if( argv.custom ){
+			return stream
+				.pipe( gulp.dest( customBuildPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 gulp.task( "build-library",
 	[ "clean-library", "copy-library", "clean-build" ],
 	function buildTask( ){
-		return gulp
+	 	var stream = gulp
 			.src( "client/library/*.*" )
 			.pipe( plumber( ) )
-			.pipe( gulp.dest( "build/library" ) )
+			.pipe( gulp.dest( "build/library" ) );
+
+		if( argv.custom ){
+			var customBuildPath = "build/library"
+				.replace( "build",
+					[ "build", argv.custom ].join( "-" ) );
+
+			return stream
+				.pipe( gulp.dest( customBuildPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 gulp.task( "build-font",
 	[ "build-library" ],
 	function buildTask( ){
-		return gulp
+		var stream = gulp
 			.src( [
 				"client/library/*.eot",
 				"client/library/*.svg",
@@ -298,6 +359,18 @@ gulp.task( "build-font",
 			] )
 			.pipe( gulp.dest( "client/fonts" ) )
 			.pipe( gulp.dest( "build/fonts" ) );
+
+		if( argv.custom ){
+			var customBuildPath = "build/fonts"
+				.replace( "build",
+					[ "build", argv.custom ].join( "-" ) );
+
+			return stream
+				.pipe( gulp.dest( customBuildPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 gulp.task( "build-less",
@@ -315,30 +388,62 @@ gulp.task( "build-less",
 gulp.task( "build-style",
 	[ "clean-build", "build-less" ],
 	function buildTask( ){
-		return gulp
+		var stream = gulp
 			.src( "temp/style/*.css" )
 			.pipe( plumber( ) )
-			.pipe( gulp.dest( "build/style" ) )
+			.pipe( gulp.dest( "build/style" ) );
+
+		var customBuildPath = "";
+		if( argv.custom ){
+			customBuildPath = "build/style"
+				.replace( "build",
+					[ "build", argv.custom ].join( "-" ) );
+
+		 	stream = stream
+				.pipe( gulp.dest( customBuildPath ) );
+		}
+
+		stream = stream
 			.pipe( sourcemaps.init( ) )
 			.pipe( minifyCSS( { "keepBreaks": true } ) )
 			.pipe( rename( [ APPLICATION_NAME, "min", "css" ].join( "." ) ) )
 			.pipe( sourcemaps.write( "./" ) )
 			.pipe( gulp.dest( "build/style" ) );
+
+		if( argv.custom ){
+		 	return stream
+				.pipe( gulp.dest( customBuildPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 gulp.task( "build-image",
 	[ "clean-build" ],
 	function buildTask( ){
-		return gulp
+		var stream = gulp
 			.src( "client/image/*.*" )
 			.pipe( plumber( ) )
 			.pipe( gulp.dest( "build/image" ) );
+
+		if( argv.custom ){
+			var customBuildPath = "build/image"
+				.replace( "build",
+					[ "build", argv.custom ].join( "-" ) );
+
+			return stream
+				.pipe( gulp.dest( customBuildPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 gulp.task( "build-index",
 	[ "clean-build" ],
 	function buildTask( ){
-		return gulp
+		var stream = gulp
 			.src( "client/index.html" )
 			.pipe( plumber( ) )
 			.pipe( replace( INCLUDE_SCRIPT_PATTERN, INCLUDE_SCRIPT_REPLACER ) )
@@ -346,16 +451,34 @@ gulp.task( "build-index",
 			.pipe( replace( MINIFIED_SCRIPT_PATTERN, "." ) )
 			.pipe( replace( MINIFIED_STYLE_PATTERN, "." ) )
 			.pipe( replace( DEVELOPMENT_MODE_PATTERN, DEVELOPMENT_MODE_REPLACER ) )
-			.pipe( replace( ADMINISTRATOR_SPECIFIC_MODE_PATTERN, ADMINISTRATOR_SPECIFIC_MODE_REPLACER ) ) 
-			.pipe( replace( ADMINISTRATOR_GENERAL_MODE_PATTERN, ADMINISTRATOR_GENERAL_MODE_REPLACER ) ) 
+			.pipe( replace( ADMINISTRATOR_SPECIFIC_MODE_PATTERN, ADMINISTRATOR_SPECIFIC_MODE_REPLACER ) )
+			.pipe( replace( ADMINISTRATOR_GENERAL_MODE_PATTERN, ADMINISTRATOR_GENERAL_MODE_REPLACER ) )
 			.pipe( replace( CLIENT_MODE_PATTERN, CLIENT_MODE_REPLACER ) )
-			.pipe( replace( CLEAN_UP_PATTERN, "" ) ) 
+			.pipe( replace( CLEAN_UP_PATTERN, "" ) )
 			.pipe( embedlr( ) )
 			.pipe( gulp.dest( "build" ) );
+
+		if( argv.custom ){
+			var customBuildPath = [ "build", argv.custom ].join( "-" );
+
+			return stream
+				.pipe( gulp.dest( customBuildPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 
-gulp.task( "deploy", [ "clean-deploy", "deploy-script", "deploy-library", "deploy-font", "deploy-style", "deploy-image", "deploy-index" ] );
+gulp.task( "deploy", [
+	"clean-deploy",
+	"deploy-script",
+	"deploy-library",
+	"deploy-font",
+	"deploy-style",
+	"deploy-image",
+	"deploy-index"
+] );
 
 gulp.task( "clean-deploy",
 	[ "clean-library", "copy-library", "clean-build", "build-library" ],
@@ -429,9 +552,9 @@ gulp.task( "deploy-index",
 			.pipe( plumber( ) )
 			.pipe( replace( INCLUDE_SCRIPT_PATTERN, INCLUDE_SCRIPT_REPLACER ) )
 			.pipe( replace( INCLUDE_STYLE_PATTERN, INCLUDE_STYLE_REPLACER ) )
-			.pipe( replace( PRODUCTION_MODE_PATTERN, PRODUCTION_MODE_REPLACER ) ) 
-			.pipe( replace( ADMINISTRATOR_SPECIFIC_MODE_PATTERN, ADMINISTRATOR_SPECIFIC_MODE_REPLACER ) ) 
-			.pipe( replace( ADMINISTRATOR_GENERAL_MODE_PATTERN, ADMINISTRATOR_GENERAL_MODE_REPLACER ) ) 
+			.pipe( replace( PRODUCTION_MODE_PATTERN, PRODUCTION_MODE_REPLACER ) )
+			.pipe( replace( ADMINISTRATOR_SPECIFIC_MODE_PATTERN, ADMINISTRATOR_SPECIFIC_MODE_REPLACER ) )
+			.pipe( replace( ADMINISTRATOR_GENERAL_MODE_PATTERN, ADMINISTRATOR_GENERAL_MODE_REPLACER ) )
 			.pipe( replace( CLIENT_MODE_PATTERN, CLIENT_MODE_REPLACER ) )
 			.pipe( replace( CLEAN_UP_PATTERN, "" ) )
 			.pipe( gulp.dest( "deploy" ) );
@@ -454,45 +577,45 @@ gulp.task( "reload", [ "build" ],
 		done( );
 	} );
 
-gulp.task( "watch", 
-	[ 
-		"clean-build", 
-		"build-script", 
+gulp.task( "watch",
+	[
+		"clean-build",
+		"build-script",
 		"build-library",
 		"build-font",
-		"build-less", 
-		"build-style", 
-		"build-image", 
-		"build-index", 
-		"server-static" 
+		"build-less",
+		"build-style",
+		"build-image",
+		"build-index",
+		"server-static"
 	],
 	function watchTask( ){
-		gulp.watch( [ 
-			"client/script/**", 
-			"client/style/**", 
+		gulp.watch( [
+			"client/script/**",
+			"client/style/**",
 			"client/template/**",
-			"client/index.html" 
-		], 
+			"client/index.html"
+		],
 		[ "reload" ] );
 	} );
 
-gulp.task( "serverless-watch", 
-	[ 
-		"clean-build", 
-		"build-script", 
+gulp.task( "serverless-watch",
+	[
+		"clean-build",
+		"build-script",
 		"build-library",
 		"build-font",
-		"build-less", 
-		"build-style", 
-		"build-image", 
-		"build-index" 
+		"build-less",
+		"build-style",
+		"build-image",
+		"build-index"
 	],
 	function watchTask( ){
-		gulp.watch( [ 
-			"client/script/**", 
-			"client/style/**", 
+		gulp.watch( [
+			"client/script/**",
+			"client/style/**",
 			"client/template/**",
-			"client/index.html" 
-		], 
+			"client/index.html"
+		],
 		[ "reload" ] );
 	} );

@@ -13,6 +13,7 @@ var Room = function Room( ){
 
 		this.scopes = [
 			"referenceID",
+			
 			"buildingNumber",
 			"roomNumber",
 

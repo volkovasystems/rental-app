@@ -1,7 +1,4 @@
-var path = require( "path" );
-var fs = require( "fs" );
-
-var scriptList = [
+require( "script-lister" ).bind( module )( [
 	//: This should be loaded as much as possible in order.
 	"utility/global.js",
 	"utility/event-wrapper.js",
@@ -67,12 +64,4 @@ var scriptList = [
 	"app/main/login.js",
 	"app/main/register.js",
 	"app/main/home.js"
-]
-.map( function onEachScriptFile( scriptFile ){
-	return path.resolve( ".", "client", "script", scriptFile );
-} )
-.filter( function onEachScriptFile( scriptFile ){
-	return fs.existsSync( scriptFile );
-} );
-
-exports.scriptList = scriptList;
+] );

@@ -8,7 +8,7 @@ APP.all( "/api/:accessID/user/all",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, isPopulated ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -19,7 +19,7 @@ APP.all( "/api/:accessID/user/all",
 					}else{
 						this.reply( response, 403, "failed", "no users" );
 					}
-				} ) 
+				} )
 			.populated( );
 	} );
 APP.get( "/api/:accessID/user/all",
@@ -29,7 +29,7 @@ APP.get( "/api/:accessID/user/all",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, users ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -79,7 +79,7 @@ APP.get( "/api/:accessID/user/:referenceID",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, user ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -123,7 +123,7 @@ APP.get( "/api/:accessID/user",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, user ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -136,7 +136,7 @@ APP.get( "/api/:accessID/user",
 	} );
 
 APP.all( "/api/:accessID/user/add",
-	function onUserRegister( request, response, next ){
+	function onAddUser( request, response, next ){
 		var user = request.body;
 
 		User( )
@@ -148,10 +148,10 @@ APP.all( "/api/:accessID/user/add",
 				function onResult( error, exists ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
-					
+
 					}else if( exists ){
 						this.reply( response, 403, "failed", "user already exists" );
-						
+
 					}else{
 						next( );
 					}
@@ -168,7 +168,7 @@ APP.post( "/api/:accessID/user/add",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -191,7 +191,7 @@ APP.put( "/api/:accessID/user/update",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -214,7 +214,7 @@ APP.put( "/api/:accessID/user/update/:referenceID",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -240,7 +240,7 @@ APP.put( "/api/:accessID/user/edit",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, user ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -266,7 +266,7 @@ APP.put( "/api/:accessID/user/edit/:referenceID",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, user ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
@@ -288,7 +288,7 @@ APP.delete( "/api/:accessID/user/remove",
 				function onError( error ){
 					this.self.flush( ).reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error ){
 					if( error ){
 						this.self.flush( ).reply( response, 500, "error", error.message );
@@ -311,7 +311,7 @@ APP.delete( "/api/:accessID/user/remove",
 
 					}else if( !existing ){
 						this.reply( response, 200, "success" );
-					
+
 					}else{
 						this.reply( response, 200, "failed", "cannot delete user" );
 					}
@@ -329,7 +329,7 @@ APP.delete( "/api/:accessID/user/remove/:referenceID",
 				function onError( error ){
 					this.self.flush( ).reply( response, 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error ){
 					if( error ){
 						this.self.flush( ).reply( response, 500, "error", error.message );
@@ -352,7 +352,7 @@ APP.delete( "/api/:accessID/user/remove/:referenceID",
 
 					}else if( !existing ){
 						this.reply( response, 200, "success" );
-					
+
 					}else{
 						this.reply( response, 200, "failed", "cannot delete user" );
 					}

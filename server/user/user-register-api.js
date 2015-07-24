@@ -14,7 +14,7 @@ User.prototype.register = function register( user ){
 };
 
 /*:
-	This will check if the login data was empty.
+	This will check if the registration data was empty.
 */
 APP.all( "/user/register",
 	function onRegisterUser( request, response, next ){
