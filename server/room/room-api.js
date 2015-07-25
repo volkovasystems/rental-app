@@ -49,50 +49,6 @@ APP.get( "/api/:accessID/room/all",
 			.all( );
 	} );
 
-APP.all( "/api/:accessID/room/:referenceID",
-	function onGetRoom( request, response, next ){
-		var referenceID = request.params.referenceID;
-
-		Room( )
-			.once( "error",
-				function onError( error ){
-					this.reply( response, 500, "error", error.message );
-				} )
-			.once( "result",
-				function onResult( error, existing ){
-					if( error ){
-						this.reply( response, 500, "error", error.message );
-
-					}else if( existing ){
-						next( );
-
-					}else{
-						this.reply( response, 403, "failed", "room does not exists" );
-					}
-				} )
-			.exists( );
-	} );
-APP.get( "/api/:accessID/room/:referenceID",
-	function onGetRoom( request, response ){
-		var referenceID = request.params.referenceID;
-
-		Room( )
-			.once( "error",
-				function onError( error ){
-					this.reply( response, 500, "error", error.message );
-				} )
-			.once( "result",
-				function onResult( error, room ){
-					if( error ){
-						this.reply( response, 500, "error", error.message );
-
-					}else{
-						this.reply( response, 200, "success", room );
-					}
-				} )
-			.pick( "referenceID", referenceID );
-	} );
-
 APP.all( "/api/:accessID/room/add",
 	function onAddRoom( request, response, next ){
 		var room = request.body;
@@ -139,6 +95,52 @@ APP.post( "/api/:accessID/room/add",
 			.createRoomID( room )
 			.add( room );
 	} );
+
+APP.all( "/api/:accessID/room/:referenceID",
+	function onGetRoom( request, response, next ){
+		var referenceID = request.params.referenceID;
+
+		Room( )
+			.once( "error",
+				function onError( error ){
+					this.reply( response, 500, "error", error.message );
+				} )
+			.once( "result",
+				function onResult( error, existing ){
+					if( error ){
+						this.reply( response, 500, "error", error.message );
+
+					}else if( existing ){
+						next( );
+
+					}else{
+						this.reply( response, 403, "failed", "room does not exists" );
+					}
+				} )
+			.exists( );
+	} );
+APP.get( "/api/:accessID/room/:referenceID",
+	function onGetRoom( request, response ){
+		var referenceID = request.params.referenceID;
+
+		Room( )
+			.once( "error",
+				function onError( error ){
+					this.reply( response, 500, "error", error.message );
+				} )
+			.once( "result",
+				function onResult( error, room ){
+					if( error ){
+						this.reply( response, 500, "error", error.message );
+
+					}else{
+						this.reply( response, 200, "success", room );
+					}
+				} )
+			.pick( "referenceID", referenceID );
+	} );
+
+
 
 APP.all( "/api/:accessID/room/update/:referenceID",
 	function onUpdateRoom( request, response, next ){

@@ -49,50 +49,6 @@ APP.get( "/api/:accessID/renter/all",
 			.all( );
 	} );
 
-APP.all( "/api/:accessID/renter/:referenceID",
-	function onGetRenter( request, response, next ){
-		var referenceID = request.params.referenceID;
-
-		Renter( )
-			.once( "error",
-				function onError( error ){
-					this.reply( response, 500, "error", error.message );
-				} )
-			.once( "result",
-				function onResult( error, existing ){
-					if( error ){
-						this.reply( response, 500, "error", error.message );
-
-					}else if( existing ){
-						next( );
-
-					}else{
-						this.reply( response, 403, "failed", "renter does not exists" );
-					}
-				} )
-			.exists( );
-	} );
-APP.get( "/api/:accessID/renter/:referenceID",
-	function onGetRenter( request, response ){
-		var referenceID = request.params.referenceID;
-
-		Renter( )
-			.once( "error",
-				function onError( error ){
-					this.reply( response, 500, "error", error.message );
-				} )
-			.once( "result",
-				function onResult( error, renter ){
-					if( error ){
-						this.reply( response, 500, "error", error.message );
-
-					}else{
-						this.reply( response, 200, "success", renter );
-					}
-				} )
-			.pick( "referenceID", referenceID );
-	} );
-
 APP.all( "/api/:accessID/renter/add",
 	function onAddRenter( request, response, next ){
 		var renter = request.body;
@@ -138,6 +94,50 @@ APP.post( "/api/:accessID/renter/add",
 			.createReferenceID( renter )
 			.createRenterID( renter )
 			.add( renter );
+	} );
+
+APP.all( "/api/:accessID/renter/:referenceID",
+	function onGetRenter( request, response, next ){
+		var referenceID = request.params.referenceID;
+
+		Renter( )
+			.once( "error",
+				function onError( error ){
+					this.reply( response, 500, "error", error.message );
+				} )
+			.once( "result",
+				function onResult( error, existing ){
+					if( error ){
+						this.reply( response, 500, "error", error.message );
+
+					}else if( existing ){
+						next( );
+
+					}else{
+						this.reply( response, 403, "failed", "renter does not exists" );
+					}
+				} )
+			.exists( );
+	} );
+APP.get( "/api/:accessID/renter/:referenceID",
+	function onGetRenter( request, response ){
+		var referenceID = request.params.referenceID;
+
+		Renter( )
+			.once( "error",
+				function onError( error ){
+					this.reply( response, 500, "error", error.message );
+				} )
+			.once( "result",
+				function onResult( error, renter ){
+					if( error ){
+						this.reply( response, 500, "error", error.message );
+
+					}else{
+						this.reply( response, 200, "success", renter );
+					}
+				} )
+			.pick( "referenceID", referenceID );
 	} );
 
 APP.all( "/api/:accessID/renter/update/:referenceID",
