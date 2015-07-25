@@ -4,6 +4,10 @@ var util = require( "util" );
 
 APP.use( "/api/:accessID/*",
 	function onAPIAccess( request, response, next ){
+		//: @todo: This is just a bypass.
+		next( );
+		return;
+		
 		var rootResponse = response;
 
 		var accessID = request.params.accessID;
@@ -15,7 +19,7 @@ APP.use( "/api/:accessID/*",
 				.path( ) )
 
 			.end( function onResponse( response ){
-				if( "error" in response && 
+				if( "error" in response &&
 					response.error &&
 					response.status >= 500 )
 				{
@@ -33,7 +37,7 @@ APP.use( "/api/:accessID/*",
 
 				if( _.isEmpty( response.body ) ){
 					var error = new Error( "empty response data" );
-					
+
 					rootResponse
 						.status( 500 )
 						.json( {
@@ -55,7 +59,7 @@ APP.use( "/api/:accessID/*",
 							"status": "error",
 							"data": error.message
 						} );
-					
+
 				}else if( status == "failed" ){
 					var failureMessage = response.body.data;
 

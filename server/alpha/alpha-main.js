@@ -38,8 +38,6 @@ require( "../renter/renter-schema.js" );
 
 require( "../renter/renter.js" );
 
-require( "../renter/renter-access.js" );
-
 require( "../renter/renter-api.js" );
 console.log( "renter server initialized" );
 
@@ -51,8 +49,6 @@ require( "../room/room-item-schema.js" );
 require( "../room/room.js" );
 
 require( "../room/room-item.js" );
-
-require( "../room/room-access.js" );
 
 require( "../room/room-api.js" );
 

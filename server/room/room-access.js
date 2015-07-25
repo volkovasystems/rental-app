@@ -40,11 +40,6 @@ Room.prototype.verifyAccess = function verifyAccess( accessID ){
 
 APP.use( "/api/:accessID/*",
 	function onAPIAccess( request, response, next ){
-		//: @todo: This is just a bypass.
-		next( );
-		return;
-
-		
 		var accessID = request.params.accessID;
 
 		Room( )
