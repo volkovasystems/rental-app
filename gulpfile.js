@@ -54,9 +54,25 @@ const ADMINISTRATOR_DEVELOPMENT_MODE_REPLACER = "\n$1$2$3\n";
 const ADMINISTRATOR_PRODUCTION_MODE_PATTERN = /(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@administrator\-production\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-administrator\-production\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?/gm;
 const ADMINISTRATOR_PRODUCTION_MODE_REPLACER = "\n$1$2$3\n";
 
-const ADMINISTRATOR_ALL_MODE_PATTERN = /(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@administrator\-development\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-administrator\-development\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?|(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@administrator\-production\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-administrator\-production\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?/gm;
+const ADMINISTRATOR_ALL_MODE_PATTERN = new RegExp(
+	"(?:\\{?\\s*)?(?:\\<\\!\\-\\-\\:|\\/\\*\\:|\\/\\/\\:)?(\\s*).*?"
+		+ "\\@administrator\\-(?:development|production)\\-mode\\:"
+			+ "(?:\\s*\\*\\/ \\}?)?\\s*"
+				+ "([^]+?)\\s*"
+			+ "(?:\\{?\\s*\\/\\*\\s*|\\/\\/\\:\\s*)?"
+		+ "\\@end\\-administrator\\-(?:development|production)\\-mode"
+	+ ".*?(\\s*)(?:\\-\\-\\>|\\*\\/)?(?: \\}?)?",
+	"gm" );
 
-const CLEAN_UP_PATTERN = /(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:)?(\s*).*?\@production\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-production\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?|(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@development\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-development\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?|(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@client\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-client\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?|(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@administrator\-development\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-administrator\-development\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?|(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@administrator\-production\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-administrator\-production\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?/gm;
+const CLEAN_UP_PATTERN = new RegExp(
+	"(?:\\{?\\s*)?(?:\\<\\!\\-\\-\\:|\\/\\*\\:)?(\\s*).*?"
+		+ "\\@[a-z\\-]*[a-z]\\-mode\\:"
+			+ "(?:\\s*\\*\\/ \\}?)?\\s*"
+			+ "([^]+?)\\s*"
+			+ "(?:\\{?\\s*\\/\\*\\s*|\\/\\/\\:\\s*)?"
+		+ "\\@end\\-[a-z][a-z\\-]*[a-z]\\-mode"
+	+ ".*?(\\s*)(?:\\-\\-\\>|\\*\\/)?(?: \\}?)?",
+	"gm" );
 
 const TEMPLATE_PATTERN = /(?:\{?\s*\/\*\:|\;\s*\/\/\:)?\s*\@template\:\s*([^\s]+)\s*(?:\*\/ \}?)?/;
 
@@ -106,7 +122,7 @@ const CUSTOM_MODE_REPLACER = "\n$1$2$3\n";
 var CUSTOM_MODE_PATTERN = new RegExp(
 	"(?:\\{?\\s*)?(?:\\<\\!\\-\\-\\:|\\/\\*\\:|\\/\\/\\:)?(\\s*).*?"
 		+ "\\@custom\\-mode\\:(?:\\s*\\*\\/ \\}?)?\\s*([^]+?)\\s*"
-			.replace( "@custom", [ "@", argv.custom ].join( "" ) )
+			.replace( "custom", argv.custom )
 		+ "(?:\\{?\\s*\\/\*\\s*|\\/\\/\\:\\s*)?\\@end\\-custom\\-mode"
 			.replace( "custom", argv.custom )
 		+ ".*?(\\s*)(?:\\-\\-\\>|\\*\\/)?(?: \\}?)?",
@@ -201,6 +217,7 @@ gulp.task( "copy-library",
 				"bower_components/*/fonts/*.ttf",
 				"bower_components/*/fonts/*.woff",
 
+				//: @todo: This should be separated.
 				"bower_components/pubsub.js/src/pubsub.js",
 				"bower_components/qwest/src/qwest.js",
 				"bower_components/jsSHA/src/*.js",
@@ -240,8 +257,14 @@ gulp.task( "build", [
 gulp.task( "clean-build",
 	[ "clean-library", "copy-library" ],
 	function cleanTask( ){
+		var sourcePaths = [ "build" ];
+
+		if( argv.custom ){
+			sourcePaths.push( [ "build", argv.custom ].join( "-" ) );
+		}
+
 		return gulp
-			.src( "build", { "read": false } )
+			.src( sourcePaths, { "read": false } )
 			.pipe( plumber( ) )
 			.pipe( clean( { "force": true } ) );
 	} );
@@ -294,7 +317,14 @@ gulp.task( "build-script",
 			.pipe( replace( MODE_PATTERN, MODE_REPLACER ) )
 			.pipe( replace( ADMINISTRATOR_SPECIFIC_MODE_PATTERN, ADMINISTRATOR_SPECIFIC_MODE_REPLACER ) )
 			.pipe( replace( ADMINISTRATOR_GENERAL_MODE_PATTERN, ADMINISTRATOR_GENERAL_MODE_REPLACER ) )
-			.pipe( replace( CLIENT_MODE_PATTERN, CLIENT_MODE_REPLACER ) )
+			.pipe( replace( CLIENT_MODE_PATTERN, CLIENT_MODE_REPLACER ) );
+
+		if( argv.custom ){
+			stream = stream
+				.pipe( replace( CUSTOM_MODE_PATTERN, CUSTOM_MODE_REPLACER ) )
+		}
+
+		stream = stream
 			.pipe( replace( CLEAN_UP_PATTERN, "" ) )
 			.pipe( sourcemaps.init( ) )
 			.pipe( concat( [ APPLICATION_NAME, "js" ].join( "." ) ) )
@@ -453,7 +483,14 @@ gulp.task( "build-index",
 			.pipe( replace( DEVELOPMENT_MODE_PATTERN, DEVELOPMENT_MODE_REPLACER ) )
 			.pipe( replace( ADMINISTRATOR_SPECIFIC_MODE_PATTERN, ADMINISTRATOR_SPECIFIC_MODE_REPLACER ) )
 			.pipe( replace( ADMINISTRATOR_GENERAL_MODE_PATTERN, ADMINISTRATOR_GENERAL_MODE_REPLACER ) )
-			.pipe( replace( CLIENT_MODE_PATTERN, CLIENT_MODE_REPLACER ) )
+			.pipe( replace( CLIENT_MODE_PATTERN, CLIENT_MODE_REPLACER ) );
+
+		if( argv.custom ){
+			stream = stream
+				.pipe( replace( CUSTOM_MODE_PATTERN, CUSTOM_MODE_REPLACER ) );
+		}
+
+		stream = stream
 			.pipe( replace( CLEAN_UP_PATTERN, "" ) )
 			.pipe( embedlr( ) )
 			.pipe( gulp.dest( "build" ) );
@@ -483,6 +520,12 @@ gulp.task( "deploy", [
 gulp.task( "clean-deploy",
 	[ "clean-library", "copy-library", "clean-build", "build-library" ],
 	function cleanTask( ){
+		var sourcePaths = [ "deploy" ];
+
+		if( argv.custom ){
+			sourcePaths.push( [ "deploy", argv.custom ].join( "-" ) );
+		}
+
 		return gulp
 			.src( "deploy", { "read": false } )
 			.pipe( plumber( ) )
@@ -492,28 +535,52 @@ gulp.task( "clean-deploy",
 gulp.task( "deploy-script",
 	[ "clean-build", "build-script", "clean-deploy" ],
 	function deployTask( ){
-		return gulp
+		var stream = gulp
 			.src( [
 				"build/script/*.js",
 				"build/script/*.map"
 			] )
 			.pipe( plumber( ) )
-			.pipe( gulp.dest( "deploy/script" ) )
+			.pipe( gulp.dest( "deploy/script" ) );
+
+		if( argv.custom ){
+			var customDeployPath = "deploy/script"
+				.replace( "deploy",
+					[ "deploy", argv.custom ].join( "-" ) );
+
+			return stream
+				.pipe( gulp.dest( customDeployPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 gulp.task( "deploy-library",
 	[ "clean-library", "copy-library", "clean-build", "build-library", "clean-deploy" ],
 	function deployTask( ){
-		return gulp
+		var stream = gulp
 			.src( "build/library/*.*" )
 			.pipe( plumber( ) )
-			.pipe( gulp.dest( "deploy/library" ) )
+			.pipe( gulp.dest( "deploy/library" ) );
+
+		if( argv.custom ){
+			var customDeployPath = "deploy/library"
+				.replace( "deploy",
+					[ "deploy", argv.custom ].join( "-" ) );
+
+			return stream
+				.pipe( gulp.dest( customDeployPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 gulp.task( "deploy-font",
 	[ "deploy-library" ],
 	function deployTask( ){
-		return gulp
+		var stream = gulp
 			.src( [
 				"build/library/*.eot",
 				"build/library/*.svg",
@@ -521,33 +588,69 @@ gulp.task( "deploy-font",
 				"build/library/*.woff"
 			] )
 			.pipe( gulp.dest( "deploy/fonts" ) );
+
+		if( argv.custom ){
+			var customDeployPath = "deploy/fonts"
+				.replace( "deploy",
+					[ "deploy", argv.custom ].join( "-" ) );
+
+			return stream
+				.pipe( gulp.dest( customDeployPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 gulp.task( "deploy-style",
 	[ "clean-build", "build-less", "build-style", "clean-deploy" ],
 	function deployTask( ){
-		return gulp
+		var stream = gulp
 			.src( [
 				"build/style/*.css",
 				"build/style/*.map"
 			] )
 			.pipe( plumber( ) )
-			.pipe( gulp.dest( "deploy/style" ) )
+			.pipe( gulp.dest( "deploy/style" ) );
+
+		if( argv.custom ){
+			var customDeployPath = "deploy/style"
+				.replace( "deploy",
+					[ "deploy", argv.custom ].join( "-" ) );
+
+			return stream
+				.pipe( gulp.dest( customDeployPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 gulp.task( "deploy-image",
 	[ "clean-build", "clean-deploy" ],
 	function deployTask( ){
-		return gulp
+		var stream = gulp
 			.src( "build/image/*.*" )
 			.pipe( plumber( ) )
 			.pipe( gulp.dest( "deploy/image" ) );
+
+		if( argv.custom ){
+			var customDeployPath = "deploy/image"
+				.replace( "deploy",
+					[ "deploy", argv.custom ].join( "-" ) );
+
+			return stream
+				.pipe( gulp.dest( customDeployPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 gulp.task( "deploy-index",
 	[ "clean-deploy" ],
 	function buildTask( ){
-		return gulp
+		var stream = gulp
 			.src( "client/index.html" )
 			.pipe( plumber( ) )
 			.pipe( replace( INCLUDE_SCRIPT_PATTERN, INCLUDE_SCRIPT_REPLACER ) )
@@ -555,9 +658,26 @@ gulp.task( "deploy-index",
 			.pipe( replace( PRODUCTION_MODE_PATTERN, PRODUCTION_MODE_REPLACER ) )
 			.pipe( replace( ADMINISTRATOR_SPECIFIC_MODE_PATTERN, ADMINISTRATOR_SPECIFIC_MODE_REPLACER ) )
 			.pipe( replace( ADMINISTRATOR_GENERAL_MODE_PATTERN, ADMINISTRATOR_GENERAL_MODE_REPLACER ) )
-			.pipe( replace( CLIENT_MODE_PATTERN, CLIENT_MODE_REPLACER ) )
+			.pipe( replace( CLIENT_MODE_PATTERN, CLIENT_MODE_REPLACER ) );
+
+		if( argv.custom ){
+			stream = stream
+				.pipe( replace( CUSTOM_MODE_PATTERN, CUSTOM_MODE_REPLACER ) );
+		}
+
+		stream = stream
 			.pipe( replace( CLEAN_UP_PATTERN, "" ) )
 			.pipe( gulp.dest( "deploy" ) );
+
+		if( argv.custom ){
+			var customBuildPath = [ "deploy", argv.custom ].join( "-" );
+
+			return stream
+				.pipe( gulp.dest( customBuildPath ) );
+
+		}else{
+			return stream;
+		}
 	} );
 
 gulp.task( "server-static",

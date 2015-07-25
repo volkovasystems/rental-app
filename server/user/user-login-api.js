@@ -13,6 +13,13 @@ User.prototype.login = function login( user ){
 };
 
 /*:
+	This will check the scope.
+*/
+APP.all( "/user/login",
+ 	function onUserLogin( request, response, next ){
+
+	} );
+/*:
 	This will check if the login data was empty.
 */
 APP.all( "/user/login",
