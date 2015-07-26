@@ -23,8 +23,18 @@ var fs = require( "fs" );
 var path = require( "path" );
 var argv = require( "yargs" ).argv;
 
-const INCLUDE_SCRIPT_PATTERN = /(?:\<\!\-\-\:)?(\s*).*?\@include\-script\:(\"[^\"]+?\").*?(\s*)(?:\-\-\>)?/g;
-const INCLUDE_STYLE_PATTERN = /(?:\<\!\-\-\:)?(\s*).*?\@include\-style\:(\"[^\"]+?\").*?(\s*)(?:\-\-\>)?/g;
+const INCLUDE_SCRIPT_PATTERN = new RegExp(
+	"(?:\\<\\!\\-\\-\\:)?(\\s*).*?"
+		+ "\\@include\\-script\\:"
+			+ '(\\"[^\\"]+?\\")'
+		+ ".*?(\\s*)(?:\\-\\-\\>)?",
+	"g" );
+const INCLUDE_STYLE_PATTERN = new RegExp(
+	"(?:\\<\\!\\-\\-\\:)?(\\s*).*?"
+		+ "\\@include\\-style\\:"
+			+ '(\\"[^\\"]+?\\")'
+		+ ".*?(\\s*)(?:\\-\\-\\>)?",
+	"g" );
 
 const MINIFIED_SCRIPT_PATTERN = /\.min\./g;
 const MINIFIED_STYLE_PATTERN = /\.min\./g;
@@ -36,22 +46,70 @@ const REACTJS_DOM_FLAG = "/** @jsx React.DOM */\n";
 const REACTJS_DOM_FLAG_PATTERN = /\/\*\*\s*\@jsx\s+React\.DOM\s*\*\/\n/g;
 const REACTJS_DOM_FLAG_REPLACER = "";
 
-const PRODUCTION_MODE_PATTERN = /(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@production\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-production\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?/gm;
+const PRODUCTION_MODE_PATTERN = new RegExp(
+	"(?:\\{?\\s*)?(?:\\<\\!\\-\\-\\:|\\/\\*\\:|\\/\\/\\:)?(\\s*).*?"
+		+ "\\@production\\-mode\\:"
+			+ "(?:\\s*\\*\\/ \\}?)?\\s*"
+				+ "([^]+?)\\s*"
+			+ "(?:\\{?\\s*\\/\\*\\s*|\\/\\/\\:\\s*)?"
+		+"\\@end\\-production\\-mode"
+	+ ".*?(\\s*)(?:\\-\\-\\>|\\*\\/)?(?: \\}?)?",
+	"gm" );
 const PRODUCTION_MODE_REPLACER = "\n$1$2$3\n";
 
-const DEVELOPMENT_MODE_PATTERN = /(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@development\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-development\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?/gm;
+const DEVELOPMENT_MODE_PATTERN = new RegExp(
+	"(?:\\{?\\s*)?(?:\\<\\!\\-\\-\\:|\\/\\*\\:|\\/\\/\\:)?(\\s*).*?"
+		+ "\\@development\\-mode\\:"
+			+ "(?:\\s*\\*\\/ \\}?)?\\s*"
+				+ "([^]+?)\\s*"
+			+ "(?:\\{?\\s*\\/\\*\\s*|\\/\\/\\:\\s*)?"
+		+ "\\@end\\-development\\-mode"
+	+ ".*?(\\s*)(?:\\-\\-\\>|\\*\\/)?(?: \\}?)?",
+	"gm" );
 const DEVELOPMENT_MODE_REPLACER = "\n$1$2$3\n";
 
-const CLIENT_MODE_PATTERN = /(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@client\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-client\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?/gm;
+const CLIENT_MODE_PATTERN = new RegExp(
+	"(?:\\{?\\s*)?(?:\\<\\!\\-\\-\\:|\\/\\*\\:|\\/\\/\\:)?(\\s*).*?"
+		+ "\\@client\\-mode\\:"
+			+ "(?:\\s*\\*\\/ \\}?)?\\s*"
+				+ "([^]+?)\\s*"
+			+ "(?:\\{?\\s*\\/\\*\\s*|\\/\\/\\:\\s*)?"
+		+ "\\@end\\-client\\-mode"
+	+ ".*?(\\s*)(?:\\-\\-\\>|\\*\\/)?(?: \\}?)?",
+	"gm" );
 var CLIENT_MODE_REPLACER = "\n$1$2$3\n";
 
-const ADMINISTRATOR_MODE_PATTERN = /(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@administrator\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-administrator\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?/gm;
+const ADMINISTRATOR_MODE_PATTERN = new RegExp(
+	"(?:\\{?\\s*)?(?:\\<\\!\\-\\-\\:|\\/\\*\\:|\\/\\/\\:)?(\\s*).*?"
+		+ "\\@administrator\\-mode\\:"
+			+ "(?:\\s*\\*\\/ \\}?)?\\s*"
+				+ "([^]+?)\\s*"
+			+ "(?:\\{?\\s*\\/\\*\\s*|\\/\\/\\:\\s*)?"
+		+ "\\@end\\-administrator\\-mode"
+	+ ".*?(\\s*)(?:\\-\\-\\>|\\*\\/)?(?: \\}?)?",
+	"gm" );
 const ADMINISTRATOR_MODE_REPLACER = "\n$1$2$3\n";
 
-const ADMINISTRATOR_DEVELOPMENT_MODE_PATTERN = /(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@administrator\-development\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-administrator\-development\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?/gm;
+const ADMINISTRATOR_DEVELOPMENT_MODE_PATTERN = new RegExp(
+	"(?:\\{?\\s*)?(?:\\<\\!\\-\\-\\:|\\/\\*\\:|\\/\\/\\:)?(\\s*).*?"
+		+ "\\@administrator-development\\-mode\\:"
+			+ "(?:\\s*\\*\\/ \\}?)?\\s*"
+				+ "([^]+?)\\s*"
+			+ "(?:\\{?\\s*\\/\\*\\s*|\\/\\/\\:\\s*)?"
+		+ "\\@end\\-administrator-development\\-mode"
+	+ ".*?(\\s*)(?:\\-\\-\\>|\\*\\/)?(?: \\}?)?",
+	"gm" );
 const ADMINISTRATOR_DEVELOPMENT_MODE_REPLACER = "\n$1$2$3\n";
 
-const ADMINISTRATOR_PRODUCTION_MODE_PATTERN = /(?:\{?\s*)?(?:\<\!\-\-\:|\/\*\:|\/\/\:)?(\s*).*?\@administrator\-production\-mode\:(?:\s*\*\/ \}?)?\s*([^]+?)\s*(?:\{?\s*\/\*\s*|\/\/\:\s*)?\@end\-administrator\-production\-mode.*?(\s*)(?:\-\-\>|\*\/)?(?: \}?)?/gm;
+const ADMINISTRATOR_PRODUCTION_MODE_PATTERN = new RegExp(
+	"(?:\\{?\\s*)?(?:\\<\\!\\-\\-\\:|\\/\\*\\:|\\/\\/\\:)?(\\s*).*?"
+		+ "\\@administrator-production\\-mode\\:"
+			+ "(?:\\s*\\*\\/ \\}?)?\\s*"
+				+ "([^]+?)\\s*"
+			+ "(?:\\{?\\s*\\/\\*\\s*|\\/\\/\\:\\s*)?"
+		+ "\\@end\\-administrator-production\\-mode"
+	+ ".*?(\\s*)(?:\\-\\-\\>|\\*\\/)?(?: \\}?)?",
+	"gm" );
 const ADMINISTRATOR_PRODUCTION_MODE_REPLACER = "\n$1$2$3\n";
 
 const ADMINISTRATOR_ALL_MODE_PATTERN = new RegExp(
@@ -80,39 +138,45 @@ const SUB_TEMPLATE_PATTERN = /(?:\{?\s*\/\*\:|\;\s*\/\/\:)?\s*\@sub-template\:\s
 
 const APPLICATION_NAME = argv.appName || "rental-app";
 
+var MODE_PATTERN = null;
+var MODE_REPLACER = null;
 if( argv.production ){
-	var MODE_PATTERN = PRODUCTION_MODE_PATTERN;
-	var MODE_REPLACER = PRODUCTION_MODE_REPLACER;
+	MODE_PATTERN = PRODUCTION_MODE_PATTERN;
+	MODE_REPLACER = PRODUCTION_MODE_REPLACER;
 
 }else if( argv.development ){
-	var MODE_PATTERN = DEVELOPMENT_MODE_PATTERN;
-	var MODE_REPLACER = DEVELOPMENT_MODE_REPLACER;
+	MODE_PATTERN = DEVELOPMENT_MODE_PATTERN;
+	MODE_REPLACER = DEVELOPMENT_MODE_REPLACER;
 
 }else{
 	throw new Error( "no mode provided" );
 }
 
+var ADMINISTRATOR_GENERAL_MODE_PATTERN = null;
+var ADMINISTRATOR_GENERAL_MODE_REPLACER = null;
 if( argv.administrator ){
-	var ADMINISTRATOR_GENERAL_MODE_PATTERN = ADMINISTRATOR_MODE_PATTERN;
-	var ADMINISTRATOR_GENERAL_MODE_REPLACER = ADMINISTRATOR_MODE_REPLACER;
+	ADMINISTRATOR_GENERAL_MODE_PATTERN = ADMINISTRATOR_MODE_PATTERN;
+	ADMINISTRATOR_GENERAL_MODE_REPLACER = ADMINISTRATOR_MODE_REPLACER;
 	CLIENT_MODE_REPLACER = "\n";
 
 }else{
-	var ADMINISTRATOR_GENERAL_MODE_PATTERN = ADMINISTRATOR_MODE_PATTERN;
-	var ADMINISTRATOR_GENERAL_MODE_REPLACER = "\n";
+	ADMINISTRATOR_GENERAL_MODE_PATTERN = ADMINISTRATOR_MODE_PATTERN;
+	ADMINISTRATOR_GENERAL_MODE_REPLACER = "\n";
 }
 
+var ADMINISTRATOR_SPECIFIC_MODE_PATTERN = null;
+var ADMINISTRATOR_SPECIFIC_MODE_REPLACER = null;
 if( argv.administrator && argv.production ){
-	var ADMINISTRATOR_SPECIFIC_MODE_PATTERN = ADMINISTRATOR_PRODUCTION_MODE_PATTERN;
-	var ADMINISTRATOR_SPECIFIC_MODE_REPLACER = ADMINISTRATOR_PRODUCTION_MODE_REPLACER;
+	ADMINISTRATOR_SPECIFIC_MODE_PATTERN = ADMINISTRATOR_PRODUCTION_MODE_PATTERN;
+	ADMINISTRATOR_SPECIFIC_MODE_REPLACER = ADMINISTRATOR_PRODUCTION_MODE_REPLACER;
 
 }else if( argv.administrator && argv.development ){
-	var ADMINISTRATOR_SPECIFIC_MODE_PATTERN = ADMINISTRATOR_DEVELOPMENT_MODE_PATTERN;
-	var ADMINISTRATOR_SPECIFIC_MODE_REPLACER = ADMINISTRATOR_DEVELOPMENT_MODE_REPLACER;
+	ADMINISTRATOR_SPECIFIC_MODE_PATTERN = ADMINISTRATOR_DEVELOPMENT_MODE_PATTERN;
+	ADMINISTRATOR_SPECIFIC_MODE_REPLACER = ADMINISTRATOR_DEVELOPMENT_MODE_REPLACER;
 
 }else{
-	var ADMINISTRATOR_SPECIFIC_MODE_PATTERN = ADMINISTRATOR_ALL_MODE_PATTERN;
-	var ADMINISTRATOR_SPECIFIC_MODE_REPLACER = "\n";
+	ADMINISTRATOR_SPECIFIC_MODE_PATTERN = ADMINISTRATOR_ALL_MODE_PATTERN;
+	ADMINISTRATOR_SPECIFIC_MODE_REPLACER = "\n";
 }
 
 var customBuild = argv.custom || "";
