@@ -5,7 +5,7 @@ var util = require( "util" );
 
 require( "../model/model.js" );
 
-require( "../utility/responsible.js" );
+require( "responsable" );
 
 var Room = function Room( ){
 	if( this instanceof Room ){
@@ -48,7 +48,7 @@ var Room = function Room( ){
 
 util.inherits( Room, Model );
 
-Responsible( ).compose( Room );
+Responsable( ).compose( Room );
 
 Room.prototype.add = function add( room ){
 	var roomData = _.extend( {

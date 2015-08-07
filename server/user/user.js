@@ -6,8 +6,8 @@ var secrets = require( "secrets.js" );
 var unirest = require( "unirest" );
 var util = require( "util" );
 
-var encodePassphrase = require( "../utility/encode-passphrase.js" );
-var decodePassphrase = require( "../utility/decode-passphrase.js" );
+var encodePassphrase = require( "encode-passphrase" );
+var decodePassphrase = require( "decode-passphrase" );
 
 require( "../model/model.js" );
 

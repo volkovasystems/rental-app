@@ -19,6 +19,7 @@ util.inherits( Blockable, Composite );
 Blockable.prototype.block = function block( ){
 	var inheritanceList = [ this.constructor ];
 	var currentParent = this.constructor;
+
 	while( "super_" in currentParent ){
 		inheritanceList.push( currentParent.super_ );
 		currentParent = currentParent.super_;
@@ -51,3 +52,5 @@ Blockable.prototype.block = function block( ){
 };
 
 global.Blockable = Blockable;
+
+module.exports = Blockable;

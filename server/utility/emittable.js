@@ -12,3 +12,5 @@ var Emittable = function Emittable( ){
 util.inherits( Emittable, events.EventEmitter );
 
 global.Emittable = Emittable;
+
+module.exports = Emittable;

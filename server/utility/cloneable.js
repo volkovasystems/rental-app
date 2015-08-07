@@ -9,7 +9,13 @@ var Cloneable = function Cloneable( ){
 
 util.inherits( Cloneable, Composite );
 
-Cloneable.prototype.clone = function clone( ){
+Cloneable.prototype.clone = function clone( name ){
+	if( name in this &&
+	 	this[ name ] )
+	{
+		return this[ name ];
+	}
+
 	var copy = new this.constructor( );
 
 	var inheritanceList = [ this.constructor ];
@@ -31,14 +37,14 @@ Cloneable.prototype.clone = function clone( ){
 		.without( "constructor" )
 		.filter( ( function onEachMethodName( methodName ){
 			return (
-				!_.contains( this.exemptedMethods, methodName ) && 
+				!_.contains( this.exemptedMethods, methodName ) &&
 				( typeof this[ methodName ] == "function" )
 			);
 		} ).bind( this ) )
 		.filter( ( function onEachMethodName( methodName ){
 			return (
 				!( /\[\s*native\s*\]/ ).test( this[ methodName ].toString( ) ) ||
-				"originalMethod" in this[ methodName ] 
+				"originalMethod" in this[ methodName ]
 			);
 		} ).bind( this ) )
 		.value( );
@@ -54,7 +60,7 @@ Cloneable.prototype.clone = function clone( ){
 					"get": ( function get( ){
 						return this[ property ];
 					} ).bind( this ),
-					
+
 					"set": ( function set( value ){
 						this[ property ] = value;
 					} ).bind( this )
@@ -68,8 +74,13 @@ Cloneable.prototype.clone = function clone( ){
 
 	copy.self = this;
 
+	if( name ){
+		this[ name ] = copy;
+	}
+	
 	return copy;
 };
 
 global.Cloneable = Cloneable;
 
+module.exports = Cloneable;

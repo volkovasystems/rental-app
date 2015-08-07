@@ -29,7 +29,7 @@ var Model = function Model( namespace ){
 		this.scopes = [ ];
 
 		/*:
-			Searches are used to limit what data can be 
+			Searches are used to limit what data can be
 				used as search query.
 		*/
 		this.searches = [ ];
@@ -51,7 +51,7 @@ var Model = function Model( namespace ){
 		this.tap( function applyScope( container, callback ){
 			if( this.disableScope ){
 				callback( );
-				
+
 				return;
 			}
 
@@ -74,7 +74,7 @@ var Model = function Model( namespace ){
 							function onEachData( data ){
 								return _.pick( data, data.scopes );
 							} );
-					
+
 					}else{
 						return parameter;
 					}
@@ -96,21 +96,21 @@ util.inherits( Model, Emittable );
 Waitable( ).compose( Model )
 	.configure( {
 		"exemptedClasses": [ "EventEmitter" ],
-		"exemptedMethods": [ 
-			"result", 
-			"sync", 
-			"tap", 
-			"tapping", 
+		"exemptedMethods": [
+			"result",
+			"sync",
+			"tap",
+			"tapping",
 			"composeReferences"
 		]
 	} );
 
 Cloneable( ).compose( Model )
 	.configure( {
-		"cloneableProperties": [ 
-			"references", 
-			"reference", 
-			"modelData", 
+		"cloneableProperties": [
+			"references",
+			"reference",
+			"modelData",
 			"referenceID"
 		]
 	} );
@@ -128,7 +128,7 @@ Model.prototype.add = function add( data ){
 	data.timestamps = [ Date.now( ) ];
 
 	data.referenceID = this.referenceID;
-	
+
 	( new this.model( data ) ).save( this.result.bind( this ) );
 
 	this.emit( "sync" );
@@ -164,14 +164,14 @@ Model.prototype.update = function update( data, reference ){
 		( function onResult( error, modelData ){
 			if( error ){
 				this.result( error );
-			
+
 			}else{
 				for( var property in data ){
 					if( data[ property ] !== null ){
 						/*:
 							Update rule when dealing with arrays.
-							
-							If the array has one element 
+
+							If the array has one element
 								it means we need to add it.
 
 							If the array has less elements than the previous
@@ -191,7 +191,7 @@ Model.prototype.update = function update( data, reference ){
 								with the new array.
 
 							Exception:
-								If the previous array has one element. 
+								If the previous array has one element.
 								And you want to remove and replace the previous
 									one with the new one, then you need
 									to provide a special format.
@@ -201,15 +201,15 @@ Model.prototype.update = function update( data, reference ){
 						{
 							if( data[ property ].length == 1 ){
 								modelData[ property ] = _.union( modelData[ property ], data[ property ] );
-							
+
 							}else if( data[ property ].length == 0 ){
 								modelData[ property ] = [ ];
-							
+
 							}else if( modelData[ property ].length != data[ property ].length ){
 								modelData[ property ] = data[ property ];
 							}
 
-							if( "exempt" in data[ property ] && 
+							if( "exempt" in data[ property ] &&
 								!_.isEmpty( data[ property ].exempt ) )
 							{
 								modelData[ property ] = _.without.call( null, [ modelData[ property ] ]
@@ -217,7 +217,7 @@ Model.prototype.update = function update( data, reference ){
 							}
 
 						}else{
-							modelData[ property ] = data[ property ];	
+							modelData[ property ] = data[ property ];
 						}
 					}
 				}
@@ -282,8 +282,8 @@ Model.prototype.edit = function edit( property, value, reference ){
 					return ( function editModelData( callback ){
 						/*:
 							Update rule when dealing with arrays.
-							
-							If the array has one element 
+
+							If the array has one element
 								it means we need to add it.
 
 							If the array has less elements than the previous
@@ -307,16 +307,16 @@ Model.prototype.edit = function edit( property, value, reference ){
 						{
 							if( value.length == 1 ){
 								modelData[ property ] = _.union( modelData[ property ], value );
-							
+
 							}else if( value.length == 0 ){
 								modelData[ property ] = [ ];
-							
+
 							}else if( modelData[ property ].length != value.length ){
 								modelData[ property ] = value;
 							}
 
 						}else{
-							modelData[ property ] = value;	
+							modelData[ property ] = value;
 						}
 
 						modelData.save( callback );
@@ -373,9 +373,9 @@ Model.prototype.remove = function remove( reference ){
 */
 Model.prototype.set = function set( property, value ){
 	if( typeof value != "undefined" ){
-		this[ property ] = value;	
+		this[ property ] = value;
 	}
-	
+
 	return this;
 };
 
@@ -395,11 +395,11 @@ Model.prototype.get = function get( property, value ){
 		_.isEmpty( arguments ) )
 	{
 		query = { "references": { "$in": [ this.reference ] } };
-	
+
 	}else if( "referenceID" in this &&
 		_.isEmpty( arguments ) )
 	{
-		/*: 
+		/*:
 			@todo:
 				We store the referenceID as part of the model,
 					maybe we can use OR here?
@@ -410,7 +410,7 @@ Model.prototype.get = function get( property, value ){
 	}else if( "references" in this &&
 		_.isEmpty( arguments ) )
 	{
-		query = { "references": { "$in": this.references } };	
+		query = { "references": { "$in": this.references } };
 
 	}else{
 		query[ property ] = value;
@@ -422,7 +422,7 @@ Model.prototype.get = function get( property, value ){
 		 modelQuery = modelQuery.sort( this.sort );
 	}
 
-	if( "index" in this && 
+	if( "index" in this &&
 		( /^\d+$/ ).test( this.index.toString( ) ) )
 	{
 		var index = parseInt( this.index );
@@ -456,11 +456,11 @@ Model.prototype.pick = function pick( property, value ){
 		_.isEmpty( arguments ) )
 	{
 		query = { "references": { "$in": [ this.reference ] } };
-	
+
 	}else if( "referenceID" in this &&
 		_.isEmpty( arguments ) )
 	{
-		/*: 
+		/*:
 			@todo:
 				We store the referenceID as part of the model,
 					maybe we can use OR here?
@@ -471,7 +471,7 @@ Model.prototype.pick = function pick( property, value ){
 	}else if( "references" in this &&
 		_.isEmpty( arguments ) )
 	{
-		query = { "references": { "$in": this.references } };	
+		query = { "references": { "$in": this.references } };
 
 	}else{
 		query[ property ] = value;
@@ -479,7 +479,7 @@ Model.prototype.pick = function pick( property, value ){
 
 	var modelQuery = this.model.findOne( query );
 
-	if( "index" in this && 
+	if( "index" in this &&
 		( /^\d+$/ ).test( this.index.toString( ) ) )
 	{
 		var index = parseInt( this.index );
@@ -499,7 +499,7 @@ Model.prototype.all = function all( ){
 		 modelQuery = modelQuery.sort( this.sort );
 	}
 
-	if( "index" in this && 
+	if( "index" in this &&
 		( /^\d+$/ ).test( this.index.toString( ) ) )
 	{
 		var index = parseInt( this.index );
@@ -546,7 +546,7 @@ Model.prototype.count = function count( data ){
 		modelQuery = modelQuery.limit( limit );
 	}
 
-	if( "index" in this && 
+	if( "index" in this &&
 		( /^\d+$/ ).test( this.index.toString( ) ) )
 	{
 		var index = parseInt( this.index );
@@ -557,7 +557,7 @@ Model.prototype.count = function count( data ){
 	modelQuery.exec( ( function onCount( error, count ){
 		if( error ){
 			this.result( error );
-			
+
 		}else{
 			this.result( null, count );
 		}
@@ -574,7 +574,7 @@ Model.prototype.exists = function exists( reference, expectedCount ){
 
 	var query = { "references": { "$in": references } };
 
-	this.model.count( query, 
+	this.model.count( query,
 		( function onCount( error, count ){
 			if( typeof expectedCount == "number" &&
 				expectedCount )
@@ -599,7 +599,11 @@ Model.prototype.has = function has( value, property ){
 	var query = { };
 	query[ property ] = value;
 
-	this.model.count( query, 
+	if( property === "references" ){
+		query = { "references": { "$in": _.flatten( [ value ] ) } };
+	}
+
+	this.model.count( query,
 		( function onCount( error, count ){
 			this.result( error, count >= 1 );
 		} ).bind( this ) );
@@ -619,7 +623,11 @@ Model.prototype.have = function have( value, property, expectedCount ){
 	var query = { };
 	query[ property ] = value;
 
-	this.model.count( query, 
+	if( property === "references" ){
+		query = { "references": { "$in": _.flatten( [ value ] ) } };
+	}
+
+	this.model.count( query,
 		( function onCount( error, count ){
 			this.result( error, count == expectedCount );
 		} ).bind( this ) );
@@ -660,7 +668,7 @@ Model.prototype.confirm = function confirm( data, expectedCount ){
 			}
 		} );
 
-	this.model.count( query, 
+	this.model.count( query,
 		( function onCount( error, count ){
 			if( typeof expectedCount == "number" &&
 				expectedCount )
@@ -707,7 +715,7 @@ Model.prototype.search = function search( value ){
 
 	_.each( this.searches, function onEachSearch( search ){
 		var query = { };
-		
+
 		query[ search ] = value;
 
 		queries.push( query );
@@ -733,7 +741,7 @@ Model.prototype.search = function search( value ){
 		modelQuery = modelQuery.limit( limit );
 	}
 
-	if( "index" in this && 
+	if( "index" in this &&
 		( /^\d+$/ ).test( this.index.toString( ) ) )
 	{
 		var index = parseInt( this.index );
@@ -773,7 +781,7 @@ Model.prototype.contains = function contains( value ){
 		modelQuery = modelQuery.limit( limit );
 	}
 
-	if( "index" in this && 
+	if( "index" in this &&
 		( /^\d+$/ ).test( this.index.toString( ) ) )
 	{
 		var index = parseInt( this.index );
@@ -791,7 +799,7 @@ Model.prototype.matches = function matches( value ){
 
 	_.each( this.searches, function onEachSearch( search ){
 		var query = { };
-		
+
 		query[ search ] = value;
 
 		queries.push( query );
@@ -809,7 +817,7 @@ Model.prototype.matches = function matches( value ){
 		modelQuery = modelQuery.limit( limit );
 	}
 
-	if( "index" in this && 
+	if( "index" in this &&
 		( /^\d+$/ ).test( this.index.toString( ) ) )
 	{
 		var index = parseInt( this.index );
@@ -883,7 +891,7 @@ Model.prototype.composeReferences = function composeReferences( reference ){
 /*:
 	Execute method of model let's you insert
 		interactive method that inhibits a wait and notify.
-		
+
 */
 Model.prototype.execute = function execute( method, data ){
 	this.wait( );

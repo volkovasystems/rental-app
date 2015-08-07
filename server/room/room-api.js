@@ -73,6 +73,19 @@ APP.all( "/api/:accessID/room/add",
 			.createReferenceID( room )
 			.exists( );
 	} );
+APP.all( "/api/:accessID/room/add",
+	function onAddRoom( request, response, next ){
+		var room = request.body;
+
+		var roomItems = room.roomItems;
+
+		RoomItem( )
+			.once( "result",
+			 	function onResult( ){
+
+				} )
+			.resolveRoomItems( roomItems )
+	} );
 APP.post( "/api/:accessID/room/add",
 	function onAddRoom( request, response ){
 		var room = request.body;

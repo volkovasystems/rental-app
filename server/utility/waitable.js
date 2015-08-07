@@ -38,14 +38,14 @@ Waitable.prototype.wait = function wait( ){
 		.filter( ( function onEachMethodName( methodName ){
 			return (
 				!( "compositeOf" in this[ methodName ] ) &&
-				!_.contains( this.exemptedMethods, methodName ) && 
+				!_.contains( this.exemptedMethods, methodName ) &&
 				( typeof this[ methodName ] == "function" )
 			);
 		} ).bind( this ) )
 		.filter( ( function onEachMethodName( methodName ){
 			return (
 				!( /\[\s*native\s*\]/ ).test( this[ methodName ].toString( ) ) ||
-				"originalMethod" in this[ methodName ] 
+				"originalMethod" in this[ methodName ]
 			);
 		} ).bind( this ) )
 		.value( );
@@ -55,15 +55,15 @@ Waitable.prototype.wait = function wait( ){
 	_.each( methods,
 		( function onEachMethodName( methodName ){
 			var originalMethod = this[ methodName ];
-			
+
 			this[ methodName ] = ( function delegateMethod( ){
 				var parameters = _.toArray( arguments );
-				
-				this.waitList.push( ( function delegateMethod( data ){
-					return originalMethod.apply( this, parameters.concat( [ data ] ) );
+
+				this.waitList.push( ( function delegateMethod( ){
+					return originalMethod.apply( this, parameters.concat( _.toArray( arguments ) ) );
 				} ).bind( this ) );
 
-				return this;			
+				return this;
 			} ).bind( this );
 
 			this[ methodName ].originalMethod = originalMethod;
@@ -71,18 +71,20 @@ Waitable.prototype.wait = function wait( ){
 
 	this.waitList = this.waitList.reverse( );
 
-	return this;	
+	return this;
 };
 
 Waitable.prototype.notify = function notify( data ){
-	if( this.waiting && 
+	var parameters = _.toArray( arguments );
+
+	if( this.waiting &&
 		this.waitList.length > 0 )
 	{
 		var waitList = this.waitList.reverse( );
 		process.nextTick( ( function onTick( ){
 			var self = this;
 
-			while( self = waitList.pop( ).call( self, data ), waitList.length );
+			while( self = waitList.pop( ).apply( self, parameters ), waitList.length );
 		} ).bind( this ) );
 	}
 
@@ -105,3 +107,5 @@ Waitable.prototype.flush = function flush( ){
 };
 
 global.Waitable = Waitable;
+
+exports.module = Waitable;

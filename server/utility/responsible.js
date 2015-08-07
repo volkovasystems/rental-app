@@ -26,3 +26,5 @@ Responsible.prototype.reply = function reply( response, code, type, data ){
 };
 
 global.Responsible = Responsible;
+
+module.exports = Responsible;

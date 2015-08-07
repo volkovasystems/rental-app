@@ -1,7 +1,7 @@
 var _ = require( "lodash" );
 var util = require( "util" );
 
-var decodePassphrase = require( "../utility/decode-passphrase.js" );
+var decodePassphrase = require( "decode-passphrase" );
 
 User.prototype.login = function login( user ){
 	this
