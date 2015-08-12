@@ -13,6 +13,9 @@ var Media = function Media( ){
 
 		this.scopes = [
 			"referenceID",
+			"hash",
+			"raw",
+			"URL"
 		];
 
 		this.searches = [

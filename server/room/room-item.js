@@ -177,9 +177,9 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 						}
 					} )
 					.value( ),
-					function finally( error, roomItems ){
-
-					} );
+					( function finally( error, roomItems ){
+						this.result( error, roomItems );
+					} ).bind( this ) );
 			}
 		} ).bind( this ) );
 };

@@ -1,4 +1,4 @@
-var AdminPage = React.createClass( {
+var AddRent = React.createClass( {
 	"mixins": [
 		ComponentMixin,
 
@@ -6,7 +6,7 @@ var AdminPage = React.createClass( {
 	],
 
 	"render": function onRender( ){
-		return; //: @template: template/admin-page.html
+		return; //: @template: template/add-rent.html
 	},
 
 	"getInitialState": function getInitialState( ){
@@ -23,5 +23,3 @@ var AdminPage = React.createClass( {
 		this.hide( );
 	}
 } );
-
-Component( "admin-page" ).load( "section[admin-page]", <AdminPage /> );
