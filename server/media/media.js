@@ -13,6 +13,7 @@ var Media = function Media( ){
 
 		this.scopes = [
 			"referenceID",
+			"type",
 			"hash",
 			"raw",
 			"URL"
@@ -39,6 +40,7 @@ Media.prototype.add = function add( media ){
 	var mediaData = _.extend( {
 		"mediaID": this.mediaID,
 
+		"type": media.type,
 		"hash": media.hash,
 		"raw": media.raw,
 		"URL": media.URL
@@ -55,6 +57,7 @@ Media.prototype.add = function add( media ){
 
 Media.prototype.update = function update( media, reference ){
 	var mediaData = _.extend( {
+		"type": media.type || null,
 		"hash": media.hash || null,
 		"raw": media.raw || null,
 		"URL": media.URL || null
@@ -72,6 +75,7 @@ Media.prototype.update = function update( media, reference ){
 Media.prototype.createReferenceID = function createReferenceID( media ){
 	var referenceID = crypto.createHash( "sha512" )
 		.update( _.flatten( [
+			media.type,
 			media.raw,
 			media.URL
 		] ).join( "-" ) )

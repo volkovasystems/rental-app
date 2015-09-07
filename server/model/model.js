@@ -300,7 +300,7 @@ Model.prototype.edit = function edit( property, value, reference ){
 
 							If there are no differences in lengths
 								it means we need to replace all the elements
-								with the new array.s
+								with the new array.
 						*/
 						if( modelData[ property ] instanceof Array &&
 							value instanceof Array )
