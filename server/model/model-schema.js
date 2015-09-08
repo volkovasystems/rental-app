@@ -2,10 +2,6 @@ var moment = require( "moment" );
 var mongoose = require( "mongoose" );
 var util = require( "util" );
 
-/*var time = new Schema( {
-	
-} )*/
-
 var model = function model( ){
 	mongoose.Schema.apply( this, arguments );
 
@@ -19,9 +15,9 @@ var model = function model( ){
 			} 
 		],
 
-		"timestamps": [ {
-			"type": Date
-		} ],
+		//: This will be in UTC format.
+		"timestamps": [ Date ],
+
 		"scopes": [ String ],
 		"searches": [ String ],
 		"domains": mongoose.Schema.Types.Mixed

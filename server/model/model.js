@@ -125,7 +125,7 @@ Model.prototype.add = function add( data ){
 
 	data.references = references;
 
-	data.timestamps = [ Date.now( ) ];
+	data.timestamps = [ new Date( ) ];
 
 	data.referenceID = this.referenceID;
 
@@ -227,7 +227,7 @@ Model.prototype.update = function update( data, reference ){
 				modelData.references = references;
 
 				if( "timestamps" in modelData ){
-					modelData.timestamps.push( Date.now( ) );
+					modelData.timestamps.push( new Date( ) );
 				}
 
 				modelData.save( this.result.bind( this ) );
