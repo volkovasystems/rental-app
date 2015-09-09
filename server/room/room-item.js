@@ -15,6 +15,7 @@ var RoomItem = function RoomItem( ){
 
 		this.scopes = [
 			"referenceID",
+			"reference",
 
 			"name",
 			"title",
@@ -109,10 +110,22 @@ RoomItem.prototype.createRoomItemID = function createRoomItemID( roomItem ){
 };
 
 RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
-	async.parallel( roomItems.map( function onEachRoomItem( roomItem ){
+	/*:
+		We will search for room items that doesn't have documents.
+
+		Extract them and save them.
+	*/
+	async.parallel( roomItems
+		.map( function onEachRoomItem( roomItem ){
 			return function resolveRoomItem( callback ){
 				RoomItem( )
 					.clone( )
+					.once( "error",
+						function onError( error ){
+							this.self.flush( );
+
+							callback( error );
+						} )
 					.once( "result",
 						function onResult( error, hasRoomItem ){
 							if( error ){
@@ -129,9 +142,13 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 								this.self.notify( );
 							}
 						} )
-					.has( roomItem, "name" )
+					.has( shardize( roomItem.item ), "name" )
 					.self
 					.wait( )
+					.once( "error",
+						function onError( error ){
+							callback( error );
+						} )
 					.once( "result",
 						function onResult( error, hasRoomItem ){
 							if( error ){
@@ -144,10 +161,10 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 								callback( null, roomItem );
 							}
 						} )
-					.has( roomItem, "references" );
+					.has( roomItem.item, "references" );
 			};
 		} ),
-		( function finally( error, roomItems ){
+		( function lastly( error, roomItems ){
 			if( error ){
 				this.result( error );
 
@@ -156,8 +173,10 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 					.compact( )
 					.map( function onEachRoomItem( roomItem ){
 						return {
-							"name": shardize( roomItem ),
-							"title": titlelize( roomItem )
+							"formatted": {
+								"name": roomItem.item		
+							},
+							"self": roomItem
 						};
 					} )
 					.map( function onEachRoomItem( roomItem ){
@@ -168,20 +187,29 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 										callback( error )
 									} )
 								.once( "result",
-									function onResult( error, roomItem ){
-										callback( error, roomItem );
+									function onResult( error, thisRoomItem ){
+										if( error ){
+											callback( error );
+
+										}else{
+											roomItem.self.item = thisRoomItem.referenceID;
+
+											callback( null, roomItem.self );
+										}
 									} )
-								.createReferenceID( roomItem )
-								.createRoomItemID( roomItem )
-								.add( roomItem );
+								.createReferenceID( roomItem.formatted )
+								.createRoomItemID( roomItem.formatted )
+								.add( roomItem.formatted );
 						}
 					} )
 					.value( ),
-					( function finally( error, roomItems ){
+					( function lastly( error, roomItems ){
 						this.result( error, roomItems );
 					} ).bind( this ) );
 			}
 		} ).bind( this ) );
+
+	return this;
 };
 
 global.RoomItem = RoomItem;

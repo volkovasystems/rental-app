@@ -23,11 +23,14 @@ APP.all( "/api/:accessID/room/item/all",
 	} );
 APP.get( "/api/:accessID/room/item/all",
 	function onGetAllRoomItem( request, response ){
-		var limit = request.query.limit;
-
-		var index = request.query.index;
-
 		var sort = request.query.sort;
+		var total = request.query.total;
+
+		var limit = request.query.limit;
+		var index = request.query.index;
+		
+		var page = request.query.page;
+		var size = request.query size;
 
 		RoomItem( )
 			.once( "error",

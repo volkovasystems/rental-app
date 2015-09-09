@@ -1,5 +1,33 @@
 var _ = require( "lodash" );
 
+APP.get( "/api/renter/:reference",
+	function onGetRenter( request, response ){
+		var reference = request.params.reference;
+
+		Renter( )
+			.once( "error",
+				function onError( error ){
+					this.reply( response, 500, "error", error.message );
+				} )
+			.once( "result",
+				function onResult( error, renter ){
+					if( error ){
+						this.reply( response, 500, "error", error.message );
+
+					}else{
+						this.reply( response, 200, "success", renter );
+					}
+				} )
+			.set( "scope", [
+				"reference",
+				"displayName",
+				"eMail",
+				"profilePicture",
+				"guests"
+			] )
+			.refer( reference );
+	} );
+
 APP.all( "/api/:accessID/renter/all",
 	function onGetAllRenter( request, response, next ){
 		Renter( )
@@ -23,11 +51,14 @@ APP.all( "/api/:accessID/renter/all",
 	} );
 APP.get( "/api/:accessID/renter/all",
 	function onGetAllRenter( request, response ){
-		var limit = request.query.limit;
-
-		var index = request.query.index;
-
 		var sort = request.query.sort;
+		var total = request.query.total;
+
+		var limit = request.query.limit;
+		var index = request.query.index;
+		
+		var page = request.query.page;
+		var size = request.query size;
 
 		Renter( )
 			.once( "error",
@@ -35,17 +66,20 @@ APP.get( "/api/:accessID/renter/all",
 					this.reply( response, 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, amenities ){
+				function onResult( error, renters ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", amenities );
+						this.reply( response, 200, "success", renters );
 					}
 				} )
+			.set( "sort", sort )
 			.set( "limit", limit )
 			.set( "index", index )
-			.set( "sort", sort )
+			.set( "page", page )
+			.set( "size", size )
+			.set( "total", total )
 			.all( );
 	} );
 
@@ -117,7 +151,7 @@ APP.all( "/api/:accessID/renter/:referenceID",
 						this.reply( response, 403, "failed", "renter does not exists" );
 					}
 				} )
-			.exists( );
+			.exists( referenceID );
 	} );
 APP.get( "/api/:accessID/renter/:referenceID",
 	function onGetRenter( request, response ){

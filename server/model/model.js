@@ -1,6 +1,7 @@
 var _ = require( "lodash" );
 var async = require( "async" );
 var events = require( "events" );
+var moment = require( "moment" );
 var mongoose = require( "mongoose" );
 var util = require( "util" );
 
@@ -22,6 +23,9 @@ var Model = function Model( namespace ){
 		}else{
 			this.model = mongoose.model( "Model" );
 		}
+
+		//: We need this for logging.
+		this.namespace = namespace || "Model";
 
 		/*:
 			Scopes are used to limit the data to be returned.
@@ -56,7 +60,7 @@ var Model = function Model( namespace ){
 			}
 
 			container.parameters = _( container.parameters )
-				.map( function onEachParameter( parameter ){
+				.map( ( function onEachParameter( parameter ){
 					if( parameter === null ){
 						return parameter;
 
@@ -64,21 +68,31 @@ var Model = function Model( namespace ){
 						typeof parameter == "object" &&
 						"__t" in parameter )
 					{
-						return _.pick( parameter, parameter.scopes );
+						if( this.useCustomScope ){
+							return _.pick( parameter, this.scope );
+
+						}else{
+							return _.pick( parameter, parameter.scopes );	
+						}
 
 					}else if( parameter instanceof Array &&
 						typeof parameter[ 0 ] == "object" &&
 						"__t" in parameter[ 0 ] )
 					{
 						return _.map( parameter,
-							function onEachData( data ){
-								return _.pick( data, data.scopes );
-							} );
+							( function onEachData( data ){
+								if( this.useCustomScope ){
+									return _.pick( data, this.scopes );
+
+								}else{
+									return _.pick( data, data.scopes );	
+								}
+							} ).bind( this ) );
 
 					}else{
 						return parameter;
 					}
-				} )
+				} ).bind( this ) )
 				.value( );
 
 			callback( );
@@ -118,6 +132,23 @@ Cloneable( ).compose( Model )
 Blockable( ).compose( Model );
 
 /*:
+	Logged changes to the document.
+*/
+Model.prototype.recordChange = function recordChange( event, data ){
+	var changes = data.changes || ( data.changes = [ ] );
+
+	changes.push( { 
+		"log": {
+			"namespace": this.namespace,
+			"event": event
+		},
+		"change": data
+	} );
+
+	return this;
+};
+
+/*:
 	Note this will only add, it will not check if the document already exists.
 */
 Model.prototype.add = function add( data ){
@@ -125,9 +156,9 @@ Model.prototype.add = function add( data ){
 
 	data.references = references;
 
-	data.timestamps = [ new Date( ) ];
-
 	data.referenceID = this.referenceID;
+
+	this.recordChange( "add", data );
 
 	( new this.model( data ) ).save( this.result.bind( this ) );
 
@@ -226,9 +257,7 @@ Model.prototype.update = function update( data, reference ){
 
 				modelData.references = references;
 
-				if( "timestamps" in modelData ){
-					modelData.timestamps.push( new Date( ) );
-				}
+				this.recordChange( "update", modelData.toObject( ) );
 
 				modelData.save( this.result.bind( this ) );
 			}
@@ -240,7 +269,8 @@ Model.prototype.update = function update( data, reference ){
 };
 
 /*:
-	This is one property editing.
+	This is one property editing but it will edit
+		as many documents based on the query.
 */
 Model.prototype.edit = function edit( property, value, reference ){
 	var references = this.composeReferences( reference );
@@ -318,6 +348,8 @@ Model.prototype.edit = function edit( property, value, reference ){
 						}else{
 							modelData[ property ] = value;
 						}
+
+						this.recordChange( "edit", modelData.toObject( ) );
 
 						modelData.save( callback );
 					} );
@@ -438,7 +470,85 @@ Model.prototype.get = function get( property, value ){
 		modelQuery = modelQuery.limit( limit );
 	}
 
-	modelQuery.exec( this.result.bind( this ) );
+	if( "page" in this &&
+		( /^\d+$/ ).test( this.page.toString( ) )
+		"size" in this &&
+		( /^\d+$/ ).test( this.size.toString( ) ) )
+	{
+		this.index = ( parseInt( this.page ) - 1 ) * parseInt( this.size );
+		this.limit = parseInt( this.size );
+			
+		if( "total" in this &&
+			( /^\d+$/ ).test( this.total.toString( ) ) )
+		{
+			this.total = parseInt( this.total );
+
+			if( this.index > this.total ){
+				this.index = 0;
+			}
+
+			if( this.limit > this.total ){
+				this.limit = this.total;
+			}
+
+			modelQuery
+				.skip( index )
+				.limit( limit )
+				.exec( ( function onExecute( error, result ){
+					this.result( error, {
+						"list": result,
+						"index": this.index,
+						"limit": this.limit,
+						"count": this.total
+					} );
+				} ).bind( this ) );
+
+		}else{
+			this.clone( )
+				.once( "error",
+					function onError( error ){
+						this.self.result( error );
+					} )
+				.once( "result",
+					function onResult( error, total ){
+						if( error ){
+							this.self.result( error );
+
+						}else{
+							if( this.index > total ){
+								this.index = 0;
+							}
+
+							if( this.limit > total ){
+								this.limit = total;
+							}
+
+							modelQuery
+								.skip( index )
+								.limit( limit )
+								.exec( ( function onExecute( error, result ){
+									this.result( error, {
+										"list": result,
+										"index": this.index,
+										"limit": this.limit,
+										"count": this.total
+									} );
+								} ).bind( this.self ) );
+						}
+					} )
+				.count( );
+		}
+
+	}else{
+		modelQuery.exec( ( function onExecute( error, result ){
+			this.result( error, {
+				"list": result,
+				"index": this.index,
+				"limit": this.limit,
+				"count": this.total
+			} );
+		} ).bind( this ) );	
+	}
 
 	return this;
 };
@@ -488,6 +598,55 @@ Model.prototype.pick = function pick( property, value ){
 	}
 
 	modelQuery.exec( this.result.bind( this ) );
+
+	return this;
+};
+
+/*:
+	reference here is the given shortid.
+
+	Note that refer is similar to pick but you can only
+		use references to pick a document.
+*/
+Model.prototype.refer = function refer( reference ){
+	var query = { };
+
+	if( "reference" in this &&
+		_.isEmpty( arguments ) )
+	{
+		query = { "references": { "$in": [ this.reference ] } };
+
+	}else if( "referenceID" in this &&
+		_.isEmpty( arguments ) )
+	{
+		/*:
+			@todo:
+				We store the referenceID as part of the model,
+					maybe we can use OR here?
+			@end-todo
+		*/
+		query = { "references": { "$in": [ this.referenceID ] } };
+
+	}else if( "references" in this &&
+		_.isEmpty( arguments ) )
+	{
+		query = { "references": { "$in": this.references } };
+
+	}else if( !_.isEmpty( arguments ) && 
+		typeof reference == "string" &&
+		reference )
+	{
+		query.reference = reference;
+
+	}else{
+		this.result( new Error( "query is empty" ) );
+
+		return;
+	}
+
+	this.model
+		.findOne( query )
+		.exec( this.result.bind( this ) );
 
 	return this;
 };
@@ -579,7 +738,7 @@ Model.prototype.exists = function exists( reference, expectedCount ){
 			if( typeof expectedCount == "number" &&
 				expectedCount )
 			{
-				this.result( error, count == expectedCount );
+				this.result( error, count === expectedCount );
 
 			}else{
 				this.result( error, count >= 1 );

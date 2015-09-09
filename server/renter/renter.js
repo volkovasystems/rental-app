@@ -13,8 +13,13 @@ var Renter = function Renter( ){
 
 		this.scopes = [
 			"referenceID",
+			"reference",
+
 			"firstName",
+			"middleName",
 			"lastName",
+			"displayName",
+			"fullName",
 
 			"address",
 			"contactNumber",
@@ -24,16 +29,33 @@ var Renter = function Renter( ){
 			"idType",
 
 			"profilePicture",
-			"idImage"
+			"idImage",
+
+			"guests",
+
+			"name",
+			"title",
+			"description"
 		];
 
 		this.searches = [
 			"firstName",
+			"middleName",
 			"lastName",
+
+			"displayName",
+			"fullName",
+			
 			"address",
 			"contactNumber",
 			"eMail",
-			"idNumber"
+			
+			"idNumber",
+			"idType",
+			
+			"name",
+			"title",
+			"description"
 		];
 
 		this.domains = {
@@ -54,6 +76,7 @@ Renter.prototype.add = function add( renter ){
 		"renterID": this.renterID,
 
 		"firstName": renter.firstName,
+		"middleName": renter.middleName,
 		"lastName": renter.lastName,
 
 		"address": renter.address,
@@ -65,6 +88,17 @@ Renter.prototype.add = function add( renter ){
 
 		"profilePicture": renter.profilePicture,
 		"idImage": renter.idImage,
+
+		"guests": ( renter.guests || [ ] )
+			.map( function onEachGuest( guest ){
+				return {
+					"firstName": guest.firstName,
+					"middleName": guest.middleName,
+					"lastName": guest.lastName,
+
+					"contactNumber": guest.contactNumber
+				};
+			} ),
 
 		"scopes": this.scopes,
 		"searches": this.searches,
@@ -91,6 +125,24 @@ Renter.prototype.update = function update( renter, reference ){
 		"profilePicture": renter.profilePicture || null,
 		"idImage": renter.idImage || null,
 
+		"guests": ( function resolveGuests( renter ){
+			if( _.isEmpty( renter.guests ) ){
+				return null;
+			
+			}else{
+				return renter.guests
+					.map( function onEachGuest( guest ){
+						return {
+							"firstName": guest.firstName,
+							"middleName": guest.middleName,
+							"lastName": guest.lastName,
+
+							"contactNumber": guest.contactNumber
+						};
+					} );
+			}
+		} )( renter ),
+
 		"scopes": this.scopes || null,
 		"searches": this.searches || null,
 		"domains": this.domains || null
@@ -105,6 +157,7 @@ Renter.prototype.createReferenceID = function createReferenceID( renter ){
 	var referenceID = crypto.createHash( "sha512" )
 		.update( _.flatten( [
 			renter.firstName,
+			renter.middleName,
 			renter.lastName,
 			renter.idType,
 			renter.idNumber

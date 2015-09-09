@@ -23,29 +23,35 @@ APP.all( "/api/:accessID/room/all",
 	} );
 APP.get( "/api/:accessID/room/all",
 	function onGetAllRoom( request, response ){
-		var limit = request.query.limit;
-
-		var index = request.query.index;
-
 		var sort = request.query.sort;
+		var total = request.query.total;
 
+		var limit = request.query.limit;
+		var index = request.query.index;
+		
+		var page = request.query.page;
+		var size = request.query size;
+		
 		Room( )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, amenities ){
+				function onResult( error, rooms ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", amenities );
+						this.reply( response, 200, "success", rooms );
 					}
 				} )
+			.set( "sort", sort )
 			.set( "limit", limit )
 			.set( "index", index )
-			.set( "sort", sort )
+			.set( "page", page )
+			.set( "size", size )
+			.set( "total", total )
 			.all( );
 	} );
 
@@ -77,18 +83,41 @@ APP.all( "/api/:accessID/room/add",
 	function onAddRoom( request, response, next ){
 		var room = request.body;
 
+		/*:
+			This will be a list of room items in this format:
+			[
+				{
+					"item": String,
+					"count": Number
+				},
+				...
+			]
+
+			We need to preserve the references.
+		*/
 		var roomItems = room.roomItems;
 
 		RoomItem( )
+			.once( "error",
+				function onError( error ){
+					this.reply( response, 500, "error", error.message );
+				} )
 			.once( "result",
-			 	function onResult( ){
-
+			 	function onResult( error, roomItems ){
+			 		if( error ){
+			 			this.reply( response, 500, "error", error.message );	
+			 		
+			 		}else{
+			 			request.roomItems = roomItems;
+			 		}
 				} )
 			.resolveRoomItems( roomItems )
 	} );
 APP.post( "/api/:accessID/room/add",
 	function onAddRoom( request, response ){
 		var room = request.body;
+
+		room.roomItems = roomItems;
 
 		Room( )
 			.once( "error",
@@ -152,8 +181,6 @@ APP.get( "/api/:accessID/room/:referenceID",
 				} )
 			.pick( "referenceID", referenceID );
 	} );
-
-
 
 APP.all( "/api/:accessID/room/update/:referenceID",
 	function onUpdateRoom( request, response, next ){
