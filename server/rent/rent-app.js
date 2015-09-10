@@ -1,6 +1,7 @@
 var bodyParser = require( "body-parser" );
 var compression = require( "compression" );
 var express = require( "express" );
+var keygen = require( "keygenerator" );
 var session = require( "express-session" );
 
 global.APP = express( );

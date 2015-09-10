@@ -6,7 +6,7 @@ if( "option" in argv ){
 	require( argv.option );
 
 }else{
-	global.HOST = argv.host;
+	global.HOST = argv.host || "localhost";
 
 	global.PORT = parseInt( argv.port ) || 14000;
 

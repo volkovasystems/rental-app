@@ -1,7 +1,9 @@
 var bodyParser = require( "body-parser" );
 var compression = require( "compression" );
 var express = require( "express" );
+var keygen = require( "keygenerator" );
 var session = require( "express-session" );
+var util = require( "util" );
 
 global.APP = express( );
 
@@ -18,7 +20,7 @@ APP.use( bodyParser.json( { "limit": "50mb" } ) );
 APP.use( bodyParser.urlencoded( { "limit": "50mb", "extended": true } ) );
 	
 APP.use( session( { 
-	"secret": "t6v2busw2h&5i$mlzgqo-1((_c3pj9kg-^dh@lq(+7t5t%!zj^",
+	"secret": keygen.generate( { "specials": true } ),
 	"resave": true,
 	"saveUninitialized": true
 } ) );

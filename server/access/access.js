@@ -12,14 +12,15 @@ var Access = function Access( ){
 		Model.call( this, "Access" );
 
 		this.scopes = [ 
-			"domain",
+			"referenceID",
+			"reference",
 			"accessID",
-			"referenceID"
+			"domain"
 		];
 
 		this.searches = [
-			"domain", 
-			"referenceID"
+			"referenceID",
+			"domain"
 		];
 
 		this.domains = {

@@ -2,10 +2,17 @@ var mongoose = require( "mongoose" );
 
 require( "../model/model-schema.js" );
 
-var access = new ModelSchema( {
-	"accessID": String,
+var AccessSchema = new ModelSchema( {
+	"accessID": {
+		"type": String,
+		"unique": true,
+		"required": true
+	},
 	"hash": String,
 	"domain": String
 } );
 
-mongoose.model( "Model" ).discriminator( "Access", access );
+mongoose.model( "Model" ).discriminator( "Access", AccessSchema );
+
+global.AccessSchema = AccessSchema;
+module.exports = AccessSchema;
