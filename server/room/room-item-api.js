@@ -117,7 +117,7 @@ APP.all( "/api/:accessID/room/item/:referenceID",
 						this.reply( response, 403, "failed", "room item does not exists" );
 					}
 				} )
-			.exists( );
+			.exists( referenceID );
 	} );
 APP.get( "/api/:accessID/room/item/:referenceID",
 	function onGetRoomItem( request, response ){
@@ -138,7 +138,7 @@ APP.get( "/api/:accessID/room/item/:referenceID",
 					}
 				} )
 			.pick( "referenceID", referenceID );
-	} );m
+	} );
 
 APP.all( "/api/:accessID/room/item/update/:referenceID",
 	function onUpdateRoomItem( request, response, next ){

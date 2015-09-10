@@ -73,19 +73,6 @@ APP.all( "/api/:accessID/room/add",
 			.createReferenceID( room )
 			.exists( );
 	} );
-APP.all( "/api/:accessID/room/add",
-	function onAddRoom( request, response, next ){
-		var room = request.body;
-
-		var roomItems = room.roomItems;
-
-		RoomItem( )
-			.once( "result",
-			 	function onResult( ){
-
-				} )
-			.resolveRoomItems( roomItems )
-	} );
 APP.post( "/api/:accessID/room/add",
 	function onAddRoom( request, response ){
 		var room = request.body;
@@ -130,7 +117,7 @@ APP.all( "/api/:accessID/room/:referenceID",
 						this.reply( response, 403, "failed", "room does not exists" );
 					}
 				} )
-			.exists( );
+			.exists( referenceID );
 	} );
 APP.get( "/api/:accessID/room/:referenceID",
 	function onGetRoom( request, response ){
@@ -152,8 +139,6 @@ APP.get( "/api/:accessID/room/:referenceID",
 				} )
 			.pick( "referenceID", referenceID );
 	} );
-
-
 
 APP.all( "/api/:accessID/room/update/:referenceID",
 	function onUpdateRoom( request, response, next ){

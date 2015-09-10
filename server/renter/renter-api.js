@@ -117,7 +117,7 @@ APP.all( "/api/:accessID/renter/:referenceID",
 						this.reply( response, 403, "failed", "renter does not exists" );
 					}
 				} )
-			.exists( );
+			.exists( referenceID );
 	} );
 APP.get( "/api/:accessID/renter/:referenceID",
 	function onGetRenter( request, response ){
