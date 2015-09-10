@@ -147,7 +147,7 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 					.has( roomItem, "references" );
 			};
 		} ),
-		( function finally( error, roomItems ){
+		( function lastly( error, roomItems ){
 			if( error ){
 				this.result( error );
 
@@ -177,7 +177,7 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 						}
 					} )
 					.value( ),
-					( function finally( error, roomItems ){
+					( function lastly( error, roomItems ){
 						this.result( error, roomItems );
 					} ).bind( this ) );
 			}
