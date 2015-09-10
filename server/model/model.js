@@ -1,6 +1,7 @@
 var _ = require( "lodash" );
 var async = require( "async" );
 var events = require( "events" );
+var harden = require( "harden" );
 var moment = require( "moment" );
 var mongoose = require( "mongoose" );
 var util = require( "util" );
@@ -131,6 +132,12 @@ Cloneable( ).compose( Model )
 
 Blockable( ).compose( Model );
 
+harden.bind( Model )
+	( "NUMBER_PATTERN", ( /^\d+$/ ) );
+
+harden.bind( Model )
+	( "SORT_PATTERN", ( /^\-?[a-zA-Z]+$/ ) );
+
 /*:
 	Logged changes to the document.
 */
@@ -146,6 +153,41 @@ Model.prototype.recordChange = function recordChange( event, data ){
 	} );
 
 	return this;
+};
+
+/*:
+	This should only be used internally.
+*/
+Model.prototype.queryApplyPagination = function queryApplyPagination( modelQuery ){
+	if( "index" in this &&
+		Model.NUMBER_PATTERN.test( this.index.toString( ) ) )
+	{
+		var index = parseInt( this.index );
+
+		modelQuery = modelQuery.skip( index );
+	}
+
+	if( "limit" in this &&
+		Model.NUMBER_PATTERN.test( this.limit.toString( ) ) )
+	{
+		var limit = parseInt( this.limit );
+
+		modelQuery = modelQuery.limit( limit );
+	}
+
+	return modelQuery;
+};
+
+Model.prototype.queryApplySorting = function queryApplySorting( modelQuery ){
+	if( "sort" in this &&
+		typeof this.sort == "string" &&
+		this.sort
+		Model.SORT_PATTERN.test( this.sort ) )
+	{
+		 modelQuery = modelQuery.sort( this.sort );
+	}
+
+	return modelQuery;
 };
 
 /*:
@@ -271,6 +313,8 @@ Model.prototype.update = function update( data, reference ){
 /*:
 	This is one property editing but it will edit
 		as many documents based on the query.
+
+	If no query is given it will resort to using the given reference.
 */
 Model.prototype.edit = function edit( property, value, reference ){
 	var references = this.composeReferences( reference );
@@ -294,13 +338,14 @@ Model.prototype.edit = function edit( property, value, reference ){
 
 	var modelQuery = this.model.find( query );
 
-	if( "limit" in this &&
-		( /^\d+$/ ).test( this.limit.toString( ) ) )
-	{
-		var limit = parseInt( this.limit );
+	modelQuery = this.queryApplySorting( modelQuery );
 
-		modelQuery = modelQuery.limit( limit );
-	}
+	/*: 
+		We will apply pagination because 
+			we want to make it possible
+			to edit by a certain range.
+	*/
+	modelQuery = this.queryApplyPagination( modelQuery );
 
 	modelQuery.exec( ( function onEdit( error, modelDataList ){
 		if( error ){
@@ -444,8 +489,16 @@ Model.prototype.get = function get( property, value ){
 	{
 		query = { "references": { "$in": this.references } };
 
-	}else{
+	}else if( !_.isEmpty( arguments ) &&
+		typeof property == "string" 
+		property &&
+		typeof value != "undefined" &&
+		value )
+	{
 		query[ property ] = value;
+	
+	}else{
+		this.result( new Error( "empty query" ) );
 	}
 
 	var modelQuery = this.model.find( query );

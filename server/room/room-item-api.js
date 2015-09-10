@@ -141,7 +141,7 @@ APP.get( "/api/:accessID/room/item/:referenceID",
 					}
 				} )
 			.pick( "referenceID", referenceID );
-	} );m
+	} );
 
 APP.all( "/api/:accessID/room/item/update/:referenceID",
 	function onUpdateRoomItem( request, response, next ){

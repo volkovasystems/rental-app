@@ -113,6 +113,7 @@ Renter.prototype.add = function add( renter ){
 Renter.prototype.update = function update( renter, reference ){
 	var renterData = _.extend( {
 		"firstName": renter.firstName || null,
+		"middleName": renter.middleName || null,
 		"lastName": renter.lastName || null,
 
 		"address": renter.address || null,

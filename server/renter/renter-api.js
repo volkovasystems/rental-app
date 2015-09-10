@@ -18,6 +18,7 @@ APP.get( "/api/renter/:reference",
 						this.reply( response, 200, "success", renter );
 					}
 				} )
+			.set( "useCustomScope", true )
 			.set( "scope", [
 				"reference",
 				"displayName",

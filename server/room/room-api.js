@@ -159,7 +159,7 @@ APP.all( "/api/:accessID/room/:referenceID",
 						this.reply( response, 403, "failed", "room does not exists" );
 					}
 				} )
-			.exists( );
+			.exists( referenceID );
 	} );
 APP.get( "/api/:accessID/room/:referenceID",
 	function onGetRoom( request, response ){
@@ -222,7 +222,7 @@ APP.put( "/api/:accessID/room/update/:referenceID",
 						this.reply( response, 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success" );
+						this.reply( response, 200, "success", { "referenceID": room.referenceID } );
 					}
 				} )
 			.update( room, referenceID );
@@ -266,12 +266,12 @@ APP.put( "/api/:accessID/room/edit/:referenceID",
 					this.reply( response, 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error ){
+				function onResult( error, room ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success" );
+						this.reply( response, 200, "success", { "referenceID": room.referenceID } );
 					}
 				} )
 			.edit( property, value, referenceID );

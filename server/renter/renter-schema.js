@@ -1,4 +1,6 @@
 var mongoose = require( "mongoose" );
+var formatDisplayName = require( "../utility/format-display-name.js" );
+var formatFullName = require( "../utility/format-full-name.js" );
 
 require( "../model/model-schema.js" );
 
@@ -72,8 +74,17 @@ var RenterSchema = new ModelSchema( {
 } );
 
 RenterSchema.pre( "save",
-	function onSave( ){
+	function onSave( next ){
+		this.displayName = this.displayName || 
+			formatDisplayName( this.firstName, this.middleName, this.lastName );
 
+		this.fullName = this.fullName ||
+			formatFullName( this.firstName, this.middleName, this.lastName );
+
+		this.guests = ( this.guests || [ ] )
+			.map( function onEachGuest( ){
+
+			} )
 	} );
 
 mongoose.model( "Model" ).discriminator( "Renter", RenterSchema );
