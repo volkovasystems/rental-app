@@ -2,7 +2,7 @@ var mongoose = require( "mongoose" );
 
 require( "../model/model-schema.js" );
 
-var image = new MODEL_SCHEMA( {
+var MediaSchema = new MODEL_SCHEMA( {
 	"mediaID": String,
 	
 	//: This is the mime type of the media.
@@ -16,4 +16,7 @@ var image = new MODEL_SCHEMA( {
 	"URL": String
 } );
 
-mongoose.model( "Model" ).discriminator( "Media", media );
+mongoose.model( "Model" ).discriminator( "Media", MediaSchema );
+
+global.MediaSchema = MediaSchema;
+module.exports = MediaSchema;

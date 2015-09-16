@@ -110,6 +110,4 @@ Access.prototype.createAccessID = function createAccessID( access ){
 };
 
 global.Access = Access;
-
-
-
+module.exports = Access;

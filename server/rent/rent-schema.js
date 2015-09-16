@@ -19,7 +19,6 @@ var RentSchema = new ModelSchema( {
 			"required": true,
 			"index": true
 		},
-
 		//: These are searchable items.
 		"buildingNumber": {
 			"type": String,
@@ -52,7 +51,17 @@ var RentSchema = new ModelSchema( {
 			"type": Number,
 			"required": true,
 			"index": true
-		}
+		},
+		"name": {
+			"type": String,
+			"required": true
+		},
+		"title": {
+			"type": String,
+			"required": true
+		},
+		"description": String,
+		"tags": [ String ]
 	},
 	
 	"moveInDate": {

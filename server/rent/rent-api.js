@@ -25,7 +25,28 @@ APP.get( "/api/rent/:reference",
 			.set( "useCustomScope", true )
 			.set( "scope", [
 				"reference",
+				"moveInDate",
+				"duration.description",
+				"roomPrice",
 				
+				"room.buildingNumber",
+				"room.roomNumber",
+				"room.roomSize",
+				"room.name",
+				"room.title",
+				"room.description",
+				"room.tags",
+				
+				"renter.displayName",
+				"renter.guests.displayName",
+				"renter.name",
+				"renter.title",
+				"renter.description",
+
+				"name",
+				"title",
+				"description",
+				"tags"
 			] )
 			.refer( reference );
 	} );
@@ -54,29 +75,36 @@ APP.all( "/api/:accessID/rent/all",
 	} );
 APP.get( "/api/:accessID/rent/all",
 	function onGetAllRent( request, response ){
-		var limit = request.query.limit;
-
-		var index = request.query.index;
-
 		var sort = request.query.sort;
+		var total = request.query.total;
+
+		var limit = request.query.limit;
+		var index = request.query.index;
+		
+		var page = request.query.page;
+		var size = request.query size;
 
 		Rent( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result", 
-				function onResult( error, amenities ){
+				function onResult( error, response ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", amenities );
+						this.response( 200, "success", response );
 					}
 				} )
+			.set( "sort", sort )
 			.set( "limit", limit )
 			.set( "index", index )
-			.set( "sort", sort )
+			.set( "page", page )
+			.set( "size", size )
+			.set( "total", total )
 			.all( );
 	} );
 
@@ -85,20 +113,21 @@ APP.all( "/api/:accessID/rent/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		Rent( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result", 
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( existing ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "rent does not exists" );
+						this.response( 410, "failed", "rent does not exists" );
 					}
 				} ) 
 			.exists( );
@@ -108,17 +137,18 @@ APP.get( "/api/:accessID/rent/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		Rent( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result", 
 				function onResult( error, rent ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", rent );
+						this.response( 200, "success", rent );
 					}
 				} )
 			.pick( "referenceID", referenceID );
@@ -129,6 +159,7 @@ APP.all( "/api/:accessID/rent/add",
 		var rent = request.body;
 
 		Rent( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );

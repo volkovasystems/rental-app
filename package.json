@@ -36,6 +36,7 @@
     "gestalten": "^0.1.0",
     "gulp": "^3.9.0",
     "harden": "^0.2.0",
+    "home-dir": "^1.0.0",
     "keygenerator": "^1.0.4",
     "legit-mail": "0.0.0",
     "lodash": "^2.4.2",

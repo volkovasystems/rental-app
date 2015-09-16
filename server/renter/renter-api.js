@@ -26,9 +26,7 @@ APP.get( "/api/renter/:reference",
 			.set( "scope", [
 				"reference",
 				"displayName",
-				"eMail",
-				"profilePicture",
-				"guests",
+				"guests.displayName",
 				"name",
 				"title",
 				"description"

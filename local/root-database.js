@@ -5,6 +5,6 @@ require( "gestalten" )( {
 	"DB_HOST": "localhost",
 	"DB_NAME": "rootdb",
 	"DB_COLLECTION": "root",
-	"DB_PATH": require( "select-path" )( "C:\\db\\rental", "~/db/rental" ),
+	"DB_PATH": require( "./db-path.js" ),
 	"@require:credential": "./local/credential.js"
 } );

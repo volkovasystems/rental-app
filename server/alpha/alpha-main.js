@@ -15,7 +15,7 @@ require( "../access/access.js" );
 require( "../access/access-verify-api.js" );
 
 require( "../access/access-api.js" );
-console.log( "app server initialized" );
+console.log( "app server middleware initialized" );
 
 //: user server
 require( "../user/user-schema.js" );
@@ -31,7 +31,7 @@ require( "../user/user-login-api.js" );
 require( "../user/user-logout-api.js" );
 
 require( "../user/user-api.js" );
-console.log( "user server initialized" );
+console.log( "user server middleware initialized" );
 
 //: renter server
 require( "../renter/renter-schema.js" );
@@ -39,7 +39,7 @@ require( "../renter/renter-schema.js" );
 require( "../renter/renter.js" );
 
 require( "../renter/renter-api.js" );
-console.log( "renter server initialized" );
+console.log( "renter server middleware initialized" );
 
 //: room server
 require( "../room/room-schema.js" );
@@ -59,6 +59,6 @@ require( "../room/room-api.js" );
 require( "../room/room-item-api.js" );
 
 require( "../room/room-type-api.js" );
-console.log( "room server initialized" )
+console.log( "room server middleware initialized" );
 
 require( "./alpha-server.js" );
