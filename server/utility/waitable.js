@@ -74,6 +74,24 @@ Waitable.prototype.wait = function wait( ){
 	return this;
 };
 
+Waitable.prototype.consume = function consume( callback ){
+	if( !( this instanceof Waitable ) &&
+		Array.isArray( this ) )
+	{
+		var self = this.pop( );
+		var parameters = this;
+
+		if( typeof callback == "function" ){
+			callback.apply( self, parameters );	
+		}
+
+		return self;
+	
+	}else{
+		return this;		
+	}
+};
+
 Waitable.prototype.notify = function notify( data ){
 	var parameters = _.toArray( arguments );
 
@@ -82,8 +100,9 @@ Waitable.prototype.notify = function notify( data ){
 	{
 		var waitList = this.waitList.reverse( );
 		process.nextTick( ( function onTick( ){
-			var self = this;
+			this.consume = this.consume.bind( parameters.concat( [ this ] ) );
 
+			var self = this;
 			while( self = waitList.pop( ).apply( self, parameters ), waitList.length );
 		} ).bind( this ) );
 	}

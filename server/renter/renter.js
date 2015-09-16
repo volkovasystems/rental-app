@@ -11,10 +11,7 @@ var Renter = function Renter( ){
 	if( this instanceof Renter ){
 		Model.call( this, "Renter" );
 
-		this.scopes = [
-			"referenceID",
-			"reference",
-
+		this.setScopes( [
 			"firstName",
 			"middleName",
 			"lastName",
@@ -31,14 +28,10 @@ var Renter = function Renter( ){
 			"profilePicture",
 			"idImage",
 
-			"guests",
+			"guests"
+		] );
 
-			"name",
-			"title",
-			"description"
-		];
-
-		this.searches = [
+		this.setSearches( [
 			"firstName",
 			"middleName",
 			"lastName",
@@ -51,16 +44,12 @@ var Renter = function Renter( ){
 			"eMail",
 			
 			"idNumber",
-			"idType",
-			
-			"name",
-			"title",
-			"description"
-		];
+			"idType"
+		] );
 
-		this.domains = {
+		this.setDomains( {
 
-		};
+		} );
 
 	}else{
 		return new Renter( );
@@ -191,3 +180,4 @@ Renter.prototype.createRenterID = function createRenterID( renter ){
 };
 
 global.Renter = Renter;
+module.exports = Renter;

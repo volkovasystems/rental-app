@@ -1,6 +1,8 @@
+var legitMail = require( "legit-mail" );
 var mongoose = require( "mongoose" );
 var formatDisplayName = require( "../utility/format-display-name.js" );
 var formatFullName = require( "../utility/format-full-name.js" );
+var shardize = require( "shardize" );
 
 require( "../model/model-schema.js" );
 
@@ -24,10 +26,19 @@ var RenterSchema = new ModelSchema( {
 		"index": true
 	},
 
-	"displayName": String,
-	"fullName": String,
+	"displayName": {
+		"type": String,
+		"required": true
+	},
+	"fullName": {
+		"type": String,
+		"required": true
+	},
 
-	"address": String,
+	"address": {
+		"type": String,
+		"required": true
+	},
 	"contactNumber": {
 		"type": String,
 		"unique": true,
@@ -61,14 +72,29 @@ var RenterSchema = new ModelSchema( {
 
 	"guests": [
 		{
-			"firstName": String,
+			"firstName": {
+				"type": String,
+				"required": true
+			},
 			"middleName": String,
-			"lastName": String,
+			"lastName": {
+				"type": String,
+				"required": true
+			},
 
-			"displayName": String,
-			"fullName": String,
+			"displayName": {
+				"type": String,
+				"required": true
+			},
+			"fullName": {
+				"type": String,
+				"required": true
+			},
 
-			"contactNumber": String
+			"contactNumber": {
+				"type": String,
+				"required": true
+			}
 		}
 	]
 } );
@@ -82,9 +108,37 @@ RenterSchema.pre( "save",
 			formatFullName( this.firstName, this.middleName, this.lastName );
 
 		this.guests = ( this.guests || [ ] )
-			.map( function onEachGuest( ){
+			.map( function onEachGuest( guest ){
+				guest.displayName = guest.displayName || 
+					formatDisplayName( this.firstName, this.middleName, this.lastName );
 
-			} )
+				guest.fullName = guest.fullName ||
+					formatFullName( this.firstName, this.middleName, this.lastName );					
+
+				return guest;
+			} );
+
+		this.name = shardize( this.fullName );
+
+		next( );
+	} );
+
+RenterSchema.pre( "save", true,
+	function onSave( next, done ){
+		legitMail( this.eMail,
+			function onLegitCheck( error, isLegit ){
+				if( error ){
+					done( error );
+				
+				}else if( isLegit ){
+					done( );
+
+				}else{
+					done( new Error( "invalid e-mail address" ) );
+				}
+			} );
+
+		next( );
 	} );
 
 mongoose.model( "Model" ).discriminator( "Renter", RenterSchema );

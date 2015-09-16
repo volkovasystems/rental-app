@@ -5,17 +5,21 @@ APP.get( "/api/renter/:reference",
 		var reference = request.params.reference;
 
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, renter ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
+
+					}else if( _.isEmpty( renter ) ){
+						this.response( 410, "failed", "renter does not exists" );
 
 					}else{
-						this.reply( response, 200, "success", renter );
+						this.response( 200, "success", renter );
 					}
 				} )
 			.set( "useCustomScope", true )
@@ -24,7 +28,10 @@ APP.get( "/api/renter/:reference",
 				"displayName",
 				"eMail",
 				"profilePicture",
-				"guests"
+				"guests",
+				"name",
+				"title",
+				"description"
 			] )
 			.refer( reference );
 	} );

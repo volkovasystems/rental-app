@@ -4,6 +4,7 @@ var mongoose = require( "mongoose" );
 
 require( "../model/model-schema.js" );
 require( "./room-item.js" );
+require( "./room-type.js" );
 
 var RoomSchema = new ModelSchema( {
 	"roomID": {
@@ -24,17 +25,54 @@ var RoomSchema = new ModelSchema( {
 		"index": true
 	},
 
-	"roomType": String,
+	"roomType": {
+		"reference": {
+			"type": String,
+			"ref": "RoomType",
+			"required": true
+		},
+
+		"name": {
+			"type": String,
+			"required": true
+		},
+		
+		"title": {
+			"type": String,
+			"required": true
+		},
+		
+		"description": String,
+		
+		"tags": [ String ]
+	},
 	"roomSize": Number,
 
 	"roomItems": [ 
 		{
 			"item": {
-				"type": String,
-				"ref": "RoomItem",
-				"required": true
+				"reference": {
+					"type": String,
+					"ref": "RoomItem",
+					"required": true
+				},
+			
+				//: These are searchable properties.
+				"name": {
+					"type": String,
+					"required": true
+				},
+			
+				"title": {
+					"type": String,
+					"required": true
+				},
+			
+				"description": String,
+			
+				"tags": [ String ]
 			},
-
+			
 			"count": {
 				"type": Number,
 				"required": true,
@@ -50,44 +88,156 @@ var RoomSchema = new ModelSchema( {
 	}
 } );
 
-RoomSchema.pre( "save",
+RoomSchema.pre( "save", true,
 	function onSave( next, done ){
+		var roomItems = this.roomItems
+			.map( function onEachRoomItem( roomItem ){
+				if( typeof roomItem.item == "string" ){
+					roomItem.item = {
+						"reference": roomItem.item
+					};
+				}
+
+				return roomItem;
+			} );
+
+		this.roomItems = roomItems;
+		
 		async.parallel( this.roomItems
 			.map( function onEachRoomItem( roomItem ){
 				return function resolveRoomItem( callback ){
 					RoomItem( )
+						.clone( )
 						.once( "error",
 							function onError( error ){
+								this.self.flush( );
+
 								callback( error );
 							} )
 						.once( "result",
-							function onResult( error, result ){
+							function onResult( error, existing ){
 								if( error ){
 									this.self.flush( );
 
 									callback( error );
 
-								}else if( result ){
-									this.self.flush( );
-
-									/*:
-										Replace item reference with referenceID
-											because this should always be referenceID.
-									*/
-									roomItem.item = roomItem.referenceID;
-
-									callback( );
+								}else if( existing ){
+									this.self.notify( );
 
 								}else{
-									this.self.notify( );
+									callback( null, null );
 								}
 							} )
-						.refer( roomItem.item );
+						.exists( roomItem.item.reference )
+						.self
+						.wait( )
+						.once( "error",
+							function onError( error ){
+								callback( error );
+							} )
+						.once( "result",
+							function onResult( error, item ){
+								if( error ){
+									callback( error );
+
+								}else{
+									roomItem.item.name = item.name;
+
+									roomItem.item.title = item.title;
+
+									roomItem.item.description = item.description;
+
+									roomItem.item.tags = item.tags;
+
+									callback( null, roomItem );
+								}
+							} )
+						.pick( "referenceID", roomItem.item.reference );
 				};
 			} ),
-			function lastly( error ){
-				done( error );
-			} );
+			( function lastly( error, roomItems ){
+				if( error ){
+					done( error );	
+				
+				}else{
+					this.roomItems = roomItems;
+				}
+				
+			} ).bind( this ) );
+
+		next( );
+	} );
+
+//: This will pre-fill other properties for renter.
+RoomSchema.pre( "save", true,
+	function onSave( next, done ){
+		if( typeof this.roomType == "string" &&
+			this.roomType )
+		{
+			this.roomType = {
+				"reference": this.roomType
+			};
+		}
+
+		if( !( typeof this.roomType == "object" &&
+			"reference" in this.roomType &&
+			typeof this.roomType.reference == "string" &&
+			this.roomType.reference ) )
+		{
+			next( new Error( "invalid room type reference" ) );
+
+			return;
+		}
+
+		RoomType( )
+			.clone( )
+			.once( "error",
+				function onError( error ){
+					this.self.flush( );
+
+					done( error );
+				} )
+			.once( "result",
+				function onResult( error, exists ){
+					if( error ){
+						this.self.flush( );
+
+						done( error );
+					
+					}else if( exists ){
+						this.self.notify( );
+					
+					}else{
+						this.self.flush( );
+
+						done( new Error( "room type does not exists" ) );
+					}
+				} )
+			.exists( this.roomType.reference )
+			.self
+			.wait( )
+			.once( "error",
+				function onError( error ){
+					done( error );
+				} )
+			.once( "result",
+				( function onResult( error, roomType ){
+					if( error ){
+						done( error );
+						
+					}else{
+						this.roomType.name = roomType.name;
+						
+						this.roomType.title = roomType.title;
+
+						this.roomType.description = roomType.description,
+						
+						this.roomType.tags = roomType.tags;
+
+						done( )
+					}
+				} ).bind( this ) )
+			.pick( "referenceID", this.roomType.reference );
 
 		next( );
 	} );
@@ -96,4 +246,3 @@ mongoose.model( "Model" ).discriminator( "Room", RoomSchema );
 
 global.RoomSchema = RoomSchema;
 module.exports = RoomSchema;
-

@@ -33,6 +33,8 @@ var model = function model( ){
 		"title": String,
 		"description": String,
 
+		"tags": [ String ],
+
 		"referenceID": {
 			"type": String,
 			"unique": true,

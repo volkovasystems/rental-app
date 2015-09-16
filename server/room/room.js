@@ -11,10 +11,7 @@ var Room = function Room( ){
 	if( this instanceof Room ){
 		Model.call( this, "Room" );
 
-		this.scopes = [
-			"referenceID",
-			"reference",
-
+		this.scopes = _.union( [
 			"buildingNumber",
 			"roomNumber",
 
@@ -23,12 +20,8 @@ var Room = function Room( ){
 
 			"roomItems",
 
-			"occupantLimit",
-
-			"name",
-			"title",
-			"description"
-		];
+			"occupantLimit"
+		], Model.DEFAULT_SCOPE );
 
 		this.searches = [
 			"buildingNumber",
@@ -39,11 +32,7 @@ var Room = function Room( ){
 
 			"roomItems",
 
-			"occupantLimit",
-
-			"name",
-			"title",
-			"description"
+			"occupantLimit"
 		];
 
 		this.domains = {
@@ -159,3 +148,4 @@ Room.prototype.createRoomID = function createRoomID( room ){
 };
 
 global.Room = Room;
+module.exports = Room;

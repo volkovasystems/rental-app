@@ -9,6 +9,5 @@ require( "script-lister" ).bind( module )( [
 	"utility/decode-passphrase.js",
 	"utility/get.js",
 	"utility/post.js",
-	"utility/put.js",
-	
+	"utility/put.js"
 ] );

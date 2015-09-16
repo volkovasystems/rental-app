@@ -13,25 +13,6 @@ var RoomItem = function RoomItem( ){
 	if( this instanceof RoomItem ){
 		Model.call( this, "RoomItem" );
 
-		this.scopes = [
-			"referenceID",
-			"reference",
-
-			"name",
-			"title",
-			"description"
-		];
-
-		this.searches = [
-			"name",
-			"title",
-			"description"
-		];
-
-		this.domains = {
-
-		};
-
 	}else{
 		return new RoomItem( );
 	}
@@ -114,6 +95,11 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 		We will search for room items that doesn't have documents.
 
 		Extract them and save them.
+
+		@todo:
+			Make the query fast by introducing a custom query
+				to get all room items not in the database.
+		@end-todo
 	*/
 	async.parallel( roomItems
 		.map( function onEachRoomItem( roomItem ){
@@ -200,7 +186,7 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 								.createReferenceID( roomItem.formatted )
 								.createRoomItemID( roomItem.formatted )
 								.add( roomItem.formatted );
-						}
+						};
 					} )
 					.value( ),
 					( function lastly( error, roomItems ){
@@ -213,3 +199,4 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 };
 
 global.RoomItem = RoomItem;
+module.exports = RoomItem;

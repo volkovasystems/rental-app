@@ -1,22 +1,10 @@
-var fs = require( "fs" );
-var os = require( "os" );
-
-var local = {
+require( "gestalten" )( {
 	"HOST": "localhost",
-	"PORT": 14002,
-	"DB_PORT": 14001,
+	"PORT": 20002,
+	"DB_PORT": 20001,
 	"DB_HOST": "localhost",
-	"DB_NAME": "parqdb",
-	"DB_COLLECTION": "parq",
-	"DB_PATH": 
-		( /^Windows/ ).test( os.type( ) )? 
-			"C:\\db\\parq":
-			"~/db/parq",
-
-	//"DB_USERNAME": JSON.parse( fs.readFileSync( "./local/username.json" ).toString( ) ),
-	//"DB_PASSWORD": JSON.parse( fs.readFileSync( "./local/password.json" ).toString( ) )
-};
-
-for( var property in local ){
-	global[ property ] = local[ property ];
-}
+	"DB_NAME": "rentaldb",
+	"DB_COLLECTION": "rental",
+	"DB_PATH": require( "select-path" )( "C:\\db\\rental", "~/db/rental" ),
+	"@require:credential": "./local/credential.js"
+} );

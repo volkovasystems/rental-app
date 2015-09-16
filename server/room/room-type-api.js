@@ -1,25 +1,25 @@
 var _ = require( "lodash" );
 
-APP.get( "/api/room/item/:reference",
-	function onGetRoomItem( request, response ){
+APP.get( "/api/room/type/:reference",
+	function onGetRoomType( request, response ){
 		var reference = request.params.reference;
 
-		RoomItem( )
+		RoomType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, roomItem ){
+				function onResult( error, roomType ){
 					if( error ){
 						this.response( 500, "error", error.message );
 
-					}else if( _.isEmpty( roomItem ) ){
-						this.response( 410, "failed", "room item does not exists" );
+					}else if( _.isEmpty( roomType ) ){
+						this.response( 410, "failed", "room type does not exists" );
 
 					}else{
-						this.response( 200, "success", roomItem );
+						this.response( 200, "success", roomType );
 					}
 				} )
 			.set( "useCustomScope", true )
@@ -32,10 +32,10 @@ APP.get( "/api/room/item/:reference",
 			.refer( reference );
 	} );
 
-APP.all( "/api/:accessID/room/item/all",
-	function onGetAllRoomItem( request, response, next ){
-		RoomItem( )
-			.setResponse( response );
+APP.all( "/api/:accessID/room/type/all",
+	function onGetAllRoomType( request, response, next ){
+		RoomType( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
@@ -49,13 +49,13 @@ APP.all( "/api/:accessID/room/item/all",
 						next( );
 
 					}else{
-						this.response( 403, "failed", "no room items" );
+						this.response( 403, "failed", "no room types" );
 					}
 				} )
 			.populated( );
 	} );
-APP.get( "/api/:accessID/room/item/all",
-	function onGetAllRoomItem( request, response ){
+APP.get( "/api/:accessID/room/type/all",
+	function onGetAllRoomType( request, response ){
 		var sort = request.query.sort;
 		var total = request.query.total;
 
@@ -65,19 +65,19 @@ APP.get( "/api/:accessID/room/item/all",
 		var page = request.query.page;
 		var size = request.query size;
 
-		RoomItem( )
-			.setResponse( response );
+		RoomType( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, roomItems ){
+				function onResult( error, roomTypes ){
 					if( error ){
 						this.response( 500, "error", error.message );
 
 					}else{
-						this.response( 200, "success", roomItems );
+						this.response( 200, "success", roomTypes );
 					}
 				} )
 			.set( "sort", sort )
@@ -89,11 +89,12 @@ APP.get( "/api/:accessID/room/item/all",
 			.all( );
 	} );
 
-APP.all( "/api/:accessID/room/item/add",
-	function onAddRoomItem( request, response, next ){
-		var roomItem = request.body;
+APP.all( "/api/:accessID/room/type/add",
+	function onAddRoomType( request, response, next ){
+		var roomType = request.body;
 
-		RoomItem( )
+		RoomType( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.reply( response, 500, "error", error.message );
@@ -104,43 +105,44 @@ APP.all( "/api/:accessID/room/item/add",
 						this.reply( response, 500, "error", error.message );
 
 					}else if( existing ){
-						this.reply( response, 200, "failed", "room item already exists" );
+						this.reply( response, 200, "failed", "room type already exists" );
 
 					}else{
 						next( );
 					}
 				} )
-			.createReferenceID( roomItem )
+			.createReferenceID( roomType )
 			.exists( );
 	} );
-APP.post( "/api/:accessID/room/item/add",
-	function onAddRoomItem( request, response ){
-		var roomItem = request.body;
+APP.post( "/api/:accessID/room/type/add",
+	function onAddRoomType( request, response ){
+		var roomType = request.body;
 
-		RoomItem( )
+		RoomType( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, roomItem ){
+				function onResult( error, roomType ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", { "referenceID": roomItem.referenceID } );
+						this.response( 200, "success", { "referenceID": roomType.referenceID } );
 					}
 				} )
-			.createReferenceID( roomItem )
-			.createRoomItemID( roomItem )
-			.add( roomItem );
+			.createReferenceID( roomType )
+			.createRoomTypeID( roomType )
+			.add( roomType );
 	} );
 
-APP.all( "/api/:accessID/room/item/:referenceID",
-	function onGetRoomItem( request, response, next ){
+APP.all( "/api/:accessID/room/type/:referenceID",
+	function onGetRoomType( request, response, next ){
 		var referenceID = request.params.referenceID;
 
-		RoomItem( )
+		RoomType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
@@ -155,38 +157,38 @@ APP.all( "/api/:accessID/room/item/:referenceID",
 						next( );
 
 					}else{
-						this.response( 410, "failed", "room item does not exists" );
+						this.response( 410, "failed", "room type does not exists" );
 					}
 				} )
 			.exists( );
 	} );
-APP.get( "/api/:accessID/room/item/:referenceID",
-	function onGetRoomItem( request, response ){
+APP.get( "/api/:accessID/room/type/:referenceID",
+	function onGetRoomType( request, response ){
 		var referenceID = request.params.referenceID;
 
-		RoomItem( )
+		RoomType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, roomItem ){
+				function onResult( error, roomType ){
 					if( error ){
 						this.response( 500, "error", error.message );
 
 					}else{
-						this.response( 200, "success", roomItem );
+						this.response( 200, "success", roomType );
 					}
 				} )
 			.pick( "referenceID", referenceID );
 	} );
 
-APP.all( "/api/:accessID/room/item/update/:referenceID",
-	function onUpdateRoomItem( request, response, next ){
+APP.all( "/api/:accessID/room/type/update/:referenceID",
+	function onUpdateRoomType( request, response, next ){
 		var referenceID = request.params.referenceID;
 
-		RoomItem( )
+		RoomType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
@@ -201,40 +203,40 @@ APP.all( "/api/:accessID/room/item/update/:referenceID",
 						next( );
 
 					}else{
-						this.response( 403, "failed", "room item does not exists" );
+						this.response( 403, "failed", "room type does not exists" );
 					}
 				} )
 			.exists( referenceID );
 	} );
-APP.put( "/api/:accessID/room/item/update/:referenceID",
-	function onUpdateRoomItem( request, response ){
+APP.put( "/api/:accessID/room/type/update/:referenceID",
+	function onUpdateRoomType( request, response ){
 		var referenceID = request.params.referenceID;
 
-		var roomItem = request.body;
+		var roomType = request.body;
 
-		RoomItem( )
+		RoomType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, roomItem ){
+				function onResult( error, roomType ){
 					if( error ){
 						this.response( 500, "error", error.message );
 
 					}else{
-						this.response( 200, "success", { "referenceID": roomItem.referenceID } );
+						this.response( 200, "success", { "referenceID": roomType.referenceID } );
 					}
 				} )
-			.update( roomItem, referenceID );
+			.update( roomType, referenceID );
 	} );
 
-APP.all( "/api/:accessID/room/item/edit/:referenceID",
-	function onEditRoomItem( request, response, next ){
+APP.all( "/api/:accessID/room/type/edit/:referenceID",
+	function onEditRoomType( request, response, next ){
 		var referenceID = request.params.referenceID;
 
-		RoomItem( )
+		RoomType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
@@ -249,43 +251,43 @@ APP.all( "/api/:accessID/room/item/edit/:referenceID",
 						next( );
 
 					}else{
-						this.response( 403, "failed", "room item does not exists" );
+						this.response( 403, "failed", "room type does not exists" );
 					}
 				} )
 			.exists( referenceID );
 	} );
-APP.put( "/api/:accessID/room/item/edit/:referenceID",
-	function onEditRoomItem( request, response ){
+APP.put( "/api/:accessID/room/type/edit/:referenceID",
+	function onEditRoomType( request, response ){
 		var referenceID = request.params.referenceID;
 
-		var roomItem = request.body;
+		var roomType = request.body;
 
-		var property = Object.keys( roomItem )[ 0 ];
-		var value = roomItem[ property ];
+		var property = Object.keys( roomType )[ 0 ];
+		var value = roomType[ property ];
 
-		RoomItem( )
+		RoomType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, roomItem ){
+				function onResult( error ){
 					if( error ){
 						this.response( 500, "error", error.message );
 
 					}else{
-						this.response( 200, "success", { "referenceID": roomItem.referenceID } );
+						this.response( 200, "success", { "referenceID": roomType.referenceID } );
 					}
 				} )
 			.edit( property, value, referenceID );
 	} );
 
-APP.all( "/api/:accessID/room/item/remove/:referenceID",
-	function onRemoveRoomItem( request, response, next ){
+APP.all( "/api/:accessID/room/type/remove/:referenceID",
+	function onRemoveRoomType( request, response, next ){
 		var referenceID = request.params.referenceID;
 
-		RoomItem( )
+		RoomType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
@@ -300,16 +302,16 @@ APP.all( "/api/:accessID/room/item/remove/:referenceID",
 						next( );
 
 					}else{
-						this.response( 403, "failed", "room item does not exists" );
+						this.response( 403, "failed", "room type does not exists" );
 					}
 				} )
 			.exists( referenceID );
 	} );
-APP.delete( "/api/:accessID/room/item/remove/:referenceID",
-	function onRemoveRoomItem( request, response ){
+APP.delete( "/api/:accessID/room/type/remove/:referenceID",
+	function onRemoveRoomType( request, response ){
 		var referenceID = request.params.referenceID;
 
-		RoomItem( )
+		RoomType( )
 			.clone( )
 			.setResponse( response )
 			.once( "error",
@@ -342,7 +344,7 @@ APP.delete( "/api/:accessID/room/item/remove/:referenceID",
 						this.response( 200, "success", true );
 
 					}else{
-						this.response( 403, "failed", "room item was either deleted or not" );
+						this.response( 403, "failed", "room type was either deleted or not" );
 					}
 				} )
 			.exists( referenceID );
