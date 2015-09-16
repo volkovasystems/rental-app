@@ -1,51 +1,91 @@
 var _ = require( "lodash" );
 
+APP.get( "/api/room/item/:reference",
+	function onGetRoomItem( request, response ){
+		var reference = request.params.reference;
+
+		RoomItem( )
+			.setResponse( response )
+			.once( "error",
+				function onError( error ){
+					this.response( 500, "error", error.message );
+				} )
+			.once( "result",
+				function onResult( error, roomItem ){
+					if( error ){
+						this.response( 500, "error", error.message );
+
+					}else if( _.isEmpty( roomItem ) ){
+						this.response( 410, "failed", "room item does not exists" );
+
+					}else{
+						this.response( 200, "success", roomItem );
+					}
+				} )
+			.set( "useCustomScope", true )
+			.set( "scope", [
+				"reference",
+				"name",
+				"title",
+				"description"
+			] )
+			.refer( reference );
+	} );
+
 APP.all( "/api/:accessID/room/item/all",
 	function onGetAllRoomItem( request, response, next ){
 		RoomItem( )
+			.setResponse( response );
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, isPopulated ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( isPopulated ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "no room items" );
+						this.response( 403, "failed", "no room items" );
 					}
 				} )
 			.populated( );
 	} );
 APP.get( "/api/:accessID/room/item/all",
 	function onGetAllRoomItem( request, response ){
-		var limit = request.query.limit;
-
-		var index = request.query.index;
-
 		var sort = request.query.sort;
+		var total = request.query.total;
+
+		var limit = request.query.limit;
+		var index = request.query.index;
+		
+		var page = request.query.page;
+		var size = request.query size;
 
 		RoomItem( )
+			.setResponse( response );
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, amenities ){
+				function onResult( error, roomItems ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", amenities );
+						this.response( 200, "success", roomItems );
 					}
 				} )
+			.set( "sort", sort )
 			.set( "limit", limit )
 			.set( "index", index )
-			.set( "sort", sort )
+			.set( "page", page )
+			.set( "size", size )
+			.set( "total", total )
 			.all( );
 	} );
 
@@ -101,20 +141,21 @@ APP.all( "/api/:accessID/room/item/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		RoomItem( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( existing ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "room item does not exists" );
+						this.response( 410, "failed", "room item does not exists" );
 					}
 				} )
 			.exists( referenceID );
@@ -124,17 +165,18 @@ APP.get( "/api/:accessID/room/item/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		RoomItem( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, roomItem ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", roomItem );
+						this.response( 200, "success", roomItem );
 					}
 				} )
 			.pick( "referenceID", referenceID );
@@ -145,20 +187,21 @@ APP.all( "/api/:accessID/room/item/update/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		RoomItem( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( existing ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "room item does not exists" );
+						this.response( 403, "failed", "room item does not exists" );
 					}
 				} )
 			.exists( referenceID );
@@ -170,17 +213,18 @@ APP.put( "/api/:accessID/room/item/update/:referenceID",
 		var roomItem = request.body;
 
 		RoomItem( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error ){
+				function onResult( error, roomItem ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success" );
+						this.response( 200, "success", { "referenceID": roomItem.referenceID } );
 					}
 				} )
 			.update( roomItem, referenceID );
@@ -191,20 +235,21 @@ APP.all( "/api/:accessID/room/item/edit/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		RoomItem( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( existing ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "room item does not exists" );
+						this.response( 403, "failed", "room item does not exists" );
 					}
 				} )
 			.exists( referenceID );
@@ -219,17 +264,18 @@ APP.put( "/api/:accessID/room/item/edit/:referenceID",
 		var value = roomItem[ property ];
 
 		RoomItem( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error ){
+				function onResult( error, roomItem ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success" );
+						this.response( 200, "success", { "referenceID": roomItem.referenceID } );
 					}
 				} )
 			.edit( property, value, referenceID );
@@ -240,20 +286,21 @@ APP.all( "/api/:accessID/room/item/remove/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		RoomItem( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( existing ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "room item does not exists" );
+						this.response( 403, "failed", "room item does not exists" );
 					}
 				} )
 			.exists( referenceID );
@@ -264,14 +311,15 @@ APP.delete( "/api/:accessID/room/item/remove/:referenceID",
 
 		RoomItem( )
 			.clone( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.self.flush( ).response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error ){
 					if( error ){
-						this.self.flush( ).reply( response, 500, "error", error.message );
+						this.self.flush( ).response( 500, "error", error.message );
 
 					}else{
 						this.self.notify( );
@@ -279,21 +327,22 @@ APP.delete( "/api/:accessID/room/item/remove/:referenceID",
 				} )
 			.remove( referenceID )
 			.self
+			.setResponse( response )
 			.wait( )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( !existing ){
-						this.reply( response, 200, "success" );
+						this.response( 200, "success", true );
 
 					}else{
-						this.reply( response, 200, "failed", "cannot delete room item" );
+						this.response( 403, "failed", "room item was either deleted or not" );
 					}
 				} )
 			.exists( referenceID );

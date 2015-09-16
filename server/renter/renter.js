@@ -11,10 +11,12 @@ var Renter = function Renter( ){
 	if( this instanceof Renter ){
 		Model.call( this, "Renter" );
 
-		this.scopes = [
-			"referenceID",
+		this.setScopes( [
 			"firstName",
+			"middleName",
 			"lastName",
+			"displayName",
+			"fullName",
 
 			"address",
 			"contactNumber",
@@ -24,21 +26,30 @@ var Renter = function Renter( ){
 			"idType",
 
 			"profilePicture",
-			"idImage"
-		];
+			"idImage",
 
-		this.searches = [
+			"guests"
+		] );
+
+		this.setSearches( [
 			"firstName",
+			"middleName",
 			"lastName",
+
+			"displayName",
+			"fullName",
+			
 			"address",
 			"contactNumber",
 			"eMail",
-			"idNumber"
-		];
+			
+			"idNumber",
+			"idType"
+		] );
 
-		this.domains = {
+		this.setDomains( {
 
-		};
+		} );
 
 	}else{
 		return new Renter( );
@@ -54,6 +65,7 @@ Renter.prototype.add = function add( renter ){
 		"renterID": this.renterID,
 
 		"firstName": renter.firstName,
+		"middleName": renter.middleName,
 		"lastName": renter.lastName,
 
 		"address": renter.address,
@@ -65,6 +77,17 @@ Renter.prototype.add = function add( renter ){
 
 		"profilePicture": renter.profilePicture,
 		"idImage": renter.idImage,
+
+		"guests": ( renter.guests || [ ] )
+			.map( function onEachGuest( guest ){
+				return {
+					"firstName": guest.firstName,
+					"middleName": guest.middleName,
+					"lastName": guest.lastName,
+
+					"contactNumber": guest.contactNumber
+				};
+			} ),
 
 		"scopes": this.scopes,
 		"searches": this.searches,
@@ -79,6 +102,7 @@ Renter.prototype.add = function add( renter ){
 Renter.prototype.update = function update( renter, reference ){
 	var renterData = _.extend( {
 		"firstName": renter.firstName || null,
+		"middleName": renter.middleName || null,
 		"lastName": renter.lastName || null,
 
 		"address": renter.address || null,
@@ -90,6 +114,24 @@ Renter.prototype.update = function update( renter, reference ){
 
 		"profilePicture": renter.profilePicture || null,
 		"idImage": renter.idImage || null,
+
+		"guests": ( function resolveGuests( renter ){
+			if( _.isEmpty( renter.guests ) ){
+				return null;
+			
+			}else{
+				return renter.guests
+					.map( function onEachGuest( guest ){
+						return {
+							"firstName": guest.firstName,
+							"middleName": guest.middleName,
+							"lastName": guest.lastName,
+
+							"contactNumber": guest.contactNumber
+						};
+					} );
+			}
+		} )( renter ),
 
 		"scopes": this.scopes || null,
 		"searches": this.searches || null,
@@ -105,6 +147,7 @@ Renter.prototype.createReferenceID = function createReferenceID( renter ){
 	var referenceID = crypto.createHash( "sha512" )
 		.update( _.flatten( [
 			renter.firstName,
+			renter.middleName,
 			renter.lastName,
 			renter.idType,
 			renter.idNumber
@@ -137,3 +180,4 @@ Renter.prototype.createRenterID = function createRenterID( renter ){
 };
 
 global.Renter = Renter;
+module.exports = Renter;

@@ -46,13 +46,19 @@ require( "../room/room-schema.js" );
 
 require( "../room/room-item-schema.js" );
 
+require( "../room/room-type-schema.js" );
+
 require( "../room/room.js" );
 
 require( "../room/room-item.js" );
 
+require( "../room/room-type.js" );
+
 require( "../room/room-api.js" );
 
 require( "../room/room-item-api.js" );
+
+require( "../room/room-type-api.js" );
 console.log( "room server initialized" )
 
 require( "./alpha-server.js" );

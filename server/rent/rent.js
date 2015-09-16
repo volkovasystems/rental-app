@@ -11,28 +11,24 @@ var Rent = function Rent( ){
 	if( this instanceof Rent ){
 		Model.call( this, "Rent" );
 
-		this.scopes = [
-			"referenceID",
-			"roomPrice",
+		this.setScopes( [
+			"room",
+			"renter",
 
 			"moveInDate",
 			"moveOutDate",
-			"duration",
-
-			"depositPayment",
+			
 			"waterMeterValue",
 			"electricMeterValue",
 
-			"occupants"
-		];
+			"depositPayment",
+			"roomPrice"
+		] );
 
-		this.searches = [
+		this.setSearches( [
+		] );
 
-		];
-
-		this.domains = {
-
-		};
+		this.setDomains( { } );
 
 	}else{
 		return new Rent( );
@@ -47,7 +43,17 @@ Rent.prototype.add = function add( rent ){
 	var rentData = _.extend( {
 		"rentID": this.rentID,
 
+		"room": rent.room,
+		"renter": rent.renter,
 
+		"moveInDate": rent.moveInDate,
+		"moveOutDate": rent.moveOutDate,
+		
+		"waterMeterValue": rent.waterMeterValue,
+		"electricMeterValue": rent.electricMeterValue,
+
+		"depositPayment": rent.depositPayment,
+		"roomPrice": rent.roomPrice,
 
 		"scopes": this.scopes,
 		"searches": this.searches,
@@ -61,7 +67,17 @@ Rent.prototype.add = function add( rent ){
 
 Rent.prototype.update = function update( rent, reference ){
 	var rentData = _.extend( {
+		"room": rent.room,
+		"renter": rent.renter,
 
+		"moveInDate": rent.moveInDate,
+		"moveOutDate": rent.moveOutDate,
+		
+		"waterMeterValue": rent.waterMeterValue,
+		"electricMeterValue": rent.electricMeterValue,
+
+		"depositPayment": rent.depositPayment,
+		"roomPrice": rent.roomPrice,
 
 		"scopes": this.scopes,
 		"searches": this.searches,
@@ -76,8 +92,10 @@ Rent.prototype.update = function update( rent, reference ){
 Rent.prototype.createReferenceID = function createReferenceID( rent ){
 	var referenceID = crypto.createHash( "sha512" )
 		.update( _.flatten( [
-
-
+			rent.room,
+			rent.renter,
+			rent.moveInDate,
+			rent.moveOutDate
 		] ).join( "-" ) )
 		.digest( "hex" )
 		.toString( );
@@ -107,3 +125,4 @@ Rent.prototype.createRentID = function createRentID( rent ){
 };
 
 global.Rent = Rent;
+module.exports = Rent;

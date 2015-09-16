@@ -21,14 +21,4 @@ if( "option" in argv ){
 	global.CERTIFICATE_PASSWORD = argv.certificatePassword || "";
 }
 
-urlJoin( global, "USER_SERVER_URL" );
-urlJoin( global, "RENTER_SERVER_URL" );
-urlJoin( global, "RENT_SERVER_URL" );
-urlJoin( global, "ROOM_SERVER_URL" );
-urlJoin( global, "INVOICE_SERVER_URL" );
-urlJoin( global, "MEDIA_SERVER_URL" );
-urlJoin( global, "ADMIN_SERVER_URL" );
-urlJoin( global, "STAFF_SERVER_URL" );
-urlJoin( global, "WORKER_SERVER_URL" );
-urlJoin( global, "ANALYTICS_SERVER_URL" );
-urlJoin( global, "APP_SERVER_URL" );
+require( "../config/server-list.js" );

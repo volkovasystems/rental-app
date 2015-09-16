@@ -11,9 +11,7 @@ var Room = function Room( ){
 	if( this instanceof Room ){
 		Model.call( this, "Room" );
 
-		this.scopes = [
-			"referenceID",
-			
+		this.scopes = _.union( [
 			"buildingNumber",
 			"roomNumber",
 
@@ -23,7 +21,7 @@ var Room = function Room( ){
 			"roomItems",
 
 			"occupantLimit"
-		];
+		], Model.DEFAULT_SCOPE );
 
 		this.searches = [
 			"buildingNumber",
@@ -60,7 +58,13 @@ Room.prototype.add = function add( room ){
 		"roomType": room.roomType,
 		"roomSize": room.roomSize,
 
-		"roomItems": room.roomItems,
+		"roomItems": ( room.roomItems || [ ] )
+			.map( function onEachRoomItem( roomItem ){
+				return {
+					"item": roomItem.item,
+					"count": roomItem.count
+				};
+			} ),
 
 		"occupantLimit": room.occupantLimit,
 
@@ -82,7 +86,20 @@ Room.prototype.update = function update( room, reference ){
 		"roomType": room.roomType || null,
 		"roomSize": room.roomSize || null,
 
-		"roomItems": room.roomItems || null,
+		"roomItems": ( function resolveRoomItems( room ){
+			if( _.isEmpty( room.roomItems ) ){
+				return null;
+			
+			}else{
+				return room.roomItems
+					.map( function onEachRoomItem( roomItem ){
+						return {
+							"item": roomItem.item,
+							"count": roomItem.count
+						};
+					} );
+			}
+		} )( room ),
 
 		"occupantLimit": room.occupantLimit || null,
 
@@ -131,3 +148,4 @@ Room.prototype.createRoomID = function createRoomID( room ){
 };
 
 global.Room = Room;
+module.exports = Room;

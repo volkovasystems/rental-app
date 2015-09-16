@@ -1,5 +1,41 @@
 var _ = require( "lodash" );
 
+APP.get( "/api/renter/:reference",
+	function onGetRenter( request, response ){
+		var reference = request.params.reference;
+
+		Renter( )
+			.setResponse( response )
+			.once( "error",
+				function onError( error ){
+					this.response( 500, "error", error.message );
+				} )
+			.once( "result",
+				function onResult( error, renter ){
+					if( error ){
+						this.response( 500, "error", error.message );
+
+					}else if( _.isEmpty( renter ) ){
+						this.response( 410, "failed", "renter does not exists" );
+
+					}else{
+						this.response( 200, "success", renter );
+					}
+				} )
+			.set( "useCustomScope", true )
+			.set( "scope", [
+				"reference",
+				"displayName",
+				"eMail",
+				"profilePicture",
+				"guests",
+				"name",
+				"title",
+				"description"
+			] )
+			.refer( reference );
+	} );
+
 APP.all( "/api/:accessID/renter/all",
 	function onGetAllRenter( request, response, next ){
 		Renter( )
@@ -23,11 +59,14 @@ APP.all( "/api/:accessID/renter/all",
 	} );
 APP.get( "/api/:accessID/renter/all",
 	function onGetAllRenter( request, response ){
-		var limit = request.query.limit;
-
-		var index = request.query.index;
-
 		var sort = request.query.sort;
+		var total = request.query.total;
+
+		var limit = request.query.limit;
+		var index = request.query.index;
+		
+		var page = request.query.page;
+		var size = request.query size;
 
 		Renter( )
 			.once( "error",
@@ -35,17 +74,20 @@ APP.get( "/api/:accessID/renter/all",
 					this.reply( response, 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, amenities ){
+				function onResult( error, renters ){
 					if( error ){
 						this.reply( response, 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", amenities );
+						this.reply( response, 200, "success", renters );
 					}
 				} )
+			.set( "sort", sort )
 			.set( "limit", limit )
 			.set( "index", index )
-			.set( "sort", sort )
+			.set( "page", page )
+			.set( "size", size )
+			.set( "total", total )
 			.all( );
 	} );
 

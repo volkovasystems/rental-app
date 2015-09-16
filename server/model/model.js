@@ -1,6 +1,8 @@
 var _ = require( "lodash" );
 var async = require( "async" );
 var events = require( "events" );
+var harden = require( "harden" );
+var moment = require( "moment" );
 var mongoose = require( "mongoose" );
 var util = require( "util" );
 
@@ -8,6 +10,7 @@ require( "../utility/emittable.js" );
 require( "../utility/waitable.js" );
 require( "../utility/blockable.js" );
 require( "../utility/cloneable.js" );
+require( "../utility/promising.js" );
 
 var Model = function Model( namespace ){
 	if( this instanceof Model ){
@@ -23,6 +26,9 @@ var Model = function Model( namespace ){
 			this.model = mongoose.model( "Model" );
 		}
 
+		//: We need this for logging.
+		this.namespace = namespace || "Model";
+
 		/*:
 			Scopes are used to limit the data to be returned.
 		*/
@@ -37,6 +43,8 @@ var Model = function Model( namespace ){
 		/*:
 			Domains are used to limit server to server
 				interactions.
+
+			As well as user's interaction to specific endpoints.
 		*/
 		this.domains = { };
 
@@ -44,9 +52,25 @@ var Model = function Model( namespace ){
 
 		this.references = [ ];
 
+		/*:
+			We will use model data to carry single document 
+				asociated with the model instance across different
+				sub instances and their methods.
+		*/
 		this.modelData = { };
 
 		this.on( "sync", this.sync );
+
+		this.on( "error", function onError( error ){
+			console.log( "error at", this.namespace, error );
+		} );
+
+		this.on( "uncaughtException", function onError( error ){
+			this.emit( "error", new Error( util.inspect( {
+				"type": "uncaught-exception",
+				"error": error
+			} ) ) );
+		} );
 
 		this.tap( function applyScope( container, callback ){
 			if( this.disableScope ){
@@ -56,7 +80,7 @@ var Model = function Model( namespace ){
 			}
 
 			container.parameters = _( container.parameters )
-				.map( function onEachParameter( parameter ){
+				.map( ( function onEachParameter( parameter ){
 					if( parameter === null ){
 						return parameter;
 
@@ -64,21 +88,31 @@ var Model = function Model( namespace ){
 						typeof parameter == "object" &&
 						"__t" in parameter )
 					{
-						return _.pick( parameter, parameter.scopes );
+						if( this.useCustomScope ){
+							return _.pick( parameter, this.scope );
+
+						}else{
+							return _.pick( parameter, parameter.scopes );	
+						}
 
 					}else if( parameter instanceof Array &&
 						typeof parameter[ 0 ] == "object" &&
 						"__t" in parameter[ 0 ] )
 					{
 						return _.map( parameter,
-							function onEachData( data ){
-								return _.pick( data, data.scopes );
-							} );
+							( function onEachData( data ){
+								if( this.useCustomScope ){
+									return _.pick( data, this.scopes );
+
+								}else{
+									return _.pick( data, data.scopes );	
+								}
+							} ).bind( this ) );
 
 					}else{
 						return parameter;
 					}
-				} )
+				} ).bind( this ) )
 				.value( );
 
 			callback( );
@@ -101,7 +135,11 @@ Waitable( ).compose( Model )
 			"sync",
 			"tap",
 			"tapping",
-			"composeReferences"
+			"composeReferences",
+			"recordChange",
+			"queryApplyLimitIndex",
+			"queryApplyPagination",
+			"queryApplySorting"
 		]
 	} );
 
@@ -117,6 +155,73 @@ Cloneable( ).compose( Model )
 
 Blockable( ).compose( Model );
 
+Promising( ).compose( Model );
+
+harden.bind( Model )
+	( "NUMBER_PATTERN", ( /^\d+$/ ) );
+
+harden.bind( Model )
+	( "SORT_PATTERN", ( /^\-?[a-zA-Z]+$/ ) );
+
+harden.bind( Model )
+	( "DEFAULT_SCOPES", 
+		[
+			"referenceID",
+			"reference",
+			"name",
+			"title",
+			"description",
+			"tags"
+		] );
+
+harden.bind( Model )
+	( "DEFAULT_SEARCHES", 
+		[
+			"name",
+			"title",
+			"description",
+			"tags"
+		] );
+
+harden.bind( Model )
+	( "DEFAULT_DOMAINS", 
+		{
+
+		} );
+
+//: This should be used for initialization only.
+Model.prototype.setScopes = function setScopes( scopes ){
+	if( !_.isEmpty( this.scopes ) ){
+		throw new Error( "scopes are already initialized" );
+	}
+
+	this.scopes = _.union( scopes, Model.DEFAULT_SCOPES );
+
+	return this;
+};
+
+//: This should be used for initialization only.
+Model.prototype.setSearches = function setSearches( searches ){
+	if( !_.isEmpty( this.searches ) ){
+		throw new Error( "searches are already initialized" );
+	}
+
+	this.searches = _.union( searches, Model.DEFAULT_SEARCHES );
+
+	return this;
+};
+
+//: This should be used for initialization only.
+Model.prototype.setDomains = function setDomain( domains ){
+	if( !_.isEmpty( this.domains ) ){
+		throw new Error( "domains are already initialized" );
+	}
+
+	this.domains = _.extend( domains, Model.DEFAULT_DOMAINS );
+
+	return this;
+};
+
 /*:
 	Note this will only add, it will not check if the document already exists.
 */
@@ -125,9 +230,9 @@ Model.prototype.add = function add( data ){
 
 	data.references = references;
 
-	data.timestamps = [ Date.now( ) ];
-
 	data.referenceID = this.referenceID;
+
+	this.recordChange( "add", data );
 
 	( new this.model( data ) ).save( this.result.bind( this ) );
 
@@ -137,8 +242,11 @@ Model.prototype.add = function add( data ){
 };
 
 /*:
-	This will update the entire document.
-	But properties are selected.
+	This will update the entire document,
+		but properties are selected.
+
+	This will only update one document depending on
+		the result of the query.
 */
 Model.prototype.update = function update( data, reference ){
 	var references = this.composeReferences( reference );
@@ -226,21 +334,22 @@ Model.prototype.update = function update( data, reference ){
 
 				modelData.references = references;
 
-				if( "timestamps" in modelData ){
-					modelData.timestamps.push( Date.now( ) );
-				}
+				this.recordChange( "update", modelData.toObject( ) );
 
 				modelData.save( this.result.bind( this ) );
 			}
 		} ).bind( this ) );
 
-	this.emit( "sync" );
+	this.emit( "sync", query );
 
 	return this;
 };
 
 /*:
-	This is one property editing.
+	This is one property editing but it will edit
+		as many documents based on the query.
+
+	If no query is given it will resort to using the given reference.
 */
 Model.prototype.edit = function edit( property, value, reference ){
 	var references = this.composeReferences( reference );
@@ -249,9 +358,11 @@ Model.prototype.edit = function edit( property, value, reference ){
 	if( !_.isEmpty( references ) ){
 		query.references = {
 			"$in": references
-		}
+		};
 
-	}else if( "query" in this ){
+	}else if( "query" in this &&
+		typeof this.query == "object" )
+	{
 		for( var key in this.query ){
 			query[ key ] = this.query[ key ];
 		}
@@ -262,73 +373,75 @@ Model.prototype.edit = function edit( property, value, reference ){
 		return this;
 	}
 
-	var modelQuery = this.model.find( query );
+	this.modelQuery = this.model.find( query );
 
-	if( "limit" in this &&
-		( /^\d+$/ ).test( this.limit.toString( ) ) )
-	{
-		var limit = parseInt( this.limit );
+	this.queryApplySorting( );
 
-		modelQuery = modelQuery.limit( limit );
-	}
+	this.queryApplyLimitIndex( )
+		.then( function onApplied( ){
+			this.modelQuery.exec( ( function onEdit( error, modelDataList ){
+				if( error ){
+					this.result( error );
 
-	modelQuery.exec( ( function onEdit( error, modelDataList ){
-		if( error ){
+				}else{
+					async.parallel( _.map( modelDataList,
+						function onEachModelData( modelData ){
+							return ( function editModelData( callback ){
+								/*:
+									Update rule when dealing with arrays.
+
+									If the array has one element
+										it means we need to add it.
+
+									If the array has less elements than the previous
+										it means we need to replace all the elements
+										with the new array.
+
+									If the array is empty
+										it means we need to remove all.
+										Note that this is different to null.
+
+									If the array is has more elements than the previous
+										it means we need to replace all the elements
+										with the new array.
+
+									If there are no differences in lengths
+										it means we need to replace all the elements
+										with the new array.
+								*/
+								if( modelData[ property ] instanceof Array &&
+									value instanceof Array )
+								{
+									if( value.length == 1 ){
+										modelData[ property ] = _.union( modelData[ property ], value );
+
+									}else if( value.length == 0 ){
+										modelData[ property ] = [ ];
+
+									}else if( modelData[ property ].length != value.length ){
+										modelData[ property ] = value;
+									}
+
+								}else{
+									modelData[ property ] = value;
+								}
+
+								this.recordChange( "edit", modelData.toObject( ) );
+
+								modelData.save( callback );
+							} );
+						} ),
+						( function lastly( error, modelDataList ){
+							this.result( error, modelDataList );
+
+							this.emit( "sync" );
+						} ).bind( this ) );
+				}
+			} ).bind( this ) );
+		} )
+		.hold( function onError( error ){
 			this.result( error );
-
-		}else{
-			async.parallel( _.map( modelDataList,
-				function onEachModelData( modelData ){
-					return ( function editModelData( callback ){
-						/*:
-							Update rule when dealing with arrays.
-
-							If the array has one element
-								it means we need to add it.
-
-							If the array has less elements than the previous
-								it means we need to replace all the elements
-								with the new array.
-
-							If the array is empty
-								it means we need to remove all.
-								Note that this is different to null.
-
-							If the array is has more elements than the previous
-								it means we need to replace all the elements
-								with the new array.
-
-							If there are no differences in lengths
-								it means we need to replace all the elements
-								with the new array.s
-						*/
-						if( modelData[ property ] instanceof Array &&
-							value instanceof Array )
-						{
-							if( value.length == 1 ){
-								modelData[ property ] = _.union( modelData[ property ], value );
-
-							}else if( value.length == 0 ){
-								modelData[ property ] = [ ];
-
-							}else if( modelData[ property ].length != value.length ){
-								modelData[ property ] = value;
-							}
-
-						}else{
-							modelData[ property ] = value;
-						}
-
-						modelData.save( callback );
-					} );
-				} ),
-				( function lastly( error, modelDataList ){
-					this.result( error, modelDataList );
-				} ).bind( this ) );
-		}
-	} ).bind( this ) );
-
-	this.emit( "sync" );
+		} );
 
 	return this;
 };
@@ -362,14 +475,17 @@ Model.prototype.remove = function remove( reference ){
 
 	this.model.remove( query, this.result.bind( this ) );
 
-	this.emit( "sync" );
-
 	return this;
 };
 
 /*:
 	Use this if you want to override or add additional properties
 		not handled by other methods.
+
+	@todo:
+		We would like a way to determine if we are overriding
+			private properties.
+	@end-todo
 */
 Model.prototype.set = function set( property, value ){
 	if( typeof value != "undefined" ){
@@ -412,33 +528,29 @@ Model.prototype.get = function get( property, value ){
 	{
 		query = { "references": { "$in": this.references } };
 
-	}else{
+	}else if( !_.isEmpty( arguments ) &&
+		typeof property == "string" 
+		property &&
+		typeof value != "undefined" &&
+		value )
+	{
 		query[ property ] = value;
+	
+	}else{
+		this.result( new Error( "empty query" ) );
 	}
 
-	var modelQuery = this.model.find( query );
+	this.modelQuery = this.model.find( query );
 
-	if( "sort" in this ){
-		 modelQuery = modelQuery.sort( this.sort );
-	}
+	this.queryApplySorting( );
 
-	if( "index" in this &&
-		( /^\d+$/ ).test( this.index.toString( ) ) )
-	{
-		var index = parseInt( this.index );
-
-		modelQuery = modelQuery.skip( index );
-	}
-
-	if( "limit" in this &&
-		( /^\d+$/ ).test( this.limit.toString( ) ) )
-	{
-		var limit = parseInt( this.limit );
-
-		modelQuery = modelQuery.limit( limit );
-	}
-
-	modelQuery.exec( this.result.bind( this ) );
+	this.queryApplyPagination( )
+		.then( function onResult( ){
+			this.modelQuery.exec( this.result.bind( this ) );
+		} )
+		.hold( function onError( error ){
+			this.result( error );
+		} );
 
 	return this;
 };
@@ -473,8 +585,16 @@ Model.prototype.pick = function pick( property, value ){
 	{
 		query = { "references": { "$in": this.references } };
 
-	}else{
+	}else if( !_.isEmpty( arguments ) &&
+		typeof property == "string" 
+		property &&
+		typeof value != "undefined" &&
+		value )
+	{
 		query[ property ] = value;
+	
+	}else{
+		this.result( new Error( "empty query" ) );
 	}
 
 	var modelQuery = this.model.findOne( query );
@@ -489,37 +609,84 @@ Model.prototype.pick = function pick( property, value ){
 
 	modelQuery.exec( this.result.bind( this ) );
 
+	this.emit( "sync" );
+
+	return this;
+};
+
+/*:
+	reference here is the given shortid.
+
+	Note that refer is similar to pick but you can only
+		use references to pick a document.
+*/
+Model.prototype.refer = function refer( reference ){
+	var query = { };
+
+	if( "reference" in this &&
+		_.isEmpty( arguments ) )
+	{
+		query = { "references": { "$in": [ this.reference ] } };
+
+	}else if( "referenceID" in this &&
+		_.isEmpty( arguments ) )
+	{
+		/*:
+			@todo:
+				We store the referenceID as part of the model,
+					maybe we can use OR here?
+			@end-todo
+		*/
+		query = { "references": { "$in": [ this.referenceID ] } };
+
+	}else if( "references" in this &&
+		_.isEmpty( arguments ) )
+	{
+		query = { "references": { "$in": this.references } };
+
+	}else if( !_.isEmpty( arguments ) && 
+		typeof reference == "string" &&
+		reference )
+	{
+		query.reference = reference;
+
+	}else{
+		this.result( new Error( "query is empty" ) );
+
+		return;
+	}
+
+	this.model
+		.findOne( query )
+		.exec( this.result.bind( this ) );
+
+	this.emit( "sync" );
+
 	return this;
 };
 
 Model.prototype.all = function all( ){
-	var modelQuery = this.model.find( { } );
+	this.modelQuery = this.model.find( { } );
 
-	if( "sort" in this ){
-		 modelQuery = modelQuery.sort( this.sort );
-	}
-
-	if( "index" in this &&
-		( /^\d+$/ ).test( this.index.toString( ) ) )
-	{
-		var index = parseInt( this.index );
-
-		modelQuery = modelQuery.skip( index );
-	}
-
-	if( "limit" in this &&
-		( /^\d+$/ ).test( this.limit.toString( ) ) )
-	{
-		var limit = parseInt( this.limit );
-
-		modelQuery = modelQuery.limit( limit );
-	}
-
-	modelQuery.exec( this.result.bind( this ) );
+	this.queryApplySorting( )
+		.queryApplyPagination( )
+		.then( function execute( ){
+			this.modelQuery.exec( this.result.bind( this ) );
+		} )
+		.hold( function onError( error ){
+			this.result( error );
+		} );
 
 	return this;
 };
 
+/*:
+	@note:
+		We do not count by pages. We count
+			based on either the query or
+			the limit and index.
+	@end-note
+*/
 Model.prototype.count = function count( data ){
 	var query = { };
 
@@ -536,32 +703,23 @@ Model.prototype.count = function count( data ){
 			} );
 	}
 
-	var modelQuery = this.model.count( query );
+	this.modelQuery = this.model.count( query );
 
-	if( "limit" in this &&
-		( /^\d+$/ ).test( this.limit.toString( ) ) )
-	{
-		var limit = parseInt( this.limit );
+	this.queryApplyLimitIndex( )
+		.then( function onResult( ){
+			this.modelQuery
+				.exec( ( function onCount( error, count ){
+					if( error ){
+						this.result( error );
 
-		modelQuery = modelQuery.limit( limit );
-	}
-
-	if( "index" in this &&
-		( /^\d+$/ ).test( this.index.toString( ) ) )
-	{
-		var index = parseInt( this.index );
-
-		modelQuery = modelQuery.skip( index );
-	}
-
-	modelQuery.exec( ( function onCount( error, count ){
-		if( error ){
+					}else{
+						this.result( null, count );
+					}
+				} ).bind( this ) );		
+		} )
+		.hold( function onError( error ){
 			this.result( error );
-
-		}else{
-			this.result( null, count );
-		}
-	} ).bind( this ) );
+		} );
 
 	return this;
 };
@@ -579,7 +737,7 @@ Model.prototype.exists = function exists( reference, expectedCount ){
 			if( typeof expectedCount == "number" &&
 				expectedCount )
 			{
-				this.result( error, count == expectedCount );
+				this.result( error, count === expectedCount );
 
 			}else{
 				this.result( error, count >= 1 );
@@ -830,6 +988,26 @@ Model.prototype.matches = function matches( value ){
 	return this;
 };
 
+/*:
+	Execute method of model let's you insert
+		interactive method that inhibits a wait and notify.
+
+*/
+Model.prototype.execute = function execute( method, data ){
+	this.wait( );
+
+	var result = ( method.bind( this ) )( data );
+
+	if( ( typeof result == "boolean" &&
+		result !== false ) ||
+		typeof result != "undefined" )
+	{
+		this.notify( result );
+	}
+
+	return this;
+};
+
 Model.prototype.result = function result( ){
 	var parameters = _.toArray( arguments );
 
@@ -888,53 +1066,51 @@ Model.prototype.composeReferences = function composeReferences( reference ){
 		.value( );
 };
 
-/*:
-	Execute method of model let's you insert
-		interactive method that inhibits a wait and notify.
+var synchronize = function synchronize( query ){
+	var references = this.composeReferences( );
+	
+	if( _.isEmpty( query ) ){
+		if( !_.isEmpty( references ) ){
+			query = { "references": { "$in": references } };
+		
+		}else{
+			console.log( "cannot sync on empty query" );
 
-*/
-Model.prototype.execute = function execute( method, data ){
-	this.wait( );
+			this.modelData = { };
+			return;
+		}
+	}
 
-	var result = ( method.bind( this ) )( data );
+	this.model.findOne( query,
+		( function onResult( error, modelData ){
+			if( error ){
+				console.log( "error syncing", error );
 
-	if( ( typeof result == "boolean" &&
-		result !== false ) ||
-		typeof result != "undefined" )
+			}else if( !_.isEmpty( modelData ) ){
+				this.modelData = modelData.toObject( );
+
+			}else{
+				this.modelData = { };
+			}
+
+			this.emit( "synced", error, this.modelData );
+
+			clearTimeout( this.syncTimeout );
+
+			delete this.syncTimeout;
+		} ).bind( this ) );
+};
+
+Model.prototype.sync = function sync( query ){
+	if( "syncTimeout" in this &&
+		this.syncTimeout )
 	{
-		this.notify( result );
+		console.log( "syncing is currently active" );
+		return this;
 	}
 
-	return this;
-};
-
-var synchronize = function synchronize( ){
-	if( !_.isEmpty( this.references ) ){
-		var query = { "references": { "$in": [ this.references ] } };
-
-		this.model.findOne( query,
-			( function onResult( error, modelData ){
-				if( error ){
-
-				}else if( !_.isEmpty( modelData ) ){
-					for( var property in modelData ){
-						this.modelData[ property ] = modelData[ property ];
-					}
-
-				}else{
-					//: @todo: Do something here!
-				}
-
-				this.emit( "synced", error, modelData );
-			} ).bind( this ) );
-	}
-
-	clearTimeout( this.syncTimeout );
-};
-
-Model.prototype.sync = function sync( ){
 	process.nextTick( ( function onTick( ){
-		this.syncTimeout = setTimeout( ( synchronize ).bind( this ), 1000 );
+		this.syncTimeout = setTimeout( ( synchronize ).bind( this ), 1000, query );
 	} ).bind( this ) );
 
 	return this;
@@ -970,11 +1146,129 @@ Model.prototype.tapping = function tapping( parameters, callback ){
 			} ).bind( this );
 		} ).bind( this ) );
 
-	async.series( taps, function delegateCallback( error ){
-		callback( error, container.parameters );
+	async.series( taps, 
+		function delegateCallback( error ){
+			callback( error, container.parameters );
+		} );
+
+	return this;
+};
+
+/*:
+	Logged changes to the document.
+*/
+Model.prototype.recordChange = function recordChange( event, data ){
+	var changes = data.changes || ( data.changes = [ ] );
+
+	changes.push( { 
+		"log": {
+			"namespace": this.namespace,
+			"event": event
+		},
+		"change": data
 	} );
 
 	return this;
 };
 
+Model.prototype.queryApplyLimitIndex = function queryApplyLimitIndex( ){
+	if( !( "modelQuery" in this && 
+		this.modelQuery ) )
+	{
+		throw new Error( "empty model query" );
+	}
+
+	if( "index" in this &&
+		Model.NUMBER_PATTERN.test( this.index.toString( ) ) )
+	{
+		this.index = parseInt( this.index );
+	}
+
+	if( "limit" in this &&
+		Model.NUMBER_PATTERN.test( this.limit.toString( ) ) )
+	{
+		this.limit = parseInt( this.limit );
+	}
+
+	return this
+		.promise( )
+		.clone( )
+		.once( "error",
+			( function onError( error ){
+				this.reject( error );
+			} ).bind( this ) )
+		.once( "result",
+			( function onResult( error, total ){
+				if( error ){
+					this.reject( error );
+
+				}else{
+					this.total = total;
+
+					if( this.index > total ){
+						this.index = 0;
+					}
+
+					if( this.limit > total ){
+						this.limit = total;
+					}
+
+					this.modelQuery = this.modelQuery.skip( this.index );
+
+					this.modelQuery = this.modelQuery.limit( this.limit );
+
+					this.resolve( );
+				}
+			} ).bind( this ) )
+		.count( )
+		.self;
+};
+
+/*:
+	This should only be used internally.
+*/
+Model.prototype.queryApplyPagination = function queryApplyPagination( modelQuery ){
+	if( !( "modelQuery" in this && 
+		this.modelQuery ) )
+	{
+		throw new Error( "empty model query" );
+	}
+
+	if( "page" in this &&
+		Model.NUMBER_PATTERN.test( this.page.toString( ) )
+		"size" in this &&
+		Model.NUMBER_PATTERN.test( this.size.toString( ) ) )
+	{
+		this.page = parseInt( this.page );
+		this.size = parseInt( this.size );
+
+		this.index = ( this.page - 1 ) * this.size;
+		this.limit = this.size;
+			
+		return this.queryApplyLimitIndex( );
+
+	}else{
+		return this.queryApplyLimitIndex( );		
+	}
+};
+
+Model.prototype.queryApplySorting = function queryApplySorting( ){
+	if( !( "modelQuery" in this && 
+		this.modelQuery ) )
+	{
+		throw new Error( "empty model query" );
+	}
+
+	if( "sort" in this &&
+		typeof this.sort == "string" &&
+		this.sort
+		Model.SORT_PATTERN.test( this.sort ) )
+	{
+		this.modelQuery = this.modelQuery.sort( this.sort );
+	}
+
+	return this;
+};
+
 global.Model = Model;
+module.exports = Model;

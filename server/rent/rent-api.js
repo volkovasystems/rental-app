@@ -1,22 +1,53 @@
 var _ = require( "lodash" );
 
+APP.get( "/api/rent/:reference",
+	function onGetRent( request, response ){
+		var reference = request.params.reference;
+
+		Rent( )
+			.setResponse( response )
+			.once( "error",
+				function onError( error ){
+					this.response( 500, "error", error.message );
+				} )
+			.once( "result",
+				function onResult( error, renter ){
+					if( error ){
+						this.response( 500, "error", error.message );
+
+					}else if( _.isEmpty( renter ) ){
+						this.response( 410, "failed", "rent does not exists" );
+
+					}else{
+						this.response( 200, "success", renter );
+					}
+				} )
+			.set( "useCustomScope", true )
+			.set( "scope", [
+				"reference",
+				
+			] )
+			.refer( reference );
+	} );
+
 APP.all( "/api/:accessID/rent/all",
 	function onGetAllRent( request, response, next ){
 		Rent( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result", 
 				function onResult( error, isPopulated ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( isPopulated ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "no amenities" );
+						this.response( 404, "failed", "no rents" );
 					}
 				} ) 
 			.populated( );
