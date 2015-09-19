@@ -88,8 +88,6 @@ ModelSchema.prototype.initializeModel = function initializeModel( collection ){
 	{
 		var baseCollection = [ collectionTitle, "Model" ].join( "" );
 
-		console.log( "registering base model", baseCollection, "with discriminator", collectionTitle );
-
 		mongoose.model( baseCollection, ModelSchema.Model, collection );
 
 		mongoose.model( baseCollection ).discriminator( collectionTitle, this );
