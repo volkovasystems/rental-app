@@ -11,7 +11,8 @@ util.inherits( Responsible, Composite );
 
 Responsible.prototype.reply = function reply( response, code, type, data ){
 	if( this.hasReplied || 
-		response.hasReplied )
+		response.hasReplied ||
+		response.headersSent )
 	{
 		return this;
 	}
@@ -35,7 +36,7 @@ Responsible.prototype.setResponse = function setResponse( response ){
 	return this;
 };
 
-Resposible.prototype.response = function response( code, type, data ){
+Responsible.prototype.response = function response( code, type, data ){
 	return this.reply( this.serverResponse, code, type, data );
 };
 

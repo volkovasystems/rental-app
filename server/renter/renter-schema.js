@@ -43,13 +43,15 @@ var RenterSchema = new ModelSchema( {
 		"type": String,
 		"unique": true,
 		"required": true,
-		"index": true
+		"index": true,
+		"dropDups": true
 	},
 	"eMail": {
 		"type": String,
 		"unique": true,
 		"required": true,
-		"index": true
+		"index": true,
+		"dropDups": true
 	},
 
 	"idNumber": {
@@ -118,7 +120,7 @@ RenterSchema.pre( "save",
 				return guest;
 			} );
 
-		this.name = shardize( this.fullName );
+		this.name = this.name || shardize( this.displayName, true );
 
 		next( );
 	} );
@@ -141,7 +143,7 @@ RenterSchema.pre( "save", true,
 		next( );
 	} );
 
-mongoose.model( "Model" ).discriminator( "Renter", RenterSchema );
+RenterSchema.initializeModel( "renter" );
 
 global.RenterSchema = RenterSchema;
 module.exports = RenterSchema;

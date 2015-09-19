@@ -1,4 +1,6 @@
+var moment = require( "moment" );
 var mongoose = require( "mongoose" );
+var shardize = require( "shardize" );
 
 require( "../model/model-schema.js" );
 require( "../renter/renter.js" );
@@ -330,7 +332,109 @@ RentSchema.pre( "save", true,
 		next( );
 	} );
 
-mongoose.model( "Model" ).discriminator( "Rent", RentSchema );
+/*:
+	This will prefill the name of the rent using the
+		renter name, room name and the move in date.
+*/
+RentSchema.pre( "save", true,
+	function onSave( next, done ){
+		if( this.name ){
+			done( );
+			next( );
+
+			return;
+		}
+		
+		async.waterfall( [
+			( function getRoom( callback ){
+				if( typeof this.room == "string" ){
+					Room( )
+						.once( "error",
+							function onError( error ){
+								callback( error );
+							} )
+						.once( "result",
+							( function onResult( error, room ){
+								if( error ){
+									callback( error );
+
+								}else if( !_.isEmpty( room ) ){
+									callback( null, room.name );
+
+								}else if( typeof this.room == "object" ){
+									callback( null, this.room.name );
+
+								}else{
+									callback( new Error( "room name cannot be extracted" ) );
+								}
+							} ).bind( this ) )
+						.pick( "referenceID", shardize( this.room ) )	
+				
+				}else if( typeof this.room == "object" ){
+					callback( null, this.room.name );
+				
+				}else{
+					callback( new Error( "room name cannot be extracted" ) );
+				}
+				
+			} ).bind( this ),
+
+			( function getRenter( roomName, callback ){
+				if( typeof this.renter == "string" ){
+					Renter( )
+						.once( "error",
+							function onError( error ){
+								callback( error );
+							} )
+						.once( "result",
+							( function onResult( error, renter ){
+								if( error ){
+									callback( error );
+
+								}else if( !_.isEmpty( renter ) ){
+									callback( null, roomName, renter.name );
+
+								}else if( typeof this.renter == "object" ){
+									callback( null, roomName, this.renter.name );
+
+								}else{
+									callback( new Error( "renter name cannot be extracted" ) );
+								}
+							} ).bind( this ) )
+						.pick( "referenceID", shardize( this.renter ) )	
+				
+				}else if( typeof this.renter == "object" ){
+					callback( null, roomName, this.renter.name );
+				
+				}else{
+					callback( new Error( "renter name cannot be extracted" ) );
+				}
+
+			} ).bind( this ),
+
+			( function constructName( roomName, renterName, callback ){
+				callback( null, [
+						roomName,
+						renterName,
+						moment( new Date( this.moveInDate ) ).format( "YYYY-DD-MM" )
+					].join( "-" ).toLowerCase( ) );
+			} ).bind( this ),
+
+			( function saveRentName( rentName, callback ){
+				this.name = this.name || rentName;
+
+				callback( );
+			} ).bind( this )
+		],
+		
+		function lastly( error ){
+			done( error );
+		} );
+
+		next( );
+	} );
+
+RentSchema.initializeModel( "rent" );
 
 global.RentSchema = RentSchema;
 module.exports = RentSchema;

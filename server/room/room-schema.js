@@ -31,19 +31,15 @@ var RoomSchema = new ModelSchema( {
 			"ref": "RoomType",
 			"required": true
 		},
-
 		"name": {
 			"type": String,
 			"required": true
 		},
-		
 		"title": {
 			"type": String,
 			"required": true
 		},
-		
 		"description": String,
-		
 		"tags": [ String ]
 	},
 	"roomSize": Number,
@@ -168,7 +164,7 @@ RoomSchema.pre( "save", true,
 		next( );
 	} );
 
-//: This will pre-fill other properties for renter.
+//: This will pre-fill other properties for room type.
 RoomSchema.pre( "save", true,
 	function onSave( next, done ){
 		if( typeof this.roomType == "string" &&
@@ -242,7 +238,65 @@ RoomSchema.pre( "save", true,
 		next( );
 	} );
 
-mongoose.model( "Model" ).discriminator( "Room", RoomSchema );
+var constructName = function constructName( buildingNumber, roomNumber, roomTypeName ){
+	return [
+		buildingNumber,
+		roomNumber,
+		roomTypeName
+	].join( "-" ).toLowerCase( );
+};
+
+/*:
+	This will format the name of the room using
+		the building number, room number and room type name.
+*/
+RoomSchema.pre( "save", true,
+	function onSave( next, done ){
+		if( this.name ){
+			done( );
+			next( );
+
+			return;
+		}
+
+		if( typeof this.roomType == "string" ){
+			RoomType( )
+				.once( "error",
+					function onError( error ){
+						done( error );
+					} )
+				.once( "result",
+					( function onResult( error, roomType ){
+						if( error ){
+							done( error );
+
+						}else if( !_.isEmpty( roomType ) ){
+							this.name = constructName( this.buildingNumber, 
+								this.roomNumber, 
+								roomType.name );
+
+						}else if( typeof this.roomType == "object" ){
+							this.name = constructName( this.buildingNumber, 
+								this.roomNumber, 
+								this.roomType.name );
+
+							done( );
+						}else{
+							done( new Error( "room name cannot be constructted" ) );
+						}
+					} ).bind( this ) )
+				.pick( "name", shardize( this.roomType ) )
+
+		}else if( typeof this.roomType == "object" ){
+			this.name = constructName( this.buildingNumber, 
+				this.roomNumber, 
+				this.roomType.name );
+		}
+
+		next( );
+	} );
+
+RoomSchema.initializeModel( "room" );
 
 global.RoomSchema = RoomSchema;
 module.exports = RoomSchema;

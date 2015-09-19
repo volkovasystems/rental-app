@@ -19,7 +19,14 @@ var Model = function Model( namespace ){
 		/*:
 			Create a model with a namespace.
 		*/
-		if( namespace ){
+		if( "NAMESPACED_COLLECTION" in global &&
+			global.NAMESPACED_COLLECTION )
+		{
+			var baseModel = [ namespace, "Model" ].join( "" );
+
+			this.model = mongoose.model( baseModel ).discriminators[ namespace ];
+
+		}else if( namespace ){
 			this.model = mongoose.model( "Model" ).discriminators[ namespace ];
 
 		}else{
@@ -61,6 +68,34 @@ var Model = function Model( namespace ){
 
 		this.on( "sync", this.sync );
 
+		this.on( "log",	function onLog( type, message ){
+			var parameters = [ 
+					"\n",
+					[ "\t", ( new Date( ) ), "\n" ].join( "" ) 
+				].concat( _.toArray( arguments )
+					.map( function onEachParameter( parameter ){
+						return [  
+							util.inspect( parameter )
+								.split( "\n" )
+								.map( function onEachLine( line ){
+									return [ "\t", line ].join( "" );
+								} )
+								.join( "\n" ), 
+							"\n" 
+						].join( "" );
+					} ) )
+				.concat( [
+					"\n"
+				] );
+
+			if( type in console ){
+				console[ type ].apply( null, parameters );
+			
+			}else{
+				console.log.apply( null, parameters );	
+			}
+		} );
+
 		this.on( "error", function onError( error ){
 			console.log( "error at", this.namespace, error );
 		} );
@@ -95,7 +130,7 @@ var Model = function Model( namespace ){
 							return _.pick( parameter, parameter.scopes );	
 						}
 
-					}else if( parameter instanceof Array &&
+					}else if( Array.isArray( parameter ) &&
 						typeof parameter[ 0 ] == "object" &&
 						"__t" in parameter[ 0 ] )
 					{
@@ -195,6 +230,8 @@ Model.prototype.setScopes = function setScopes( scopes ){
 		throw new Error( "scopes are already initialized" );
 	}
 
+	scopes = scopes || [ ];
+
 	this.scopes = _.union( scopes, Model.DEFAULT_SCOPES );
 
 	return this;
@@ -205,6 +242,8 @@ Model.prototype.setSearches = function setSearches( searches ){
 	if( !_.isEmpty( this.searches ) ){
 		throw new Error( "searches are already initialized" );
 	}
+
+	searches = searches || [ ]; 
 
 	this.searches = _.union( searches, Model.DEFAULT_SEARCHES );
 
@@ -217,9 +256,34 @@ Model.prototype.setDomains = function setDomain( domains ){
 		throw new Error( "domains are already initialized" );
 	}
 
+	domains = domains || { };
+
 	this.domains = _.extend( domains, Model.DEFAULT_DOMAINS );
 
 	return this;
+};
+
+/*:
+	This is a helper function.
+*/
+Model.prototype.resolveAddData = function resolveAddData( data ){
+	data = data || { };
+
+	return ( function bind( rawData ){
+		rawData = rawData || { };
+		
+		return _.extend( data,
+			{
+				"name": rawData.name,
+				"title": rawData.title,
+				"description": rawData.description,
+				"tags": rawData.tags,
+
+				"scopes": this.scopes,
+				"searches": this.searches,
+				"domains": this.domains			
+			}, this.modelData );
+	} ).bind( this );
 };
 
 /*:
@@ -232,13 +296,72 @@ Model.prototype.add = function add( data ){
 
 	data.referenceID = this.referenceID;
 
-	this.recordChange( "add", data );
+	( new this.model( data ) )
+		.save( ( function onSave( error, modelData ){
+			if( error ){
+				this.result( error );	
+			
+			}else{
+				this.result( null, modelData );
 
-	( new this.model( data ) ).save( this.result.bind( this ) );
+				this.recordChange( "add", modelData );			
+			}
+		} ).bind( this ) );
 
 	this.emit( "sync" );
 
 	return this;
+};
+
+/*:
+	This is not part of the model but this is a reusable function
+		for resolving update data.
+
+	All data that is undefined will be marked null.
+
+	We will check if the data is null and if the data is null then
+		no update has been sent.
+
+	Data such as string, boolean, and number can have falsy
+		values so we don't evaluate them.
+
+	Empty string means we will remove the data, zero value
+		means we set the data to zero and false
+		value means as is. Therefore we don't want to mark
+		it null. We don't store null or 
+*/
+var resolveData = function resolveData( data ){
+	for( var key in data ){
+		if( typeof data[ key ] != "boolean" || 
+			typeof data[ key ] != "number" ||
+			typeof data[ key ] != "string" )
+		{
+			data[ key ] = data[ key ] || null;
+		}
+	}
+
+	return data;
+};
+
+Model.prototype.resolveUpdateData = function resolveUpdateData( data ){
+	data = data || { };
+
+	return ( function bind( rawData ){
+		rawData = rawData || { };
+
+		return _.extend( resolveData( data ),
+			resolveData( {
+				"name": rawData.name,
+				"title": rawData.title,
+				"description": rawData.description,
+				"tags": rawData.tags,
+
+				"scopes": this.scopes,
+				"searches": this.searches,
+				"domains": this.domains			
+			} ), 
+			resolveData( this.modelData ) );
+	} ).bind( this );
 };
 
 /*:
@@ -282,13 +405,15 @@ Model.prototype.update = function update( data, reference ){
 							If the array has one element
 								it means we need to add it.
 
-							If the array has less elements than the previous
-								it means we need to replace all the elements
-								with the new array.
+							
 
 							If the array is empty
 								it means we need to remove all.
 								Note that this is different to null.
+	
+							If the array has less elements than the previous
+								it means we need to replace all the elements
+								with the new array.
 
 							If the array is has more elements than the previous
 								it means we need to replace all the elements
@@ -304,8 +429,8 @@ Model.prototype.update = function update( data, reference ){
 									one with the new one, then you need
 									to provide a special format.
 						*/
-						if( modelData[ property ] instanceof Array &&
-							data[ property ] instanceof Array )
+						if( Array.isArray( modelData[ property ] ) &&
+							Array.isArray( data[ property ] ) )
 						{
 							if( data[ property ].length == 1 ){
 								modelData[ property ] = _.union( modelData[ property ], data[ property ] );
@@ -334,9 +459,17 @@ Model.prototype.update = function update( data, reference ){
 
 				modelData.references = references;
 
-				this.recordChange( "update", modelData.toObject( ) );
+				modelData
+					.save( ( function onSave( error, modelData ){
+						if( error ){
+							this.result( error );	
+						
+						}else{
+							this.result( null, modelData );
 
-				modelData.save( this.result.bind( this ) );
+							this.recordChange( "update", modelData );
+						}
+					} ).bind( this ) );
 			}
 		} ).bind( this ) );
 
@@ -381,7 +514,7 @@ Model.prototype.edit = function edit( property, value, reference ){
 		.then( function onApplied( ){
 			this.modelQuery.exec( ( function onEdit( error, modelDataList ){
 				if( error ){
-					this.result( error );
+					this.drop( ).result( error );
 
 				}else{
 					async.parallel( _.map( modelDataList,
@@ -409,8 +542,8 @@ Model.prototype.edit = function edit( property, value, reference ){
 										it means we need to replace all the elements
 										with the new array.
 								*/
-								if( modelData[ property ] instanceof Array &&
-									value instanceof Array )
+								if( Array.isArray( modelData[ property ] ) &&
+									Array.isArray( value ) )
 								{
 									if( value.length == 1 ){
 										modelData[ property ] = _.union( modelData[ property ], value );
@@ -426,13 +559,21 @@ Model.prototype.edit = function edit( property, value, reference ){
 									modelData[ property ] = value;
 								}
 
-								this.recordChange( "edit", modelData.toObject( ) );
+								modelData
+									.save( ( function onSave( error, modelData ){
+										if( error ){
+											callback( error );	
+										
+										}else{
+											callback( null, modelData );
 
-								modelData.save( callback );
+											this.recordChange( "edit", modelData );
+										}
+									} ).bind( this ) );
 							} );
 						} ),
 						( function lastly( error, modelDataList ){
-							this.result( error, modelDataList );
+							this.drop( ).result( error, modelDataList );
 
 							this.emit( "sync" );
 						} ).bind( this ) );
@@ -440,7 +581,7 @@ Model.prototype.edit = function edit( property, value, reference ){
 			} ).bind( this ) );
 		} )
 		.hold( function onError( error ){
-			this.result( error );
+			this.drop( ).result( error );
 		} );
 
 	return this;
@@ -529,7 +670,7 @@ Model.prototype.get = function get( property, value ){
 		query = { "references": { "$in": this.references } };
 
 	}else if( !_.isEmpty( arguments ) &&
-		typeof property == "string" 
+		typeof property == "string" &&
 		property &&
 		typeof value != "undefined" &&
 		value )
@@ -546,17 +687,26 @@ Model.prototype.get = function get( property, value ){
 
 	this.queryApplyPagination( )
 		.then( function onResult( ){
-			this.modelQuery.exec( this.result.bind( this ) );
+			this.modelQuery
+				.exec( ( function onResult( error, modelData ){
+					if( error ){
+						this.drop( ).result( error );
+					
+					}else{
+						this.drop( ).result( null, modelData );
+					}
+				} ).bind( this ) );
 		} )
 		.hold( function onError( error ){
-			this.result( error );
+			this.drop( ).result( error );
 		} );
 
 	return this;
 };
 
 /*:
-	Similar to get but return a single document.
+	Similar to get but return a single document based on the 
+		given property and value.
 */
 Model.prototype.pick = function pick( property, value ){
 	var query = { };
@@ -586,7 +736,7 @@ Model.prototype.pick = function pick( property, value ){
 		query = { "references": { "$in": this.references } };
 
 	}else if( !_.isEmpty( arguments ) &&
-		typeof property == "string" 
+		typeof property == "string" &&
 		property &&
 		typeof value != "undefined" &&
 		value )
@@ -619,6 +769,10 @@ Model.prototype.pick = function pick( property, value ){
 
 	Note that refer is similar to pick but you can only
 		use references to pick a document.
+
+	The reference format here is based on the result of
+		short id algorithm and not based on the
+		hash of the data.
 */
 Model.prototype.refer = function refer( reference ){
 	var query = { };
@@ -671,10 +825,18 @@ Model.prototype.all = function all( ){
 	this.queryApplySorting( )
 		.queryApplyPagination( )
 		.then( function execute( ){
-			this.modelQuery.exec( this.result.bind( this ) );
+			this.modelQuery
+				.exec( ( function onResult( error, allModelData ){
+					if( error ){
+						this.drop( ).result( error );
+					
+					}else{
+						this.drop( ).result( null, allModelData );
+					}
+				} ).bind( this ) );
 		} )
 		.hold( function onError( error ){
-			this.result( error );
+			this.drop( ).result( error );
 		} );
 
 	return this;
@@ -710,16 +872,32 @@ Model.prototype.count = function count( data ){
 			this.modelQuery
 				.exec( ( function onCount( error, count ){
 					if( error ){
-						this.result( error );
+						this.drop( ).result( error );
 
 					}else{
-						this.result( null, count );
+						this.drop( ).result( null, count );
 					}
 				} ).bind( this ) );		
 		} )
 		.hold( function onError( error ){
-			this.result( error );
+			this.drop( ).result( error );
 		} );
+
+	return this;
+};
+
+Model.prototype.countAll = function countAll( ){
+	var modelQuery = this.model.count( { } );
+
+	modelQuery
+		.exec( ( function onCount( error, total ){
+			if( error ){
+				this.result( error );
+
+			}else{
+				this.result( null, total );
+			}
+		} ).bind( this ) );
 
 	return this;
 };
@@ -1013,6 +1191,8 @@ Model.prototype.result = function result( ){
 
 	//: Do not tap if there are errors.
 	if( parameters[ 0 ] instanceof Error ){
+		this.emit( "log", "error", parameters[ 0 ] );
+
 		var isEmitted = this.emit.apply( this, [ "result" ].concat( parameters ) );
 
 		if( !isEmitted ){
@@ -1025,9 +1205,11 @@ Model.prototype.result = function result( ){
 	this.tapping( parameters,
 		( function callback( error, parameters ){
 			if( error ){
+				this.emit( "log", "error", parameters[ 0 ] );
+
 				this.emit( "error", error );
 
-				parameters = [ error ];
+				return;			
 			}
 
 			var isEmitted = this.emit.apply( this, [ "result" ].concat( parameters ) );
@@ -1154,19 +1336,43 @@ Model.prototype.tapping = function tapping( parameters, callback ){
 	return this;
 };
 
+var Change = mongoose.model( "Change" ); 
+
 /*:
 	Logged changes to the document.
 */
 Model.prototype.recordChange = function recordChange( event, data ){
 	var changes = data.changes || ( data.changes = [ ] );
 
-	changes.push( { 
+	( new Change( { 
 		"log": {
 			"namespace": this.namespace,
 			"event": event
 		},
 		"change": data
-	} );
+	} ) )
+	.save( ( function onSave( error, change ){
+		if( error ){
+			this.emit( "error", error );
+		
+		}else{
+			changes.push( {
+				"reference": change.reference,
+				"timestamp": change.timestamp
+			} );
+
+			if( typeof data.save == "function" ){
+				data.save( ( function onSave( error ){
+					if( error ){
+						this.emit( "error", error );
+					}
+				} ).bind( this ) );	
+			
+			}else{
+				this.emit( "error", new Error( "cannot save changes" ) );
+			}
+		}
+	} ).bind( this ) );
 
 	return this;
 };
@@ -1190,7 +1396,7 @@ Model.prototype.queryApplyLimitIndex = function queryApplyLimitIndex( ){
 		this.limit = parseInt( this.limit );
 	}
 
-	return this
+	this
 		.promise( )
 		.clone( )
 		.once( "error",
@@ -1220,8 +1426,9 @@ Model.prototype.queryApplyLimitIndex = function queryApplyLimitIndex( ){
 					this.resolve( );
 				}
 			} ).bind( this ) )
-		.count( )
-		.self;
+		.countAll( );
+
+	return this;
 };
 
 /*:
@@ -1235,7 +1442,7 @@ Model.prototype.queryApplyPagination = function queryApplyPagination( modelQuery
 	}
 
 	if( "page" in this &&
-		Model.NUMBER_PATTERN.test( this.page.toString( ) )
+		Model.NUMBER_PATTERN.test( this.page.toString( ) ) &&
 		"size" in this &&
 		Model.NUMBER_PATTERN.test( this.size.toString( ) ) )
 	{
@@ -1261,7 +1468,7 @@ Model.prototype.queryApplySorting = function queryApplySorting( ){
 
 	if( "sort" in this &&
 		typeof this.sort == "string" &&
-		this.sort
+		this.sort &&
 		Model.SORT_PATTERN.test( this.sort ) )
 	{
 		this.modelQuery = this.modelQuery.sort( this.sort );

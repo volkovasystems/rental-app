@@ -1,13 +1,14 @@
 //: This requires order.
+
+//: app server
 require( "./alpha-app.js" );
 
-require( "../database/database-connection.js" );
+require( "./alpha-database.js" );
 
 require( "./alpha-option.js" );
 
 require( "./alpha-access.js" );
 
-//: app server
 require( "../access/access-schema.js" );
 
 require( "../access/access.js" );
@@ -34,12 +35,12 @@ require( "../user/user-api.js" );
 console.log( "user server middleware initialized" );
 
 //: renter server
-require( "../renter/renter-schema.js" );
+//require( "../renter/renter-schema.js" );
 
-require( "../renter/renter.js" );
+//require( "../renter/renter.js" );
 
-require( "../renter/renter-api.js" );
-console.log( "renter server middleware initialized" );
+//require( "../renter/renter-api.js" );
+//console.log( "renter server middleware initialized" );
 
 //: room server
 require( "../room/room-schema.js" );
@@ -61,4 +62,5 @@ require( "../room/room-item-api.js" );
 require( "../room/room-type-api.js" );
 console.log( "room server middleware initialized" );
 
+console.log( "app server starting" );
 require( "./alpha-server.js" );

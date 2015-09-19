@@ -5,5 +5,6 @@ require( "gestalten" )( {
 	"DB_NAME": "alphadb",
 	"DB_COLLECTION": "alpha",
 	"DB_PATH": require( "./db-path.js" ),
+	"NAMESPACED_COLLECTION": true,
 	"@require:credential": "./local/credential.js"
 } );

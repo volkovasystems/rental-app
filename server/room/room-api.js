@@ -33,7 +33,8 @@ APP.get( "/api/room/:reference",
 
 				"name",
 				"title",
-				"description"
+				"description",
+				"tags"
 			] )
 			.refer( reference );
 	} );
@@ -69,7 +70,7 @@ APP.get( "/api/:accessID/room/all",
 		var index = request.query.index;
 		
 		var page = request.query.page;
-		var size = request.query size;
+		var size = request.query.size;
 		
 		Room( )
 			.setResponse( response )
@@ -261,7 +262,7 @@ APP.all( "/api/:accessID/room/update/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		Room( )
-			.setResponse( response );
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
@@ -384,8 +385,8 @@ APP.delete( "/api/:accessID/room/remove/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		Room( )
-			.clone( )
 			.setResponse( response )
+			.clone( )
 			.once( "error",
 				function onError( error ){
 					this.self.flush( ).response( 500, "error", error.message );
@@ -401,7 +402,6 @@ APP.delete( "/api/:accessID/room/remove/:referenceID",
 				} )
 			.remove( referenceID )
 			.self
-			.setResponse( response )
 			.wait( )
 			.once( "error",
 				function onError( error ){

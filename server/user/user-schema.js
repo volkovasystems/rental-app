@@ -72,7 +72,7 @@ UserSchema.pre( "save", true,
 		next( );
 	} );
 
-mongoose.model( "Model" ).discriminator( "User", UserSchema );
+UserSchema.initializeModel( "user" );
 
 global.UserSchema = UserSchema;
 module.exports = UserSchema;

@@ -1,3 +1,5 @@
+var harden = require( "harden" );
+var llamalize = require( "llamalize" );
 var mongoose = require( "mongoose" );
 var titlelize = require( "titlelize" );
 var shardize = require( "shardize" );
@@ -22,7 +24,7 @@ require( "./change-schema.js" );
 		5. reference is the short id. This is not indexed and useful for url 
 			and querying.
 */
-var model = function model( ){
+var ModelSchema = function ModelSchema( ){
 	mongoose.Schema.apply( this, arguments );
 
 	this.add( {
@@ -58,7 +60,15 @@ var model = function model( ){
 		/*:
 			Timestamps are list of logged events
 		*/
-		"changes": [ ChangeSchema ],
+		"changes": [ 
+			{
+				"reference": {
+					"type": String,
+					"ref": "Change"
+				},
+				"timestamp": Date
+			}
+		],
 
 		"scopes": [ String ],
 		"searches": [ String ],
@@ -66,23 +76,49 @@ var model = function model( ){
 	} );
 };
 
-util.inherits( model, mongoose.Schema );
+util.inherits( ModelSchema, mongoose.Schema );
 
-global.ModelSchema = model;
+ModelSchema.prototype.initializeModel = function initializeModel( collection ){
+	var collectionTitle = llamalize( collection, true );
 
-ModelSchema.pre( "save",
+	if( "NAMESPACED_COLLECTION" in global &&
+		global.NAMESPACED_COLLECTION &&
+		typeof collection == "string" &&
+		collection )
+	{
+		var baseCollection = [ collectionTitle, "Model" ].join( "" );
+
+		console.log( "registering base model", baseCollection, "with discriminator", collectionTitle );
+
+		mongoose.model( baseCollection, ModelSchema.Model, collection );
+
+		mongoose.model( baseCollection ).discriminator( collectionTitle, this );
+
+	}else if( "DB_COLLECTION" in global ){
+		mongoose.model( "Model", ModelSchema.Model, DB_COLLECTION );
+
+		mongoose.model( "Model" ).discriminator( collectionTitle, this );
+		
+	}else{
+		mongoose.model( "Model", ModelSchema.Model );
+
+		mongoose.model( "Model" ).discriminator( collectionTitle, this );
+	}
+};
+
+global.ModelSchema = ModelSchema;
+module.exports = ModelSchema;
+
+harden.bind( ModelSchema )
+	( "Model", new ModelSchema( ) );
+
+ModelSchema.Model.pre( "save",
 	function onSave( next ){
-		this.name = shardize( this.name );
+		this.name = this.name.toLowerCase( );
+
+		this.name = shardize( this.name, true );
 
 		this.title = titlelize( this.title || this.name );
 
 		next( );
 	} );
-
-if( "DB_COLLECTION" in global ){
-	mongoose.model( "Model", new model( ), DB_COLLECTION );	
-	
-}else{
-	mongoose.model( "Model", new model( ) );
-}
-

@@ -82,5 +82,4 @@ Cloneable.prototype.clone = function clone( name ){
 };
 
 global.Cloneable = Cloneable;
-
 module.exports = Cloneable;

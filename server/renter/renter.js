@@ -61,38 +61,35 @@ util.inherits( Renter, Model );
 Responsible( ).compose( Renter );
 
 Renter.prototype.add = function add( renter ){
-	var renterData = _.extend( {
-		"renterID": this.renterID,
+	var renterData = this.resolveAddData( renter )
+		( {
+			"renterID": this.renterID,
 
-		"firstName": renter.firstName,
-		"middleName": renter.middleName,
-		"lastName": renter.lastName,
+			"firstName": renter.firstName,
+			"middleName": renter.middleName,
+			"lastName": renter.lastName,
 
-		"address": renter.address,
-		"contactNumber": renter.contactNumber,
-		"eMail": renter.eMail,
+			"address": renter.address,
+			"contactNumber": renter.contactNumber,
+			"eMail": renter.eMail,
 
-		"idNumber": renter.idNumber,
-		"idType": renter.idType,
+			"idNumber": renter.idNumber,
+			"idType": renter.idType,
 
-		"profilePicture": renter.profilePicture,
-		"idImage": renter.idImage,
+			"profilePicture": renter.profilePicture,
+			"idImage": renter.idImage,
 
-		"guests": ( renter.guests || [ ] )
-			.map( function onEachGuest( guest ){
-				return {
-					"firstName": guest.firstName,
-					"middleName": guest.middleName,
-					"lastName": guest.lastName,
+			"guests": ( renter.guests || [ ] )
+				.map( function onEachGuest( guest ){
+					return {
+						"firstName": guest.firstName,
+						"middleName": guest.middleName,
+						"lastName": guest.lastName,
 
-					"contactNumber": guest.contactNumber
-				};
-			} ),
-
-		"scopes": this.scopes,
-		"searches": this.searches,
-		"domains": this.domains
-	}, this.modelData );
+						"contactNumber": guest.contactNumber
+					};
+				} )
+		} );
 
 	Model.prototype.add.call( this, renterData );
 
@@ -100,43 +97,40 @@ Renter.prototype.add = function add( renter ){
 };
 
 Renter.prototype.update = function update( renter, reference ){
-	var renterData = _.extend( {
-		"firstName": renter.firstName || null,
-		"middleName": renter.middleName || null,
-		"lastName": renter.lastName || null,
+	var renterData = this.resolveUpdateData( renter )
+		( {
+			"firstName": renter.firstName,
+			"middleName": renter.middleName,
+			"lastName": renter.lastName,
 
-		"address": renter.address || null,
-		"contactNumber": renter.contactNumber || null,
-		"eMail": renter.eMail || null,
+			"address": renter.address,
+			"contactNumber": renter.contactNumber,
+			"eMail": renter.eMail,
 
-		"idNumber": renter.idNumber || null,
-		"idType": renter.idType || null,
+			"idNumber": renter.idNumber,
+			"idType": renter.idType,
 
-		"profilePicture": renter.profilePicture || null,
-		"idImage": renter.idImage || null,
+			"profilePicture": renter.profilePicture,
+			"idImage": renter.idImage,
 
-		"guests": ( function resolveGuests( renter ){
-			if( _.isEmpty( renter.guests ) ){
-				return null;
-			
-			}else{
-				return renter.guests
-					.map( function onEachGuest( guest ){
-						return {
-							"firstName": guest.firstName,
-							"middleName": guest.middleName,
-							"lastName": guest.lastName,
+			"guests": ( function resolveGuests( renter ){
+				if( _.isEmpty( renter.guests ) ){
+					return null;
+				
+				}else{
+					return renter.guests
+						.map( function onEachGuest( guest ){
+							return {
+								"firstName": guest.firstName,
+								"middleName": guest.middleName,
+								"lastName": guest.lastName,
 
-							"contactNumber": guest.contactNumber
-						};
-					} );
-			}
-		} )( renter ),
-
-		"scopes": this.scopes || null,
-		"searches": this.searches || null,
-		"domains": this.domains || null
-	}, this.modelData );
+								"contactNumber": guest.contactNumber
+							};
+						} );
+				}
+			} )( renter )
+		} );
 
 	Model.prototype.update.call( this, renterData, reference );
 

@@ -18,7 +18,7 @@ var Promising = function Promising( ){
 util.inherits( Promising, Composite );
 
 Promising.prototype.getPromise = function getPromise( ){
-	if( _.isEmpty( this.promise ) &&
+	if( _.isEmpty( this.deferredPromise ) &&
 		_.isEmpty( this.promiseList ) )
 	{
 		//: Promise is probably dropped.
@@ -29,27 +29,53 @@ Promising.prototype.getPromise = function getPromise( ){
 };
 
 Promising.prototype.resolve = function resolve( value ){
-	if( _.isEmpty( this.promise ) &&
+	if( _.isEmpty( this.deferredPromise ) &&
 		_.isEmpty( this.promiseList ) )
 	{
 		//: Promise is probably dropped.
 		throw new Error( "promise is empty or dropped" );
 	}
 
-	this.getPromise( ).resolve( value );
+	var promiseList = this.promiseList.reverse( );
+
+	var promise = { };
+	for( var index = 0; index < promiseList.length; index++ ){
+		promise = promiseList[ index ];
+
+		if( "resolve" in promise &&
+			typeof promise.resolve == "function" )
+		{
+			promise.resolve( value );
+
+			break;
+		}
+	}
 
 	return this;
 };
 
 Promising.prototype.reject = function reject( reason ){
-	if( _.isEmpty( this.promise ) &&
+	if( _.isEmpty( this.deferredPromise ) &&
 		_.isEmpty( this.promiseList ) )
 	{
 		//: Promise is probably dropped.
 		throw new Error( "promise is empty or dropped" );
 	}
 
-	this.getPromise( ).reject( reason );
+	var promiseList = this.promiseList.reverse( );
+
+	var promise = { };
+	for( var index = 0; index < promiseList.length; index++ ){
+		promise = promiseList[ index ];
+
+		if( "reject" in promise &&
+			typeof promise.reject == "function" )
+		{
+			promise.reject( value );
+
+			break;
+		}
+	}
 
 	return this;
 };
@@ -58,17 +84,17 @@ Promising.prototype.handleRejection = function handleRejection( reason ){
 	console.log( "unhandled rejection", reason );
 
 	if( this instanceof events.EventEmitter ){
-		this.emit( [ "promise-error", this.promise.hash ].join( "@" ), reason );
+		this.emit( [ "promise-error", this.deferredPromise.hash ].join( "@" ), reason );
 	}
 };
 
 Promising.prototype.promise = function promise( ){
-	this.promise = new Promise( ( function onResolve( resolve, reject ){
+	this.deferredPromise = new Promise( ( function onResolve( resolve, reject ){
 		this.promise.resolve = resolve;
 		this.promise.reject = reject;
 	} ).bind( this ) );
 
-	this.promise.hash = crypto.createHash( "sha512" )
+	this.deferredPromise.hash = crypto.createHash( "sha512" )
 		.update( _.flatten( [
 			uuid.v1( ),
 			uuid.v4( )
@@ -76,12 +102,12 @@ Promising.prototype.promise = function promise( ){
 		.digest( "hex" )
 		.toString( );
 
-	this.promiseList = [ this.promise ];
+	this.promiseList = [ this.deferredPromise ];
 
 	if( this instanceof events.EventEmitter ){
 		this.getPromise( )
 			.catch( ( function onError( error ){
-				this.emit( [ "promise-error", this.promise.hash ].join( "@" ), error );
+				this.emit( [ "promise-error", this.deferredPromise.hash ].join( "@" ), error );
 			} ).bind( this ) );
 	
 	}else{
@@ -96,7 +122,7 @@ Promising.prototype.then = function then( resolved, async ){
 		throw new Error( "invalid resolved parameter" );
 	}
 
-	if( _.isEmpty( this.promise ) &&
+	if( _.isEmpty( this.deferredPromise ) &&
 		_.isEmpty( this.promiseList ) )
 	{
 		//: Promise is probably dropped.
@@ -126,7 +152,7 @@ Promising.prototype.then = function then( resolved, async ){
 				//: You can still chain the promise.
 				return result;
 
-			}else{
+			}else if( result === false ){
 				this.drop( ).done( );
 			}
 		} ).bind( this ) );
@@ -141,14 +167,14 @@ Promising.prototype.later = function later( resolved, async ){
 		throw new Error( "invalid resolved parameter" );
 	}
 
-	if( _.isEmpty( this.promise ) &&
+	if( _.isEmpty( this.deferredPromise ) &&
 		_.isEmpty( this.promiseList ) )
 	{
 		//: Promise is probably dropped.
 		throw new Error( "promise is empty or dropped" );
 	}
 
-	process.nextTick( function onNextTick( ){
+	process.nextTick( ( function onNextTick( ){
 		this.then( resolved, async );
 	} ).bind( this ) );
 	
@@ -160,7 +186,7 @@ Promising.prototype.hold = function hold( rejected, async ){
 		throw new Error( "invalid rejected parameter" );
 	}
 
-	if( _.isEmpty( this.promise ) &&
+	if( _.isEmpty( this.deferredPromise ) &&
 		_.isEmpty( this.promiseList ) )
 	{
 		//: Promise is probably dropped.
@@ -192,7 +218,7 @@ Promising.prototype.hold = function hold( rejected, async ){
 					//: You can still chain the promise.
 					return result;
 
-				}else{
+				}else if( result === false ){
 					this.drop( ).done( );
 				}
 			} ).bind( this ) );
@@ -200,7 +226,7 @@ Promising.prototype.hold = function hold( rejected, async ){
 		this.promiseList.push( promise );
 	
 	}else{
-		this.once( [ "promise-error", this.promise.hash ].join( "@" ),
+		this.once( [ "promise-error", this.deferredPromise.hash ].join( "@" ),
 			( function onError( error ){
 				var result = rejected.call( this, error );
 
@@ -219,14 +245,14 @@ Promising.prototype.holding = function holding( rejected, async ){
 		throw new Error( "invalid rejected parameter" );
 	}
 
-	if( _.isEmpty( this.promise ) &&
+	if( _.isEmpty( this.deferredPromise ) &&
 		_.isEmpty( this.promiseList ) )
 	{
 		//: Promise is probably dropped.
 		throw new Error( "promise is empty or dropped" );
 	}
 
-	process.nextTick( function onNextTick( ){
+	process.nextTick( ( function onNextTick( ){
 		this.hold( rejected, async );
 	} ).bind( this ) );
 	
@@ -234,9 +260,9 @@ Promising.prototype.holding = function holding( rejected, async ){
 };
 
 Promising.prototype.drop = function drop( ){
-	this.lastly = this.promise.lastly;
+	this.lastly = this.deferredPromise.lastly;
 
-	this.promise = { };
+	this.deferredPromise = { };
 
 	this.promiseList = [ ];
 
@@ -248,8 +274,8 @@ Promising.prototype.drop = function drop( ){
 /*:
 	Drop the promise first before calling done.
 */
-Promising.prototype.done = function done( lastly ){
-	if( _.isEmpty( this.promise ) &&
+Promising.prototype.done = function done( lastly, forceDrop ){
+	if( _.isEmpty( this.deferredPromise ) &&
 		_.isEmpty( this.promiseList ) )
 	{
 		if( typeof lastly == "function" &&
@@ -268,7 +294,7 @@ Promising.prototype.done = function done( lastly ){
 	
 	}else{
 		if( typeof lastly == "function" ){
-			this.promise.lastly = lastly;
+			this.deferredPromise.lastly = lastly;
 
 		}else{
 			console.log( "cannot end the promise chain if not dropped" );

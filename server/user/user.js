@@ -17,23 +17,29 @@ var User = function User( ){
 	if( this instanceof User ){
 		Model.call( this, "User" );
 
-		this.scopes = [
-			"referenceID",
+		this.setScopes( [
 			"accessID",
 
 			"firstName",
+			"middleName",
 			"lastName",
 
+			"fullName",
+			"displayName",
+
 			"userName"
-		];
+		] );
 
-		this.searches = [
+		this.setSearches( [
 			"firstName",
-			"lastName"
-		];
+			"middleName",
+			"lastName",
+			"fullName",
+			"displayName",
+			"userName"
+		] );
 
-		this.domains = {
-		};
+		this.setDomains( { } );
 
 	}else{
 		return new User( );
@@ -45,19 +51,17 @@ util.inherits( User, Model );
 Responsible( ).compose( User );
 
 User.prototype.add = function add( user ){
-	var userData = _.extend( {
+	var userData = this.resolveAddData( {
 		"userID": this.userID,
 		"accessID": this.accessID,
 
 		"firstName": user.firstName,
+		"middleName": user.middleName,
 		"lastName": user.lastName,
 
 		"userName": user.userName,
-
-		"scopes": this.scopes,
-		"searches": this.searches,
-		"domains": this.domains
-	}, this.modelData );
+		"eMail": user.eMail
+	} );
 
 	Model.prototype.add.call( this, userData );
 
@@ -65,18 +69,16 @@ User.prototype.add = function add( user ){
 };
 
 User.prototype.update = function update( user, reference ){
-	var userData = _.extend( {
+	var userData = this.resolveUpdateData( {
 		"accessID": this.accessID,
 
-		"firstName": user.firstName || null,
-		"lastName": user.lastName || null,
+		"firstName": user.firstName,
+		"middleName": user.middleName,
+		"lastName": user.lastName,
 
-		"userName": user.userName || null,
-
-		"scopes": this.scopes || null,
-		"searches": this.searches || null,
-		"domains": this.domains || null
-	}, this.modelData );
+		"userName": user.userName,
+		"eMail": user.eMail
+	} );
 
 	Model.prototype.update.call( this, userData, reference );
 
@@ -104,6 +106,10 @@ User.prototype.createReferenceID = function createReferenceID( user ){
 		this.result( error );
 
 		return this;
+	}
+
+	if( !secretReference ){
+		this.result( new Error( "secret reference is empty" ) );
 	}
 
 	var referenceID = crypto.createHash( "sha512" )
@@ -150,7 +156,7 @@ User.prototype.createUserID = function createUserID( user ){
 User.prototype.createAccessID = function createAccessID( user ){
 	var passphrase = "";
 
-	if( user.passphrase instanceof Array ){
+	if( Array.isArray( user.passphrase ) ){
 		passphrase = JSON.stringify( user.passphrase );
 
 	}else if( typeof user.passphrase == "string" ){
@@ -182,7 +188,7 @@ User.prototype.createAccessID = function createAccessID( user ){
 };
 
 User.prototype.extractSecretReference = function extractSecretReference( user ){
-	if( user.passphrase instanceof Array ){
+	if( Array.isArray( user.passphrase ) ){
 		return decodePassphrase( user.passphrase, user.eMail );
 
 	}else if( typeof user.passphrase == "string" ){
@@ -194,3 +200,4 @@ User.prototype.extractSecretReference = function extractSecretReference( user ){
 };
 
 global.User = User;
+module.exports = User;

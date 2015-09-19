@@ -23,17 +23,10 @@ util.inherits( RoomItem, Model );
 Responsible( ).compose( RoomItem );
 
 RoomItem.prototype.add = function add( roomItem ){
-	var roomItemData = _.extend( {
-		"roomItemID": this.roomItemID,
-
-		"name": roomItem.name,
-		"title": roomItem.title,
-		"description": roomItem.description,
-
-		"scopes": this.scopes,
-		"searches": this.searches,
-		"domains": this.domains
-	}, this.modelData );
+	var roomItemData = this.resolveAddData( roomItem )
+		( {
+			"roomItemID": this.roomItemID
+		} );
 
 	Model.prototype.add.call( this, roomItemData );
 
@@ -41,15 +34,7 @@ RoomItem.prototype.add = function add( roomItem ){
 };
 
 RoomItem.prototype.update = function update( roomItem, reference ){
-	var roomItemData = _.extend( {
-		"name": roomItem.name || null,
-		"title": roomItem.title || null,
-		"description": roomItem.description || null,
-
-		"scopes": this.scopes || null,
-		"searches": this.searches || null,
-		"domains": this.domains || null
-	}, this.modelData );
+	var roomItemData = this.resolveUpdateData( roomItem )( );
 
 	Model.prototype.update.call( this, roomItemData, reference );
 
@@ -128,7 +113,7 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 								this.self.notify( );
 							}
 						} )
-					.has( shardize( roomItem.item ), "name" )
+					.has( shardize( roomItem.item, true ), "name" )
 					.self
 					.wait( )
 					.once( "error",

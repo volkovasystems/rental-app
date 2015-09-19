@@ -40,25 +40,22 @@ util.inherits( Rent, Model );
 Responsible( ).compose( Rent );
 
 Rent.prototype.add = function add( rent ){
-	var rentData = _.extend( {
-		"rentID": this.rentID,
+	var rentData = this.resolveAddData( rent )
+		( {
+			"rentID": this.rentID,
 
-		"room": rent.room,
-		"renter": rent.renter,
+			"room": rent.room,
+			"renter": rent.renter,
 
-		"moveInDate": rent.moveInDate,
-		"moveOutDate": rent.moveOutDate,
-		
-		"waterMeterValue": rent.waterMeterValue,
-		"electricMeterValue": rent.electricMeterValue,
+			"moveInDate": rent.moveInDate,
+			"moveOutDate": rent.moveOutDate,
+			
+			"waterMeterValue": rent.waterMeterValue,
+			"electricMeterValue": rent.electricMeterValue,
 
-		"depositPayment": rent.depositPayment,
-		"roomPrice": rent.roomPrice,
-
-		"scopes": this.scopes,
-		"searches": this.searches,
-		"domains": this.domains
-	}, this.modelData );
+			"depositPayment": rent.depositPayment,
+			"roomPrice": rent.roomPrice
+		} );
 
 	Model.prototype.add.call( this, rentData );
 
@@ -66,23 +63,20 @@ Rent.prototype.add = function add( rent ){
 };
 
 Rent.prototype.update = function update( rent, reference ){
-	var rentData = _.extend( {
-		"room": rent.room,
-		"renter": rent.renter,
+	var rentData = this.resolveUpdateData( rent )
+		( {
+			"room": rent.room,
+			"renter": rent.renter,
 
-		"moveInDate": rent.moveInDate,
-		"moveOutDate": rent.moveOutDate,
-		
-		"waterMeterValue": rent.waterMeterValue,
-		"electricMeterValue": rent.electricMeterValue,
+			"moveInDate": rent.moveInDate,
+			"moveOutDate": rent.moveOutDate,
+			
+			"waterMeterValue": rent.waterMeterValue,
+			"electricMeterValue": rent.electricMeterValue,
 
-		"depositPayment": rent.depositPayment,
-		"roomPrice": rent.roomPrice,
-
-		"scopes": this.scopes,
-		"searches": this.searches,
-		"domains": this.domains
-	}, this.modelData );
+			"depositPayment": rent.depositPayment,
+			"roomPrice": rent.roomPrice
+		} );
 
 	Model.prototype.update.call( this, rentData, reference );
 

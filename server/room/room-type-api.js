@@ -27,7 +27,8 @@ APP.get( "/api/room/type/:reference",
 				"reference",
 				"name",
 				"title",
-				"description"
+				"description",
+				"tags"
 			] )
 			.refer( reference );
 	} );
@@ -63,7 +64,7 @@ APP.get( "/api/:accessID/room/type/all",
 		var index = request.query.index;
 		
 		var page = request.query.page;
-		var size = request.query size;
+		var size = request.query.size;
 
 		RoomType( )
 			.setResponse( response )

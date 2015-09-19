@@ -64,7 +64,7 @@ APP.get( "/api/:accessID/renter/all",
 		var index = request.query.index;
 		
 		var page = request.query.page;
-		var size = request.query size;
+		var size = request.query.size;
 
 		Renter( )
 			.once( "error",

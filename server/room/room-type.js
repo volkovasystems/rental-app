@@ -13,6 +13,12 @@ var RoomType = function RoomType( ){
 	if( this instanceof RoomType ){
 		Model.call( this, "RoomType" );
 
+		this.setScopes( );
+
+		this.setSearches( );
+
+		this.setDomains( );
+
 	}else{
 		return new RoomType( );
 	}
@@ -23,17 +29,10 @@ util.inherits( RoomType, Model );
 Responsible( ).compose( RoomType );
 
 RoomType.prototype.add = function add( roomType ){
-	var roomTypeData = _.extend( {
-		"roomTypeID": this.roomTypeID,
-
-		"name": roomType.name,
-		"title": roomType.title,
-		"description": roomType.description,
-
-		"scopes": this.scopes,
-		"searches": this.searches,
-		"domains": this.domains
-	}, this.modelData );
+	var roomTypeData = this.resolveAddData( roomType )
+	( {
+		"roomTypeID": this.roomTypeID
+	} );
 
 	Model.prototype.add.call( this, roomTypeData );
 
@@ -41,15 +40,7 @@ RoomType.prototype.add = function add( roomType ){
 };
 
 RoomType.prototype.update = function update( roomType, reference ){
-	var roomTypeData = _.extend( {
-		"name": roomType.name || null,
-		"title": roomType.title || null,
-		"description": roomType.description || null,
-
-		"scopes": this.scopes || null,
-		"searches": this.searches || null,
-		"domains": this.domains || null
-	}, this.modelData );
+	var roomTypeData = this.resolveUpdateData( roomType )( );
 
 	Model.prototype.update.call( this, roomTypeData, reference );
 

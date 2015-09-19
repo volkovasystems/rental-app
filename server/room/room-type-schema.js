@@ -11,7 +11,7 @@ var RoomTypeSchema = new ModelSchema( {
 	}
 } );
 
-mongoose.model( "Model" ).discriminator( "RoomType", RoomTypeSchema );
+RoomTypeSchema.initializeModel( "room-type" );
 
 global.RoomTypeSchema = RoomTypeSchema;
 module.exports = RoomTypeSchema;

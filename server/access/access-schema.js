@@ -12,7 +12,7 @@ var AccessSchema = new ModelSchema( {
 	"domain": String
 } );
 
-mongoose.model( "Model" ).discriminator( "Access", AccessSchema );
+AccessSchema.initializeModel( "access" );
 
 global.AccessSchema = AccessSchema;
 module.exports = AccessSchema;

@@ -1,4 +1,4 @@
-require( "terraforma" )( {
+/*require( "terraforma" )*/( {
 	"appName": "rental-app",
 	"libraryExceptions": [
 		"bower_components/pubsub.js/src/pubsub.js",

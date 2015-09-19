@@ -10,9 +10,6 @@ APP.use( function onRequest( request, response, next ){
 		subdomain in STATIC_DIRECTORY_LIST )
 	{
 		directory = STATIC_DIRECTORY_LIST[ subdomain ];
-
-	}else{
-		response.redirect( "/#status=404" );
 	}
 
 	express[ "static" ]( directory )( request, response, next );

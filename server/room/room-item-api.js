@@ -27,7 +27,8 @@ APP.get( "/api/room/item/:reference",
 				"reference",
 				"name",
 				"title",
-				"description"
+				"description",
+				"tags"
 			] )
 			.refer( reference );
 	} );
@@ -35,7 +36,7 @@ APP.get( "/api/room/item/:reference",
 APP.all( "/api/:accessID/room/item/all",
 	function onGetAllRoomItem( request, response, next ){
 		RoomItem( )
-			.setResponse( response );
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
@@ -49,7 +50,7 @@ APP.all( "/api/:accessID/room/item/all",
 						next( );
 
 					}else{
-						this.response( 403, "failed", "no room items" );
+						this.response( 404, "failed", "no room items" );
 					}
 				} )
 			.populated( );
@@ -63,10 +64,10 @@ APP.get( "/api/:accessID/room/item/all",
 		var index = request.query.index;
 		
 		var page = request.query.page;
-		var size = request.query size;
+		var size = request.query.size;
 
 		RoomItem( )
-			.setResponse( response );
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
@@ -94,17 +95,18 @@ APP.all( "/api/:accessID/room/item/add",
 		var roomItem = request.body;
 
 		RoomItem( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( existing ){
-						this.reply( response, 200, "failed", "room item already exists" );
+						this.response( 200, "failed", "room item already exists" );
 
 					}else{
 						next( );
@@ -118,17 +120,18 @@ APP.post( "/api/:accessID/room/item/add",
 		var roomItem = request.body;
 
 		RoomItem( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, roomItem ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", { "referenceID": roomItem.referenceID } );
+						this.response( 200, "success", { "referenceID": roomItem.referenceID } );
 					}
 				} )
 			.createReferenceID( roomItem )
@@ -310,8 +313,8 @@ APP.delete( "/api/:accessID/room/item/remove/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		RoomItem( )
-			.clone( )
 			.setResponse( response )
+			.clone( )
 			.once( "error",
 				function onError( error ){
 					this.self.flush( ).response( 500, "error", error.message );
@@ -327,7 +330,6 @@ APP.delete( "/api/:accessID/room/item/remove/:referenceID",
 				} )
 			.remove( referenceID )
 			.self
-			.setResponse( response )
 			.wait( )
 			.once( "error",
 				function onError( error ){

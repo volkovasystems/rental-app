@@ -5,13 +5,13 @@ var util = require( "util" );
 
 require( "../model/model.js" );
 
-require( "responsable" );
+require( "../utility/responsible.js" );
 
 var Room = function Room( ){
 	if( this instanceof Room ){
 		Model.call( this, "Room" );
 
-		this.scopes = _.union( [
+		this.setScopes( [
 			"buildingNumber",
 			"roomNumber",
 
@@ -21,9 +21,9 @@ var Room = function Room( ){
 			"roomItems",
 
 			"occupantLimit"
-		], Model.DEFAULT_SCOPE );
+		] );
 
-		this.searches = [
+		this.setSearches( [
 			"buildingNumber",
 			"roomNumber",
 
@@ -33,11 +33,11 @@ var Room = function Room( ){
 			"roomItems",
 
 			"occupantLimit"
-		];
+		] );
 
-		this.domains = {
+		this.setDomains( {
 
-		};
+		} );
 
 	}else{
 		return new Room( );
@@ -46,32 +46,29 @@ var Room = function Room( ){
 
 util.inherits( Room, Model );
 
-Responsable( ).compose( Room );
+Responsible( ).compose( Room );
 
 Room.prototype.add = function add( room ){
-	var roomData = _.extend( {
-		"roomID": this.roomID,
+	var roomData = this.resolveAddData( room )
+		( {
+			"roomID": this.roomID,
 
-		"buildingNumber": room.buildingNumber,
-		"roomNumber": room.roomNumber,
+			"buildingNumber": room.buildingNumber,
+			"roomNumber": room.roomNumber,
 
-		"roomType": room.roomType,
-		"roomSize": room.roomSize,
+			"roomType": room.roomType,
+			"roomSize": room.roomSize,
 
-		"roomItems": ( room.roomItems || [ ] )
-			.map( function onEachRoomItem( roomItem ){
-				return {
-					"item": roomItem.item,
-					"count": roomItem.count
-				};
-			} ),
+			"roomItems": ( room.roomItems || [ ] )
+				.map( function onEachRoomItem( roomItem ){
+					return {
+						"item": roomItem.item,
+						"count": roomItem.count
+					};
+				} ),
 
-		"occupantLimit": room.occupantLimit,
-
-		"scopes": this.scopes,
-		"searches": this.searches,
-		"domains": this.domains
-	}, this.modelData );
+			"occupantLimit": room.occupantLimit
+		} );
 
 	Model.prototype.add.call( this, roomData );
 
@@ -79,34 +76,31 @@ Room.prototype.add = function add( room ){
 };
 
 Room.prototype.update = function update( room, reference ){
-	var roomData = _.extend( {
-		"buildingNumber": room.buildingNumber || null,
-		"roomNumber": room.roomNumber || null,
+	var roomData = this.resolveUpdateData( room )
+		( {
+			"buildingNumber": room.buildingNumber,
+			"roomNumber": room.roomNumber,
 
-		"roomType": room.roomType || null,
-		"roomSize": room.roomSize || null,
+			"roomType": room.roomType,
+			"roomSize": room.roomSize,
 
-		"roomItems": ( function resolveRoomItems( room ){
-			if( _.isEmpty( room.roomItems ) ){
-				return null;
-			
-			}else{
-				return room.roomItems
-					.map( function onEachRoomItem( roomItem ){
-						return {
-							"item": roomItem.item,
-							"count": roomItem.count
-						};
-					} );
-			}
-		} )( room ),
+			"roomItems": ( function resolveRoomItems( room ){
+				if( _.isEmpty( room.roomItems ) ){
+					return null;
+				
+				}else{
+					return room.roomItems
+						.map( function onEachRoomItem( roomItem ){
+							return {
+								"item": roomItem.item,
+								"count": roomItem.count
+							};
+						} );
+				}
+			} )( room ),
 
-		"occupantLimit": room.occupantLimit || null,
-
-		"scopes": this.scopes || null,
-		"searches": this.searches || null,
-		"domains": this.domains || null
-	}, this.modelData );
+			"occupantLimit": room.occupantLimit
+		} );
 
 	Model.prototype.update.call( this, roomData, reference );
 

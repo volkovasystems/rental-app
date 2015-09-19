@@ -1,5 +1,6 @@
 var lzString = require( "lz-string" );
 var mongoose = require( "mongoose" );
+var shortid = require( "shortid" );
 var svo = require( "../utility/svo.js" );
 var util = require( "util" );
 
@@ -9,6 +10,12 @@ var util = require( "util" );
 	By doing this we can revert changes to the document.
 */
 var ChangeSchema = new mongoose.Schema( {
+	"reference": {
+		"type": String,
+		"unique": true,
+		"default": shortid.generate
+	},
+
 	//: This will be in UTC format.
 	"timestamp": {
 		"type": Date,
@@ -40,6 +47,7 @@ ChangeSchema.pre( "save",
 		next( );
 	} );
 
-global.ChangeSchema = ChangeSchema;
+mongoose.model( "Change", ChangeSchema, "change" );
 
+global.ChangeSchema = ChangeSchema;
 module.exports = ChangeSchema;
