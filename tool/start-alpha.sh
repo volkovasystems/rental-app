@@ -19,3 +19,5 @@ forever start -l alphadb.log -o alphadb.out -e alphadb.err -m 3 server/database/
 forever start -l alpha.log -o alpha.out -e alpha.err -m 3 server/alpha/alpha-main.js --option=../../local/alpha-server.js;
 
 forever start -l static.log -o static.out -e static.err -m 3 server/static/static-main.js --option=../../local/static-server.js;
+
+forever list;
