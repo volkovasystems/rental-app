@@ -56,13 +56,17 @@ Room.prototype.add = function add( room ){
 			"buildingNumber": room.buildingNumber,
 			"roomNumber": room.roomNumber,
 
-			"roomType": room.roomType,
+			"roomType": {
+				"reference": room.roomType
+			},
 			"roomSize": room.roomSize,
 
 			"roomItems": ( room.roomItems || [ ] )
 				.map( function onEachRoomItem( roomItem ){
 					return {
-						"item": roomItem.item,
+						"item": {
+							"reference": roomItem.item
+						},
 						"count": roomItem.count
 					};
 				} ),
@@ -81,7 +85,17 @@ Room.prototype.update = function update( room, reference ){
 			"buildingNumber": room.buildingNumber,
 			"roomNumber": room.roomNumber,
 
-			"roomType": room.roomType,
+			"roomType": ( function resolveRoomType( roomType ){
+				if( roomType ){
+					return {
+						"reference": roomType
+					};
+				
+				}else{
+					return null;
+				}
+			} )( room.roomType ),
+
 			"roomSize": room.roomSize,
 
 			"roomItems": ( function resolveRoomItems( room ){
@@ -92,7 +106,9 @@ Room.prototype.update = function update( room, reference ){
 					return room.roomItems
 						.map( function onEachRoomItem( roomItem ){
 							return {
-								"item": roomItem.item,
+								"item": {
+									"reference": roomItem.item
+								},
 								"count": roomItem.count
 							};
 						} );

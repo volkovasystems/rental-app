@@ -13,7 +13,6 @@ var RentSchema = new ModelSchema( {
 		"required": true,
 		"index": true
 	},
-
 	"room": {
 		"reference": {
 			"type": String,
@@ -21,16 +20,17 @@ var RentSchema = new ModelSchema( {
 			"required": true,
 			"index": true
 		},
-		//: These are searchable items.
 		"buildingNumber": {
 			"type": String,
 			"required": true,
-			"index": true
+			"index": true,
+			"default": ""
 		},
 		"roomNumber": {
 			"type": String,
 			"required": true,
-			"index": true
+			"index": true,
+			"default": ""
 		},
 		"roomType": {
 			"reference": {
@@ -40,32 +40,48 @@ var RentSchema = new ModelSchema( {
 			},
 			"name": {
 				"type": String,
-				"required": true
+				"required": true,
+				"default": ""
 			},
 			"title": {
 				"type": String,
-				"required": true
+				"required": true,
+				"default": ""
 			},
-			"description": String,
-			"tags": [ String ]
+			"description": {
+				"type": String,
+				"default": ""
+			},
+			"tags": {
+				"type": [ String ],
+				"default": [ ]
+			}
 		},
 		"roomSize": {
 			"type": Number,
 			"required": true,
-			"index": true
+			"index": true,
+			"default": 0.0
 		},
 		"name": {
 			"type": String,
-			"required": true
+			"required": true,
+			"default": ""
 		},
 		"title": {
 			"type": String,
-			"required": true
+			"required": true,
+			"default": ""
 		},
-		"description": String,
-		"tags": [ String ]
+		"description": {
+			"type": String,
+			"default": ""
+		},
+		"tags": {
+			"type": [ String ],
+			"default": [ ]
+		}
 	},
-	
 	"moveInDate": {
 		"type": Date,
 		"required": true
@@ -75,10 +91,15 @@ var RentSchema = new ModelSchema( {
 		"required": true
 	},
 	"duration": {
-		"range": Number,
-		"description": String
+		"range": {
+			"type": Number,
+			"default": 0
+		},
+		"description": {
+			"type": String,
+			"default": ""
+		}
 	},
-
 	"waterMeterValue": {
 		"type": Number,
 		"required": true,
@@ -89,16 +110,16 @@ var RentSchema = new ModelSchema( {
 		"required": true,
 		"default": 0.0
 	},
-
 	"depositPayment": {
 		"type": Number,
 		"required": true
+		"default": 0.0
 	},
 	"roomPrice": {
 		"type": Number,
-		"required": true
+		"required": true,
+		"default": 0.0
 	},
-
 	"renter": {
 		"reference": {
 			"type": String,
@@ -106,53 +127,67 @@ var RentSchema = new ModelSchema( {
 			"required": true,
 			"index": true
 		},
-		//: These are searchable items.
 		"fullName": {
 			"type": String,
 			"required": true,
-			"index": true
+			"index": true,
+			"default": ""
 		},
 		"idNumber": {
 			"type": String,
 			"required": true,
-			"index": true
+			"index": true,
+			"default": ""
 		},
 		"eMail": {
 			"type": String,
 			"required": true,
-			"index": true
+			"index": true,
+			"default": ""
 		},
 		"contactNumber": {
 			"type": String,
 			"required": true,
-			"index": true
+			"index": true,
+			"default": ""
 		},
 		"name": {
 			"type": String,
-			"required": true
+			"required": true,
+			"default": ""
 		},
 		"title": {
 			"type": String,
-			"required": true
+			"required": true,
+			"default": ""
 		},
-		"description": String,
-		"tags": [ String ]
+		"description": {
+			"type": String,
+			"default": ""
+		},
+		"tags": {
+			"type": [ String ],
+			"default": [ ]
+		},
 		"guests": [ 
 			{
 				"displayName": {
 					"type": String,
 					"required": true,
-					"index": true
+					"index": true,
+					"default": ""
 				},
 				"fullName": {
 					"type": String,
 					"required": true,
-					"index": true
+					"index": true,
+					"default": ""
 				},
 				"contactNumber": {
 					"type": String,
 					"required": true,
-					"index": true
+					"index": true,
+					"default": ""
 				}
 			}
 		]
@@ -160,26 +195,8 @@ var RentSchema = new ModelSchema( {
 } );
 
 //: This will pre-fill other properties for room.
-RentSchema.pre( "save", true,
+RentSchema.pre( "validate", true,
 	function onSave( next, done ){
-		if( typeof this.room == "string" &&
-			this.room )
-		{
-			this.room = {
-				"reference": this.room
-			};
-		}
-
-		if( !( typeof this.room == "object" &&
-			"reference" in this.room &&
-			typeof this.room.reference == "string" &&
-			this.room.reference ) )
-		{
-			next( new Error( "invalid room reference" ) );
-
-			return;
-		}
-
 		Room( )
 			.clone( )
 			.once( "error",
@@ -242,26 +259,8 @@ RentSchema.pre( "save", true,
 	} );
 
 //: This will pre-fill other properties for renter.
-RentSchema.pre( "save", true,
+RentSchema.pre( "validate", true,
 	function onSave( next, done ){
-		if( typeof this.renter == "string" &&
-			this.renter )
-		{
-			this.renter = {
-				"reference": this.renter
-			};
-		}
-
-		if( !( typeof this.renter == "object" &&
-			"reference" in this.renter &&
-			typeof this.renter.reference == "string" &&
-			this.renter.reference ) )
-		{
-			next( new Error( "invalid renter reference" ) );
-
-			return;
-		}
-
 		Renter( )
 			.clone( )
 			.once( "error",
@@ -336,79 +335,58 @@ RentSchema.pre( "save", true,
 	This will prefill the name of the rent using the
 		renter name, room name and the move in date.
 */
-RentSchema.pre( "save", true,
+RentSchema.pre( "validate", true,
 	function onSave( next, done ){
 		if( this.name ){
-			done( );
 			next( );
+
+			done( );
 
 			return;
 		}
-		
+
 		async.waterfall( [
 			( function getRoom( callback ){
-				if( typeof this.room == "string" ){
-					Room( )
-						.once( "error",
-							function onError( error ){
+				Room( )
+					.once( "error",
+						function onError( error ){
+							callback( error );
+						} )
+					.once( "result",
+						function onResult( error, room ){
+							if( error ){
 								callback( error );
-							} )
-						.once( "result",
-							( function onResult( error, room ){
-								if( error ){
-									callback( error );
 
-								}else if( !_.isEmpty( room ) ){
-									callback( null, room.name );
-
-								}else if( typeof this.room == "object" ){
-									callback( null, this.room.name );
-
-								}else{
-									callback( new Error( "room name cannot be extracted" ) );
-								}
-							} ).bind( this ) )
-						.pick( "referenceID", shardize( this.room ) )	
-				
-				}else if( typeof this.room == "object" ){
-					callback( null, this.room.name );
-				
-				}else{
-					callback( new Error( "room name cannot be extracted" ) );
-				}
+							}else if( !_.isEmpty( room ) ){
+								callback( null, room.name );
+							
+							}else{
+								callback( new Error( "cannot extract room name for rent name" ) );
+							}
+						} )
+					.pick( "referenceID", this.room.reference );
 				
 			} ).bind( this ),
 
 			( function getRenter( roomName, callback ){
-				if( typeof this.renter == "string" ){
-					Renter( )
-						.once( "error",
-							function onError( error ){
+				Renter( )
+					.once( "error",
+						function onError( error ){
+							callback( error );
+						} )
+					.once( "result",
+						function onResult( error, renter ){
+							if( error ){
 								callback( error );
-							} )
-						.once( "result",
-							( function onResult( error, renter ){
-								if( error ){
-									callback( error );
 
-								}else if( !_.isEmpty( renter ) ){
-									callback( null, roomName, renter.name );
-
-								}else if( typeof this.renter == "object" ){
-									callback( null, roomName, this.renter.name );
-
-								}else{
-									callback( new Error( "renter name cannot be extracted" ) );
-								}
-							} ).bind( this ) )
-						.pick( "referenceID", shardize( this.renter ) )	
-				
-				}else if( typeof this.renter == "object" ){
-					callback( null, roomName, this.renter.name );
-				
-				}else{
-					callback( new Error( "renter name cannot be extracted" ) );
-				}
+							}else if( !_.isEmpty( renter ) ){
+								callback( null, renter.name );
+							
+							}else{
+								callback( new Error( "cannot extract renter name for rent name" ) );
+							}
+						} )
+					.pick( "referenceID", this.renter.reference )	
 
 			} ).bind( this ),
 
@@ -421,7 +399,7 @@ RentSchema.pre( "save", true,
 			} ).bind( this ),
 
 			( function saveRentName( rentName, callback ){
-				this.name = this.name || rentName;
+				this.name = rentName;
 
 				callback( );
 			} ).bind( this )

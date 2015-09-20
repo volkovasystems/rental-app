@@ -13,6 +13,12 @@ var RoomItem = function RoomItem( ){
 	if( this instanceof RoomItem ){
 		Model.call( this, "RoomItem" );
 
+		this.setScopes( );
+
+		this.setSearches( );
+
+		this.setDomains( );
+
 	}else{
 		return new RoomItem( );
 	}
@@ -81,6 +87,17 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 
 		Extract them and save them.
 
+		Note that the item must be a name not a referenceID.
+
+		roomItems should be an array with the following format:
+		[
+			{
+				"item": String,
+				"count": Number
+			},
+			...
+		]
+
 		@todo:
 			Make the query fast by introducing a custom query
 				to get all room items not in the database.
@@ -89,50 +106,61 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 	async.parallel( roomItems
 		.map( function onEachRoomItem( roomItem ){
 			return function resolveRoomItem( callback ){
+				var roomItemName = shardize( roomItem.item, true );
+
 				RoomItem( )
-					.clone( )
+					.promise( )
 					.once( "error",
 						function onError( error ){
-							this.self.flush( );
+							this.drop( );
 
 							callback( error );
 						} )
 					.once( "result",
 						function onResult( error, hasRoomItem ){
 							if( error ){
-								this.self.flush( );
+								this.drop( );
 
 								callback( error );
 
 							}else if( hasRoomItem ){
-								this.self.flush( );
-
-								callback( );
-
-							}else{
-								this.self.notify( );
-							}
-						} )
-					.has( shardize( roomItem.item, true ), "name" )
-					.self
-					.wait( )
-					.once( "error",
-						function onError( error ){
-							callback( error );
-						} )
-					.once( "result",
-						function onResult( error, hasRoomItem ){
-							if( error ){
-								callback( error );
-
-							}else if( hasRoomItem ){
-								callback( )
+								this.resolve( );
 
 							}else{
 								callback( null, roomItem );
 							}
 						} )
-					.has( roomItem.item, "references" );
+					.has( roomItemName, "name" )
+					.then( function getRoomItem( ){
+						this
+							.once( "error",
+								function onError( error ){
+									this.drop( );
+
+									callback( error );
+								} )
+							.once( "result",
+								function onResult( error, thisRoomItem ){
+									if( error ){
+										this.drop( );
+
+										callback( error );
+
+									}else if( _.isEmpty( thisRoomItem ) ){
+										callback( new Error( "room item cannot be determined for " + roomItemName ) );
+									
+									}else{
+										roomItem.item = thisRoomItem.referenceID
+
+										roomItem.resolved = true
+
+										this.drop( );
+
+										callback( null, roomItem );
+									}
+								} )
+							.pick( "name", roomItemName );
+					} );
 			};
 		} ),
 		( function lastly( error, roomItems ){
@@ -140,18 +168,19 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 				this.result( error );
 
 			}else{
-				async.parallel( _( roomItems )
-					.compact( )
-					.map( function onEachRoomItem( roomItem ){
-						return {
-							"formatted": {
-								"name": roomItem.item		
-							},
-							"self": roomItem
-						};
-					} )
+				async.parallel( roomItems
 					.map( function onEachRoomItem( roomItem ){
 						return function addRoomItems( callback ){
+							if( roomItem.resolved ){
+								callback( null, roomItem );
+								
+								return;
+							}
+
+							var roomItemData = {
+								"name": roomItem.item
+							};
+
 							RoomItem( )
 								.once( "error",
 									function onError( error ){
@@ -163,17 +192,16 @@ RoomItem.prototype.resolveRoomItems = function resolveRoomItems( roomItems ){
 											callback( error );
 
 										}else{
-											roomItem.self.item = thisRoomItem.referenceID;
+											roomItem.item = thisRoomItem.referenceID
 
-											callback( null, roomItem.self );
+											callback( null, roomItem );
 										}
 									} )
-								.createReferenceID( roomItem.formatted )
-								.createRoomItemID( roomItem.formatted )
-								.add( roomItem.formatted );
+								.createReferenceID( roomItemData )
+								.createRoomItemID( roomItemData )
+								.add( roomItemData );
 						};
-					} )
-					.value( ),
+					} ),
 					( function lastly( error, roomItems ){
 						this.result( error, roomItems );
 					} ).bind( this ) );

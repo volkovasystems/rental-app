@@ -30,12 +30,22 @@ var ModelSchema = function ModelSchema( ){
 	this.add( {
 		"name": {
 			"type": String,
-			"index": true
+			"index": true,
+			"default": ""
 		},
-		"title": String,
-		"description": String,
+		"title": {
+			"type": String,
+			"default": ""
+		},
+		"description": {
+			"type": String,
+			"default": ""
+		},
 
-		"tags": [ String ],
+		"tags": {
+			"type": [ String ],
+			"default": [ ]
+		},
 
 		"referenceID": {
 			"type": String,

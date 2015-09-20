@@ -30,9 +30,9 @@ Responsible( ).compose( RoomType );
 
 RoomType.prototype.add = function add( roomType ){
 	var roomTypeData = this.resolveAddData( roomType )
-	( {
-		"roomTypeID": this.roomTypeID
-	} );
+		( {
+			"roomTypeID": this.roomTypeID
+		} );
 
 	Model.prototype.add.call( this, roomTypeData );
 
@@ -92,66 +92,67 @@ RoomType.prototype.resolveRoomType = function resolveRoomType( roomType ){
 				to get all room types not in the database.
 		@end-todo
 	*/
-	this
+	var roomTypeName = shardize( roomType, true );
+
+	RoomType( )
+		.set( "mainSelf", this )
+		.promise( )
 		.clone( )
 		.once( "error",
 			function onError( error ){
-				this.self.flush( ).result( error );
+				this.self.flush( ).drop( ).mainSelf.result( error );
 			} )
 		.once( "result",
 			function onResult( error, hasRoomType ){
 				if( error ){
-					this.self.flush( ).result( error );
+					this.self.flush( ).drop( ).mainSelf.result( error );
 
 				}else if( hasRoomType ){
-					this.self.flush( ).result( );
+					this.self.drop( ).notify( );
 
 				}else{
-					this.self.notify( );
+					this.self.flush( ).resolve( );
 				}
 			} )
-		.has( shardize( roomType ), "name" )
+		.has( roomTypeName, "name" )
 		.self
 		.wait( )
-		.promise( )
 		.once( "error",
 			function onError( error ){
-				this.reject( error );
+				this.drop( ).mainSelf.result( error );
 			} )
 		.once( "result",
-			function onResult( error, hasRoomType ){
+			function onResult( error, roomType ){
 				if( error ){
-					this.reject( error );
-
-				}else if( hasRoomType ){
-					this.drop( ).result( );
+					this.drop( ).mainSelf.result( error );
 
 				}else{
-					this.resolve( );
+					this.drop( ).mainSelf.result( null, roomType.referenceID );
 				}
 			} )
-		.has( roomType, "references" )
+		.pick( "name", roomTypeName )
 		.then( function addRoomType( ){
+			var roomTypeData = {
+				"name": roomTypeName
+			};
+
 			this
 				.once( "error",
 					function onError( error ){
-						this.result( error );
+						this.drop( ).mainSelf.result( error );
 					} )
 				.once( "result",
 					function onResult( error, roomType ){
 						if( error ){
-							this.result( error );
+							this.drop( ).mainSelf.result( error );
 
 						}else{
-							this.result( null, roomType.referenceID );
+							this.drop( ).mainSelf.result( null, roomType.referenceID );
 						}
 					} )
-				.createReferenceID( roomType )
-				.createRoomTypeID( roomType )
-				.add( roomType );
-		} )
-		.hold( function onError( error ){
-			this.result( error )
+				.createReferenceID( roomTypeData )
+				.createRoomTypeID( roomTypeData )
+				.add( roomTypeData );
 		} );
 	
 	return this;

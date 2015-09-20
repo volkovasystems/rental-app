@@ -272,12 +272,12 @@ Model.prototype.resolveAddData = function resolveAddData( data ){
 	return ( function bind( rawData ){
 		rawData = rawData || { };
 		
-		return _.extend( data,
+		return _.extend( rawData,
 			{
-				"name": rawData.name,
-				"title": rawData.title,
-				"description": rawData.description,
-				"tags": rawData.tags,
+				"name": data.name,
+				"title": data.title,
+				"description": data.description,
+				"tags": data.tags,
 
 				"scopes": this.scopes,
 				"searches": this.searches,
@@ -714,6 +714,14 @@ Model.prototype.pick = function pick( property, value ){
 	if( property === "references" ){
 		query = { "references": { "$in": _.flatten( [ value ] ) } };
 
+	}else if( !_.isEmpty( arguments ) &&
+		typeof property == "string" &&
+		property &&
+		typeof value != "undefined" &&
+		value )
+	{
+		query[ property ] = value;
+	
 	}else if( "reference" in this &&
 		_.isEmpty( arguments ) )
 	{
@@ -735,14 +743,6 @@ Model.prototype.pick = function pick( property, value ){
 	{
 		query = { "references": { "$in": this.references } };
 
-	}else if( !_.isEmpty( arguments ) &&
-		typeof property == "string" &&
-		property &&
-		typeof value != "undefined" &&
-		value )
-	{
-		query[ property ] = value;
-	
 	}else{
 		this.result( new Error( "empty query" ) );
 	}
@@ -759,7 +759,7 @@ Model.prototype.pick = function pick( property, value ){
 
 	modelQuery.exec( this.result.bind( this ) );
 
-	this.emit( "sync" );
+	this.emit( "sync", query );
 
 	return this;
 };
@@ -814,7 +814,7 @@ Model.prototype.refer = function refer( reference ){
 		.findOne( query )
 		.exec( this.result.bind( this ) );
 
-	this.emit( "sync" );
+	this.emit( "sync", query );
 
 	return this;
 };
@@ -931,7 +931,6 @@ Model.prototype.exists = function exists( reference, expectedCount ){
 		collection at the least.
 */
 Model.prototype.has = function has( value, property ){
-
 	var query = { };
 	query[ property ] = value;
 
@@ -1196,7 +1195,7 @@ Model.prototype.result = function result( ){
 		var isEmitted = this.emit.apply( this, [ "result" ].concat( parameters ) );
 
 		if( !isEmitted ){
-			this.emit( "error", new Error( "no listener for result" ) );
+			this.emit( "error", new Error( "no listener for result for " + this.namespace ) );
 		}
 
 		return this;
@@ -1215,7 +1214,7 @@ Model.prototype.result = function result( ){
 			var isEmitted = this.emit.apply( this, [ "result" ].concat( parameters ) );
 
 			if( !isEmitted ){
-				this.emit( "error", new Error( "no listener for result" ) );
+				this.emit( "error", new Error( "no listener for result for " + this.namespace ) );
 			}
 		} ).bind( this ) );
 
@@ -1369,7 +1368,7 @@ Model.prototype.recordChange = function recordChange( event, data ){
 				} ).bind( this ) );	
 			
 			}else{
-				this.emit( "error", new Error( "cannot save changes" ) );
+				this.emit( "error", new Error( "cannot save changes for " + this.namespace ) );
 			}
 		}
 	} ).bind( this ) );

@@ -13,56 +13,59 @@ var RenterSchema = new ModelSchema( {
 		"required": true,
 		"index": true
 	},
-
 	"firstName": {
 		"type": String,
 		"required": true,
-		"index": true
+		"index": true,
+		"default": ""
 	},
-	"middleName": String,
+	"middleName": {
+		"type": String,
+		"default": ""
+	},
 	"lastName": {
 		"type": String,
 		"required": true,
-		"index": true
+		"index": true,
+		"default": ""
 	},
-
 	"displayName": {
 		"type": String,
-		"required": true
+		"required": true,
+		"default": ""
 	},
 	"fullName": {
 		"type": String,
-		"required": true
+		"required": true,
+		"default": ""
 	},
-
 	"address": {
 		"type": String,
-		"required": true
+		"required": true,
+		"default": ""
 	},
 	"contactNumber": {
 		"type": String,
 		"unique": true,
 		"required": true,
-		"index": true,
-		"dropDups": true
+		"index": true
 	},
 	"eMail": {
 		"type": String,
 		"unique": true,
 		"required": true,
-		"index": true,
-		"dropDups": true
+		"index": true
 	},
-
 	"idNumber": {
 		"type": String,
 		"required": true,
+		"default": ""
 	},
 	"idType": {
 		"type": String,
-		"required": true
+		"required": true,
+		"default": ""
 	},
-
 	"profilePicture": {
 		"type": String,
 		"ref": "Media"
@@ -71,37 +74,42 @@ var RenterSchema = new ModelSchema( {
 		"type": String,
 		"ref": "Media"
 	},
-
 	"guests": [
 		{
 			"firstName": {
 				"type": String,
-				"required": true
+				"required": true,
+				"default": ""
 			},
-			"middleName": String,
+			"middleName": {
+				"type": String,
+				"default": ""
+			},
 			"lastName": {
 				"type": String,
-				"required": true
+				"required": true,
+				"default": ""
 			},
-
 			"displayName": {
 				"type": String,
-				"required": true
+				"required": true,
+				"default": ""
 			},
 			"fullName": {
 				"type": String,
-				"required": true
+				"required": true,
+				"default": ""
 			},
-
 			"contactNumber": {
 				"type": String,
-				"required": true
+				"required": true,
+				"default": ""
 			}
 		}
 	]
 } );
 
-RenterSchema.pre( "save",
+RenterSchema.pre( "validate",
 	function onSave( next ){
 		this.displayName = this.displayName || 
 			formatDisplayName( this.firstName, this.middleName, this.lastName );
@@ -125,7 +133,7 @@ RenterSchema.pre( "save",
 		next( );
 	} );
 
-RenterSchema.pre( "save", true,
+RenterSchema.pre( "validate", true,
 	function onSave( next, done ){
 		legitMail( this.eMail,
 			function onLegitCheck( error, isLegit ){

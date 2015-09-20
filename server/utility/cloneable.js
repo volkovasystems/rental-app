@@ -9,6 +9,9 @@ var Cloneable = function Cloneable( ){
 
 util.inherits( Cloneable, Composite );
 
+/*:
+	All composite methods will be cloneable.
+*/
 Cloneable.prototype.clone = function clone( name ){
 	if( name in this &&
 	 	this[ name ] )
@@ -69,10 +72,20 @@ Cloneable.prototype.clone = function clone( name ){
 
 	_.each( methods,
 		( function onEachMethod( methodName ){
-			copy[ methodName ] = this[ methodName ].bind( copy );
+			copy[ methodName ] = ( function delegateMethod( ){
+				return this[ methodName ].apply( copy, _.toArray( arguments ) );
+			} ).bind( this );
 		} ).bind( this ) );
 
 	copy.self = this;
+	copy.isClone = true;
+
+	/*:
+		@todo:
+			Determine the clone level.
+		@end-todo
+	*/
+	//copy.cloneLevel
 
 	if( name ){
 		this[ name ] = copy;

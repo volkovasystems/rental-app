@@ -15,23 +15,31 @@ var ChangeSchema = new mongoose.Schema( {
 		"unique": true,
 		"default": shortid.generate
 	},
-
-	//: This will be in UTC format.
 	"timestamp": {
 		"type": Date,
 		"required": true
 	},
-
 	"log": {
-		"namespace": String,
-		"event": String,
-		"description": String
+		"namespace": {
+			"type": String,
+			"default": ""
+		},
+		"event": {
+			"type": String,
+			"default": ""
+		},
+		"description": {
+			"type": String,
+			"default": ""
+		}
 	},
-
-	"change": String
+	"change": {
+		"type": String,
+		"default": ""
+	}
 } );
 
-ChangeSchema.pre( "save", 
+ChangeSchema.pre( "validate", 
 	function onSave( next ){
 		this.timestamp = this.timestamp || new Date( );
 

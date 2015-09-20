@@ -29,6 +29,8 @@ Promising.prototype.getPromise = function getPromise( ){
 };
 
 Promising.prototype.resolve = function resolve( value ){
+	var parameters = _.toArray( arguments );
+
 	if( _.isEmpty( this.deferredPromise ) &&
 		_.isEmpty( this.promiseList ) )
 	{
@@ -42,10 +44,10 @@ Promising.prototype.resolve = function resolve( value ){
 	for( var index = 0; index < promiseList.length; index++ ){
 		promise = promiseList[ index ];
 
-		if( "resolve" in promise &&
-			typeof promise.resolve == "function" )
+		if( "resolvePromise" in promise &&
+			typeof promise.resolvePromise == "function" )
 		{
-			promise.resolve( value );
+			promise.resolvePromise.apply( promise, parameters );
 
 			break;
 		}
@@ -68,10 +70,10 @@ Promising.prototype.reject = function reject( reason ){
 	for( var index = 0; index < promiseList.length; index++ ){
 		promise = promiseList[ index ];
 
-		if( "reject" in promise &&
-			typeof promise.reject == "function" )
+		if( "rejectPromise" in promise &&
+			typeof promise.rejectPromise == "function" )
 		{
-			promise.reject( value );
+			promise.rejectPromise( value );
 
 			break;
 		}
@@ -90,8 +92,10 @@ Promising.prototype.handleRejection = function handleRejection( reason ){
 
 Promising.prototype.promise = function promise( ){
 	this.deferredPromise = new Promise( ( function onResolve( resolve, reject ){
-		this.promise.resolve = resolve;
-		this.promise.reject = reject;
+		process.nextTick( ( function onNextTick( ){
+			this.deferredPromise.resolvePromise = resolve;
+			this.deferredPromise.rejectPromise = reject;
+		} ).bind( this ) );
 	} ).bind( this ) );
 
 	this.deferredPromise.hash = crypto.createHash( "sha512" )

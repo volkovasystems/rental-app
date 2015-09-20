@@ -44,8 +44,12 @@ Rent.prototype.add = function add( rent ){
 		( {
 			"rentID": this.rentID,
 
-			"room": rent.room,
-			"renter": rent.renter,
+			"room": {
+				"reference": rent.room
+			},
+			"renter": {
+				"reference": rent.renter
+			},
 
 			"moveInDate": rent.moveInDate,
 			"moveOutDate": rent.moveOutDate,
@@ -65,8 +69,27 @@ Rent.prototype.add = function add( rent ){
 Rent.prototype.update = function update( rent, reference ){
 	var rentData = this.resolveUpdateData( rent )
 		( {
-			"room": rent.room,
-			"renter": rent.renter,
+			"room": ( function resolveRoom( room ){
+				if( room ){
+					return {
+						"reference": room
+					};
+				
+				}else{
+					return null;
+				}
+			} )( rent.room ),
+
+			"renter": ( function resolveRenter( renter ){
+				if( renter ){
+					return {
+						"reference": renter
+					};
+				
+				}else{
+					return null;
+				}
+			} )( rent.renter ),
 
 			"moveInDate": rent.moveInDate,
 			"moveOutDate": rent.moveOutDate,

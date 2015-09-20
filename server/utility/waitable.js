@@ -9,6 +9,9 @@ var Waitable = function Waitable( ){
 
 util.inherits( Waitable, Composite );
 
+/*:
+	All composite methods will not be waitable.
+*/
 Waitable.prototype.wait = function wait( ){
 	if( this.waiting ){
 		return this;
@@ -110,6 +113,10 @@ Waitable.prototype.notify = function notify( data ){
 	return this.flush( );
 };
 
+/*:
+	Flushing methods means we're going to return these
+		stored methods into their original state.
+*/
 Waitable.prototype.flush = function flush( ){
 	if( "methods" in this ){
 		_.each( this.methods,
@@ -126,5 +133,4 @@ Waitable.prototype.flush = function flush( ){
 };
 
 global.Waitable = Waitable;
-
 exports.module = Waitable;
