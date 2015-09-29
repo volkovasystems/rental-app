@@ -37,20 +37,21 @@ APP.get( "/api/renter/:reference",
 APP.all( "/api/:accessID/renter/all",
 	function onGetAllRenter( request, response, next ){
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, isPopulated ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( isPopulated ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "no renters" );
+						this.response( 404, "failed", "no renters" );
 					}
 				} )
 			.populated( );
@@ -67,17 +68,18 @@ APP.get( "/api/:accessID/renter/all",
 		var size = request.query.size;
 
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, renters ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", renters );
+						this.response( 200, "success", renters );
 					}
 				} )
 			.set( "sort", sort )
@@ -94,17 +96,18 @@ APP.all( "/api/:accessID/renter/add",
 		var renter = request.body;
 
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( existing ){
-						this.reply( response, 200, "failed", "renter already exists" );
+						this.response( 403, "failed", "renter already exists" );
 
 					}else{
 						next( );
@@ -118,17 +121,18 @@ APP.post( "/api/:accessID/renter/add",
 		var renter = request.body;
 
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, renter ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", { "referenceID": renter.referenceID } );
+						this.response( 200, "success", { "referenceID": renter.referenceID } );
 					}
 				} )
 			.createReferenceID( renter )
@@ -141,20 +145,21 @@ APP.all( "/api/:accessID/renter/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( existing ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "renter does not exists" );
+						this.response( 403, "failed", "renter does not exists" );
 					}
 				} )
 			.exists( referenceID );
@@ -164,17 +169,18 @@ APP.get( "/api/:accessID/renter/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, renter ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success", renter );
+						this.response( 200, "success", renter );
 					}
 				} )
 			.pick( "referenceID", referenceID );
@@ -185,20 +191,21 @@ APP.all( "/api/:accessID/renter/update/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( existing ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "renter does not exists" );
+						this.response( 403, "failed", "renter does not exists" );
 					}
 				} )
 			.exists( referenceID );
@@ -210,17 +217,18 @@ APP.put( "/api/:accessID/renter/update/:referenceID",
 		var renter = request.body;
 
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error ){
+				function onResult( error, renter ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success" );
+						this.response( 200, "success", { "referenceID": renter.referenceID } );
 					}
 				} )
 			.update( renter, referenceID );
@@ -231,20 +239,21 @@ APP.all( "/api/:accessID/renter/edit/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( existing ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "renter does not exists" );
+						this.response( 403, "failed", "renter does not exists" );
 					}
 				} )
 			.exists( referenceID );
@@ -259,17 +268,18 @@ APP.put( "/api/:accessID/renter/edit/:referenceID",
 		var value = renter[ property ];
 
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error ){
+				function onResult( error, renter ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else{
-						this.reply( response, 200, "success" );
+						this.response( 200, "success", { "referenceID": renter.referenceID } );
 					}
 				} )
 			.edit( property, value, referenceID );
@@ -280,20 +290,21 @@ APP.all( "/api/:accessID/renter/remove/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		Renter( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( existing ){
 						next( );
 
 					}else{
-						this.reply( response, 403, "failed", "renter does not exists" );
+						this.response( 403, "failed", "renter does not exists" );
 					}
 				} )
 			.exists( referenceID );
@@ -303,15 +314,16 @@ APP.delete( "/api/:accessID/renter/remove/:referenceID",
 		var referenceID = request.params.referenceID;
 
 		Renter( )
+			.setResponse( response )
 			.clone( )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.self.flush( ).response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error ){
 					if( error ){
-						this.self.flush( ).reply( response, 500, "error", error.message );
+						this.self.flush( ).response( 500, "error", error.message );
 
 					}else{
 						this.self.notify( );
@@ -322,18 +334,18 @@ APP.delete( "/api/:accessID/renter/remove/:referenceID",
 			.wait( )
 			.once( "error",
 				function onError( error ){
-					this.reply( response, 500, "error", error.message );
+					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.reply( response, 500, "error", error.message );
+						this.response( 500, "error", error.message );
 
 					}else if( !existing ){
-						this.reply( response, 200, "success" );
+						this.response( 200, "success", true );
 
 					}else{
-						this.reply( response, 200, "failed", "cannot delete renter" );
+						this.response( 403, "failed", "renter was either deleted or not" );
 					}
 				} )
 			.exists( referenceID );

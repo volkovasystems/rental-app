@@ -261,10 +261,10 @@ APP.put( "/api/:accessID/room/item/edit/:referenceID",
 	function onEditRoomItem( request, response ){
 		var referenceID = request.params.referenceID;
 
-		var roomItem = request.body;
+		var roomItem = request.body || { };
 
-		var property = Object.keys( roomItem )[ 0 ];
-		var value = roomItem[ property ];
+		var property = Object.keys( roomItem )[ 0 ] || request.body.property;
+		var value = roomItem[ property ] || request.body.value;
 
 		RoomItem( )
 			.setResponse( response )

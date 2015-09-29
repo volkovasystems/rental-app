@@ -153,8 +153,6 @@ APP.all( "/api/:accessID/room/add",
 			 		}else{
 			 			request.roomItems = roomItems;
 
-			 			console.log( "room items", roomItems );
-
 			 			next( );
 			 		}
 				} )
@@ -178,8 +176,6 @@ APP.all( "/api/:accessID/room/add",
 			 			this.response( 500, "error", error.message );	
 			 		
 			 		}else{
-			 			console.log( "room type", roomType );
-
 			 			request.roomType = roomType;
 
 			 			next( );
@@ -194,8 +190,6 @@ APP.post( "/api/:accessID/room/add",
 		room.roomItems = request.roomItems;
 
 		room.roomType = request.roomType;
-
-		console.log( "room data", JSON.stringify( room, null, "\t" ) );
 
 		Room( )
 			.setResponse( response )
@@ -339,10 +333,10 @@ APP.put( "/api/:accessID/room/edit/:referenceID",
 	function onEditRoom( request, response ){
 		var referenceID = request.params.referenceID;
 
-		var room = request.body;
+		var room = request.body || { };
 
-		var property = Object.keys( room )[ 0 ];
-		var value = room[ property ];
+		var property = Object.keys( room )[ 0 ] || request.body.property;
+		var value = room[ property ] || request.body.value;
 
 		Room( )
 			.setResponse( response )

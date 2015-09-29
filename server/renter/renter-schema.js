@@ -110,7 +110,7 @@ var RenterSchema = new ModelSchema( {
 } );
 
 RenterSchema.pre( "validate",
-	function onSave( next ){
+	function onValidate( next ){
 		this.displayName = this.displayName || 
 			formatDisplayName( this.firstName, this.middleName, this.lastName );
 
@@ -134,7 +134,7 @@ RenterSchema.pre( "validate",
 	} );
 
 RenterSchema.pre( "validate", true,
-	function onSave( next, done ){
+	function onValidate( next, done ){
 		legitMail( this.eMail,
 			function onLegitCheck( error, isLegit ){
 				if( error ){

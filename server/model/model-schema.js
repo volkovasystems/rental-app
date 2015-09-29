@@ -82,7 +82,12 @@ var ModelSchema = function ModelSchema( ){
 
 		"scopes": [ String ],
 		"searches": [ String ],
-		"domains": mongoose.Schema.Types.Mixed
+		"domains": mongoose.Schema.Types.Mixed,
+
+		"versions": {
+			"type": [ String ],
+			"default": [ "0.0.0" ] 
+		}
 	} );
 };
 

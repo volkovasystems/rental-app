@@ -252,7 +252,7 @@ RoomSchema.pre( "validate", true,
 						this.name = [
 								this.buildingNumber,
 								this.roomNumber,
-								this.roomType.name
+								roomType.name
 							].join( "-" ).toLowerCase( );
 
 						done( );

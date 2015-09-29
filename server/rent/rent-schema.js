@@ -2,6 +2,8 @@ var moment = require( "moment" );
 var mongoose = require( "mongoose" );
 var shardize = require( "shardize" );
 
+require( "moment-duration-format" );
+
 require( "../model/model-schema.js" );
 require( "../renter/renter.js" );
 require( "../room/room.js" );
@@ -112,7 +114,7 @@ var RentSchema = new ModelSchema( {
 	},
 	"depositPayment": {
 		"type": Number,
-		"required": true
+		"required": true,
 		"default": 0.0
 	},
 	"roomPrice": {
@@ -194,9 +196,32 @@ var RentSchema = new ModelSchema( {
 	}
 } );
 
+/*:
+	This will prefill the duration data.
+*/
+RentSchema.pre( "validate",
+	function onValidate( next ){
+		//: Remove the time from the date.
+		this.moveInDate = new Date( moment( this.moveInDate ).format( "LL" ) );
+
+		this.moveOutDate = new Date( moment( this.moveOutDate ).format( "LL" ) );
+
+		var range = Math.abs( this.moveOutDate.valueOf( ) - this.moveInDate.valueOf( ) );
+
+		var description = moment.duration( range, "milliseconds" )
+			.format( "M [months], W [weeks], D [days]," );
+
+		this.duration = {
+			"range": range,
+			"description": description
+		};
+
+		next( );
+	} );
+
 //: This will pre-fill other properties for room.
 RentSchema.pre( "validate", true,
-	function onSave( next, done ){
+	function onValidate( next, done ){
 		Room( )
 			.clone( )
 			.once( "error",
@@ -260,7 +285,7 @@ RentSchema.pre( "validate", true,
 
 //: This will pre-fill other properties for renter.
 RentSchema.pre( "validate", true,
-	function onSave( next, done ){
+	function onValidate( next, done ){
 		Renter( )
 			.clone( )
 			.once( "error",
@@ -336,7 +361,7 @@ RentSchema.pre( "validate", true,
 		renter name, room name and the move in date.
 */
 RentSchema.pre( "validate", true,
-	function onSave( next, done ){
+	function onValidate( next, done ){
 		if( this.name ){
 			next( );
 

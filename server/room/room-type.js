@@ -137,17 +137,18 @@ RoomType.prototype.resolveRoomType = function resolveRoomType( roomType ){
 			};
 
 			this
+				.clone( )
 				.once( "error",
 					function onError( error ){
-						this.drop( ).mainSelf.result( error );
+						this.mainSelf.drop( ).result( error );
 					} )
 				.once( "result",
 					function onResult( error, roomType ){
 						if( error ){
-							this.drop( ).mainSelf.result( error );
+							this.mainSelf.drop( ).result( error );
 
 						}else{
-							this.drop( ).mainSelf.result( null, roomType.referenceID );
+							this.mainSelf.drop( ).result( null, roomType.referenceID );
 						}
 					} )
 				.createReferenceID( roomTypeData )

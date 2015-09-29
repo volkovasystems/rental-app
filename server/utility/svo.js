@@ -8,7 +8,7 @@ var svo = function svo( type, action, data ){
 				llamalize( type, true )
 			].join( ":" ),
 			
-			"(@data)".replace( "@data", JSON.stringify( data, null, "\t" ) )
+			"(@data)".replace( "@data", JSON.stringify( data ) )
 		].join( "" )
 	);
 };
