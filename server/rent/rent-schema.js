@@ -1,3 +1,5 @@
+var _ = require( "lodash" );
+var async = require( "async" );
 var moment = require( "moment" );
 var mongoose = require( "mongoose" );
 var shardize = require( "shardize" );
@@ -405,7 +407,7 @@ RentSchema.pre( "validate", true,
 								callback( error );
 
 							}else if( !_.isEmpty( renter ) ){
-								callback( null, renter.name );
+								callback( null, roomName, renter.name );
 							
 							}else{
 								callback( new Error( "cannot extract renter name for rent name" ) );

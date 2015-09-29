@@ -51,8 +51,8 @@ Rent.prototype.add = function add( rent ){
 				"reference": rent.renter
 			},
 
-			"moveInDate": rent.moveInDate,
-			"moveOutDate": rent.moveOutDate,
+			"moveInDate": new Date( rent.moveInDate ),
+			"moveOutDate": new Date( rent.moveOutDate ),
 			
 			"waterMeterValue": rent.waterMeterValue,
 			"electricMeterValue": rent.electricMeterValue,
