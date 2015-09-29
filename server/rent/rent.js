@@ -22,7 +22,9 @@ var Rent = function Rent( ){
 			"electricMeterValue",
 
 			"depositPayment",
-			"roomPrice"
+			"roomPrice",
+
+			"duration"
 		] );
 
 		this.setSearches( [
