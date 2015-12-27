@@ -1,49 +1,33 @@
 var _ = require( "lodash" );
-var Room = require( "../room/room.js" );
 
-APP.get( "/api/invoice/:reference",
-	function onGetInvoice( request, response ){
+APP.get( "/api/room/utility/type/:reference",
+	function onGetRoomUtilityType( request, response ){
 		var reference = request.params.reference;
 
-		Invoice( )
+		RoomUtilityType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, invoiceer ){
+				function onResult( error, roomUtilityType ){
 					if( error ){
 						this.response( 500, "error", error.message );
 
-					}else if( _.isEmpty( invoiceer ) ){
-						this.response( 410, "failed", "invoice does not exists" );
+					}else if( _.isEmpty( roomUtilityType ) ){
+						this.response( 410, "failed", "room utility type does not exists" );
 
 					}else{
-						this.response( 200, "success", invoiceer );
+						this.response( 200, "success", roomUtilityType );
 					}
 				} )
 			.set( "useCustomScope", true )
 			.set( "scope", [
 				"reference",
-				"moveInDate",
-				"duration.description",
-				"roomPrice",
-				
-				"room.buildingNumber",
-				"room.roomNumber",
-				"room.roomSize",
-				"room.name",
-				"room.title",
-				"room.description",
-				"room.tags",
-				
-				"invoiceer.displayName",
-				"invoiceer.guests.displayName",
-				"invoiceer.name",
-				"invoiceer.title",
-				"invoiceer.description",
-
+				"unitSuffix",
+				"unitName",
+				"unitTitle",
 				"name",
 				"title",
 				"description",
@@ -52,15 +36,15 @@ APP.get( "/api/invoice/:reference",
 			.refer( reference );
 	} );
 
-APP.all( "/api/:accessID/invoice/all",
-	function onGetAllInvoice( request, response, next ){
-		Invoice( )
+APP.all( "/api/:accessID/room/utility/type/all",
+	function onGetAllRoomUtilityType( request, response, next ){
+		RoomUtilityType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, isPopulated ){
 					if( error ){
 						this.response( 500, "error", error.message );
@@ -69,13 +53,13 @@ APP.all( "/api/:accessID/invoice/all",
 						next( );
 
 					}else{
-						this.response( 404, "failed", "no invoices" );
+						this.response( 403, "failed", "no room utility types" );
 					}
-				} ) 
+				} )
 			.populated( );
 	} );
-APP.get( "/api/:accessID/invoice/all",
-	function onGetAllInvoice( request, response ){
+APP.get( "/api/:accessID/room/utility/type/all",
+	function onGetAllRoomUtilityType( request, response ){
 		var sort = request.query.sort;
 		var total = request.query.total;
 
@@ -85,19 +69,19 @@ APP.get( "/api/:accessID/invoice/all",
 		var page = request.query.page;
 		var size = request.query.size;
 
-		Invoice( )
+		RoomUtilityType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
-			.once( "result", 
-				function onResult( error, response ){
+			.once( "result",
+				function onResult( error, roomUtilityTypes ){
 					if( error ){
 						this.response( 500, "error", error.message );
 
 					}else{
-						this.response( 200, "success", response );
+						this.response( 200, "success", roomUtilityTypes );
 					}
 				} )
 			.set( "sort", sort )
@@ -109,114 +93,66 @@ APP.get( "/api/:accessID/invoice/all",
 			.all( );
 	} );
 
-APP.all( "/api/:accessID/invoice/add",
-	function onAddInvoice( request, response, next ){
-		var invoice = request.body;
+APP.all( "/api/:accessID/room/utility/type/add",
+	function onAddRoomUtilityType( request, response, next ){
+		var roomUtilityType = request.body;
 
-		Invoice( )
+		RoomUtilityType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
-					this.response( 500, "error", error.message );
+					this.reply( response, 500, "error", error.message );
 				} )
 			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
-						this.response( 500, "error", error.message );
-					
+						this.reply( response, 500, "error", error.message );
+
 					}else if( existing ){
-						this.response( 200, "failed", "invoice already exists" );
-						
+						this.reply( response, 200, "failed", "room utility type already exists" );
+
 					}else{
 						next( );
 					}
 				} )
-			.createReferenceID( invoice )
+			.createReferenceID( roomUtilityType )
 			.exists( );
 	} );
-APP.all( "/api/:accessID/invoice/add",
-	function onAddInvoice( request, response, next ){
-		var invoice = request.body;
+APP.post( "/api/:accessID/room/utility/type/add",
+	function onAddRoomUtilityType( request, response ){
+		var roomUtilityType = request.body;
 
-		Room( )
+		RoomUtilityType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
 			.once( "result",
-				function onResult( error, existing ){
-					if( error ){
-						this.response( 500, "error", error.message );
-
-					}else if( existing ){
-						next( )
-
-					}else{
-						this.response( 403, "failed", "room does not exists" );
-					}
-				} )
-			.exists( invoice.room );
-	} );
-APP.all( "/api/:accessID/invoice/add",
-	function onAddInvoice( request, response, next ){
-		var invoice = request.body;
-
-		Invoiceer( )
-			.setResponse( response )
-			.once( "error",
-				function onError( error ){
-					this.response( 500, "error", error.message );
-				} )
-			.once( "result",
-				function onResult( error, existing ){
-					if( error ){
-						this.response( 500, "error", error.message );
-
-					}else if( existing ){
-						next( )
-
-					}else{
-						this.response( 403, "failed", "invoiceer does not exists" );
-					}
-				} )
-			.exists( invoice.invoiceer );
-	} );
-APP.post( "/api/:accessID/invoice/add",
-	function onAddInvoice( request, response ){
-		var invoice = request.body;
-
-		Invoice( )
-			.setResponse( response )
-			.once( "error",
-				function onError( error ){
-					this.response( 500, "error", error.message );
-				} )
-			.once( "result",
-				function onResult( error, invoice ){
+				function onResult( error, roomUtilityType ){
 					if( error ){
 						this.response( 500, "error", error.message );
 
 					}else{
-						this.response( 200, "success", { "referenceID": invoice.referenceID } );
+						this.response( 200, "success", { "referenceID": roomUtilityType.referenceID } );
 					}
 				} )
-			.createReferenceID( invoice )
-			.createInvoiceID( invoice )
-			.add( invoice );
+			.createReferenceID( roomUtilityType )
+			.createRoomUtilityTypeID( roomUtilityType )
+			.add( roomUtilityType );
 	} );
 
-APP.all( "/api/:accessID/invoice/:referenceID",
-	function onGetInvoice( request, response, next ){
+APP.all( "/api/:accessID/room/utility/type/:referenceID",
+	function onGetRoomUtilityType( request, response, next ){
 		var referenceID = request.params.referenceID;
 
-		Invoice( )
+		RoomUtilityType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
 						this.response( 500, "error", error.message );
@@ -225,44 +161,44 @@ APP.all( "/api/:accessID/invoice/:referenceID",
 						next( );
 
 					}else{
-						this.response( 410, "failed", "invoice does not exists" );
+						this.response( 410, "failed", "room utility type does not exists" );
 					}
-				} ) 
+				} )
 			.exists( );
 	} );
-APP.get( "/api/:accessID/invoice/:referenceID",
-	function onGetInvoice( request, response ){
+APP.get( "/api/:accessID/room/utility/type/:referenceID",
+	function onGetRoomUtilityType( request, response ){
 		var referenceID = request.params.referenceID;
 
-		Invoice( )
+		RoomUtilityType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
-			.once( "result", 
-				function onResult( error, invoice ){
+			.once( "result",
+				function onResult( error, roomUtilityType ){
 					if( error ){
 						this.response( 500, "error", error.message );
 
 					}else{
-						this.response( 200, "success", invoice );
+						this.response( 200, "success", roomUtilityType );
 					}
 				} )
 			.pick( "referenceID", referenceID );
 	} );
 
-APP.all( "/api/:accessID/invoice/update/:referenceID",
-	function onUpdateInvoice( request, response, next ){
+APP.all( "/api/:accessID/room/utility/type/update/:referenceID",
+	function onUpdateRoomUtilityType( request, response, next ){
 		var referenceID = request.params.referenceID;
 
-		Invoice( )
+		RoomUtilityType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
 						this.response( 500, "error", error.message );
@@ -271,45 +207,46 @@ APP.all( "/api/:accessID/invoice/update/:referenceID",
 						next( );
 
 					}else{
-						this.response( 403, "failed", "invoice does not exists" );
+						this.response( 403, "failed", "room utility type does not exists" );
 					}
 				} )
 			.exists( referenceID );
 	} );
-APP.put( "/api/:accessID/invoice/update/:referenceID",
-	function onUpdateInvoice( request, response ){
+APP.put( "/api/:accessID/room/utility/type/update/:referenceID",
+	function onUpdateRoomUtilityType( request, response ){
 		var referenceID = request.params.referenceID;
 
-		var invoice = request.body;
+		var roomUtilityType = request.body;
 
-		Invoice( )
-			.once( "error",
-				function onError( error ){
-					this.response( 500, "error", error.message );
-				} )
-			.once( "result", 
-				function onResult( error ){
-					if( error ){
-						this.response( 500, "error", error.message );
-
-					}else{
-						this.response( 200, "success" );
-					}
-				} )
-			.update( invoice, referenceID );
-	} );
-
-APP.all( "/api/:accessID/invoice/edit/:referenceID",
-	function onEditInvoice( request, response, next ){
-		var referenceID = request.params.referenceID;
-
-		Invoice( )
+		RoomUtilityType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
+				function onResult( error, roomUtilityType ){
+					if( error ){
+						this.response( 500, "error", error.message );
+
+					}else{
+						this.response( 200, "success", { "referenceID": roomUtilityType.referenceID } );
+					}
+				} )
+			.update( roomUtilityType, referenceID );
+	} );
+
+APP.all( "/api/:accessID/room/utility/type/edit/:referenceID",
+	function onEditRoomUtilityType( request, response, next ){
+		var referenceID = request.params.referenceID;
+
+		RoomUtilityType( )
+			.setResponse( response )
+			.once( "error",
+				function onError( error ){
+					this.response( 500, "error", error.message );
+				} )
+			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
 						this.response( 500, "error", error.message );
@@ -318,49 +255,49 @@ APP.all( "/api/:accessID/invoice/edit/:referenceID",
 						next( );
 
 					}else{
-						this.response( 403, "failed", "invoice does not exists" );
+						this.response( 403, "failed", "room utility type does not exists" );
 					}
 				} )
 			.exists( referenceID );
 	} );
-APP.put( "/api/:accessID/invoice/edit/:referenceID",
-	function onEditInvoice( request, response ){
+APP.put( "/api/:accessID/room/utility/type/edit/:referenceID",
+	function onEditRoomUtilityType( request, response ){
 		var referenceID = request.params.referenceID;
 
-		var invoice = request.body || { };
+		var roomUtilityType = request.body;
 
-		var property = Object.keys( invoice )[ 0 ] || request.body.property;
-		var value = invoice[ property ] || request.body.value;
+		var property = Object.keys( roomUtilityType )[ 0 ];
+		var value = roomUtilityType[ property ];
 
-		Invoice( )
+		RoomUtilityType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error ){
 					if( error ){
 						this.response( 500, "error", error.message );
 
 					}else{
-						this.response( 200, "success" );
+						this.response( 200, "success", { "referenceID": roomUtilityType.referenceID } );
 					}
 				} )
 			.edit( property, value, referenceID );
 	} );
 
-APP.all( "/api/:accessID/invoice/remove/:referenceID",
-	function onRemoveInvoice( request, response, next ){
+APP.all( "/api/:accessID/room/utility/type/remove/:referenceID",
+	function onRemoveRoomUtilityType( request, response, next ){
 		var referenceID = request.params.referenceID;
 
-		Invoice( )
+		RoomUtilityType( )
 			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.response( 500, "error", error.message );
 				} )
-			.once( "result", 
+			.once( "result",
 				function onResult( error, existing ){
 					if( error ){
 						this.response( 500, "error", error.message );
@@ -369,18 +306,18 @@ APP.all( "/api/:accessID/invoice/remove/:referenceID",
 						next( );
 
 					}else{
-						this.response( 403, "failed", "invoice does not exists" );
+						this.response( 403, "failed", "room utility type does not exists" );
 					}
 				} )
 			.exists( referenceID );
 	} );
-APP.delete( "/api/:accessID/invoice/remove/:referenceID",
-	function onRemoveInvoice( request, response ){
+APP.delete( "/api/:accessID/room/utility/type/remove/:referenceID",
+	function onRemoveRoomUtilityType( request, response ){
 		var referenceID = request.params.referenceID;
 
-		Invoice( )
-			.setResponse( response )
+		RoomUtilityType( )
 			.clone( )
+			.setResponse( response )
 			.once( "error",
 				function onError( error ){
 					this.self.flush( ).response( 500, "error", error.message );
@@ -396,6 +333,7 @@ APP.delete( "/api/:accessID/invoice/remove/:referenceID",
 				} )
 			.remove( referenceID )
 			.self
+			.setResponse( response )
 			.wait( )
 			.once( "error",
 				function onError( error ){
@@ -410,7 +348,7 @@ APP.delete( "/api/:accessID/invoice/remove/:referenceID",
 						this.response( 200, "success", true );
 
 					}else{
-						this.response( 403, "failed", "invoice was either deleted or not" );
+						this.response( 403, "failed", "room utility type was either deleted or not" );
 					}
 				} )
 			.exists( referenceID );
